@@ -38,6 +38,14 @@ export default function ChildLayout(): React.ReactElement {
           headerShown: false,
         }}
       />
+      <Tabs.Screen
+        name="book/[id]"
+        options={{
+          title: "Book Details",
+          href: null,
+          headerShown: false,
+        }}
+      />
     </Tabs>
   );
 }

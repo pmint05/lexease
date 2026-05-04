@@ -1,7 +1,7 @@
 import { useAuthStore } from "@/src/store/useAuthStore";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
-import { Button, Form, Input, Text, YStack } from "tamagui";
+import { Button, Form, Input, Text, XStack, YStack } from "tamagui";
 
 /**
  * Login Screen
@@ -99,6 +99,16 @@ export default function LoginScreen(): React.ReactElement {
         >
           {loading ? "Logging in..." : "Login"}
         </Button>
+
+        <XStack justifyContent="center">
+          <Text
+            onPress={() => router.push("/(auth)/register")}
+            accessibilityRole="button"
+            accessibilityLabel="Go to registration"
+          >
+            Chưa có tài khoản? Đăng ký
+          </Text>
+        </XStack>
       </Form>
     </YStack>
   );

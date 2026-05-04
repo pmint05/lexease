@@ -1,7 +1,18 @@
-import { useReadingStore } from "@/src/store/useReadingStore";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import React, { useEffect } from "react";
-import { Button, ScrollView, Text, XStack, YStack } from "tamagui";
+import { Volume2 } from "lucide-react-native";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Button, Card, ScrollView, Text, XStack, YStack } from "tamagui";
+
+import { KaraokeTile } from "@/src/components/child/KaraokeTile";
+import { ReadingControls } from "@/src/components/child/ReadingControls";
+import { COLORS } from "@/src/core/constants/colors";
+import { ReadingRate } from "@/src/core/types";
+import { getBookById } from "@/src/data/local/books";
+import { useAudioRecording } from "@/src/hooks/useAudioRecording";
+import { useTextToSpeech } from "@/src/hooks/useTextToSpeech";
+import { useLearningStore } from "@/src/store/useLearningStore";
+import { useReadingStore } from "@/src/store/useReadingStore";
+import { useRecordingStore } from "@/src/store/useRecordingStore";
 
 /**
  * Reading Screen (Full-screen)
@@ -14,105 +25,197 @@ import { Button, ScrollView, Text, XStack, YStack } from "tamagui";
  */
 export default function ReadingScreen(): React.ReactElement {
   const router = useRouter();
-  useLocalSearchParams<{ id: string }>();
-  const { currentIndex, speed, setSpeed, setIsPlaying, isPlaying } =
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const book = useMemo(() => getBookById(id), [id]);
+  const { currentIndex, speed, setSpeed, setIsPlaying, setIndex, reset } =
     useReadingStore();
+  const { addRecording } = useRecordingStore();
+  const { addSession } = useLearningStore();
+  const { isRecording, recordingDuration, startRecording, stopRecording, playbackRecording } =
+    useAudioRecording();
+  const [lastRecordingUri, setLastRecordingUri] = useState<string | null>(null);
+  const sessionStartRef = useRef(0);
+  const sessionLoggedRef = useRef(false);
+  const currentIndexRef = useRef(currentIndex);
+  const speedRef = useRef(speed);
 
-  // Mock book content
-  const mockText = "The quick brown fox jumps over the lazy dog.";
-  const words = mockText.split(" ");
+  const readingText = book?.content ?? "";
+  const readingSpeed: ReadingRate = speed;
+
+  const { isPlaying, words, play, pause } = useTextToSpeech({
+    text: readingText,
+    speed: readingSpeed,
+    onWordBoundary: setIndex,
+  });
+
+  useEffect(() => {
+    currentIndexRef.current = currentIndex;
+  }, [currentIndex]);
+
+  useEffect(() => {
+    speedRef.current = speed;
+  }, [speed]);
+
+  const finalizeSession = useCallback((): void => {
+    if (!book || sessionLoggedRef.current || !sessionStartRef.current) {
+      return;
+    }
+
+    const startedAt = sessionStartRef.current;
+    const completedAt = Date.now();
+    addSession({
+      id: `learn-${completedAt}`,
+      bookId: book.id,
+      bookTitle: book.title,
+      startedAt: new Date(startedAt).toISOString(),
+      completedAt: new Date(completedAt).toISOString(),
+      durationMs: Math.max(1000, completedAt - startedAt),
+      wordsRead: Math.max(1, currentIndexRef.current + 1),
+      speed: speedRef.current,
+    });
+    sessionLoggedRef.current = true;
+    sessionStartRef.current = 0;
+  }, [addSession, book]);
 
   useEffect(() => {
     // Handle hardware back button (Expo Router handles this)
   }, []);
 
+  useEffect(() => {
+    if (!book) {
+      router.replace("/(child)/(tabs)/library");
+    }
+  }, [book, router]);
+
+  useEffect(() => {
+    return () => {
+      finalizeSession();
+    };
+  }, [finalizeSession]);
+
+  const handleRecordPress = async (): Promise<void> => {
+    if (isRecording) {
+      const uri = await stopRecording();
+      if (uri && book) {
+        setLastRecordingUri(uri);
+        addRecording({
+          id: `rec-${Date.now()}`,
+          sessionId: `session-${Date.now()}`,
+          bookId: book.id,
+          bookTitle: book.title,
+          filePath: uri,
+          durationMs: Math.max(1000, recordingDuration * 1000),
+          createdAt: new Date().toISOString(),
+          sizeBytes: 0,
+        });
+      }
+      return;
+    }
+
+    await startRecording();
+  };
+
+  if (!book) {
+    return (
+      <YStack flex={1} justifyContent="center" alignItems="center" padding="$4">
+        <Text color={COLORS.textMuted}>Đang mở sách...</Text>
+      </YStack>
+    );
+  }
+
   return (
-    <YStack flex={1} backgroundColor="$background" padding="$4" gap="$4">
-      {/* Header with close button */}
+    <YStack flex={1} backgroundColor={COLORS.cream} padding="$4" gap="$4">
       <XStack justifyContent="space-between" alignItems="center">
-        <Text
-          fontSize="$6"
-          fontWeight="bold"
-          accessibilityRole="header"
-          accessibilityLabel="Reading Book ID"
-        >
-          📖 Reading
+        <Text fontSize="$6" fontWeight="bold" accessibilityRole="header">
+          📖 {book.title}
         </Text>
-        <Button
-          size="$3"
+        <Text
           onPress={() => router.back()}
           accessible
           accessibilityRole="button"
-          accessibilityLabel="Close reading screen"
+          accessibilityLabel="Quay lại thư viện"
+          padding="$2"
         >
           ✕
-        </Button>
+        </Text>
       </XStack>
 
-      {/* Karaoke Text Display */}
       <ScrollView
         flex={1}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{
-          paddingVertical: 20,
-          justifyContent: "center",
-        }}
       >
-        <XStack flexWrap="wrap" gap="$2" justifyContent="center">
-          {words.map((word, idx) => (
-            <Text
-              key={idx}
-              fontSize="$6"
-              fontWeight={idx === currentIndex ? "bold" : "normal"}
-              color={idx === currentIndex ? "$green" : "$text"}
-              backgroundColor={
-                idx === currentIndex ? "$yellow3" : "transparent"
-              }
-              paddingHorizontal="$2"
-              paddingVertical="$1"
-              borderRadius="$2"
-              accessible
-              accessibilityRole="text"
-              accessibilityLabel={`Word ${idx + 1}: ${word} ${idx === currentIndex ? "highlighted" : ""}`}
-            >
-              {word}
-            </Text>
-          ))}
-        </XStack>
+        <YStack gap="$4" paddingVertical="$4">
+          <Text color={COLORS.textMuted}>
+            {book.author} · {book.difficulty} · ~{book.estimatedMinutes} phút
+          </Text>
+
+          <Card padding="$4" borderWidth={1} borderColor="$color5" backgroundColor="$background">
+            <YStack gap="$2">
+              <Text fontSize="$4" fontWeight="700">
+                Đang đọc theo nhịp
+              </Text>
+              <Text color={COLORS.textMuted}>
+                Từ đang đọc sẽ tự bám theo nhịp giọng đọc; nếu lệch, hãy dừng và đọc lại.
+              </Text>
+              <Text fontSize="$7" fontWeight="700" color={COLORS.blue}>
+                Từ {currentIndex + 1} / {words.length}
+              </Text>
+            </YStack>
+          </Card>
+
+          <XStack flexWrap="wrap" gap="$2" alignItems="center">
+            {words.map((word, idx) => (
+              <KaraokeTile key={`${word}-${idx}`} word={word} isHighlighted={idx === currentIndex} />
+            ))}
+          </XStack>
+        </YStack>
       </ScrollView>
 
-      {/* Controls */}
-      <XStack gap="$2" justifyContent="center" paddingBottom="$4">
-        <Button
-          size="$4"
-          onPress={() => setSpeed(speed === "turtle" ? "hare" : "turtle")}
-          accessible
-          accessibilityRole="button"
-          accessibilityLabel={`Speed control: ${speed}`}
-          accessibilityHint="Toggle between Turtle and Hare speed"
-        >
-          {speed === "turtle" ? "🐢 Slow" : "🐇 Fast"}
-        </Button>
+      <ReadingControls
+        isPlaying={isPlaying}
+        isRecording={isRecording}
+        speed={speed}
+        onPlay={() => {
+          if (!sessionStartRef.current) {
+            sessionStartRef.current = Date.now();
+            sessionLoggedRef.current = false;
+          }
+          play();
+          setIsPlaying(true);
+        }}
+        onPause={() => {
+          pause();
+          setIsPlaying(false);
+        }}
+        onRecord={handleRecordPress}
+        onReset={() => {
+          finalizeSession();
+          reset();
+          pause();
+          setIsPlaying(false);
+          setIndex(0);
+        }}
+        onSpeedSelect={(nextSpeed) => {
+          setSpeed(nextSpeed);
+        }}
+      />
 
-        <Button
-          size="$4"
-          onPress={() => setIsPlaying(!isPlaying)}
-          accessible
-          accessibilityRole="button"
-          accessibilityLabel={isPlaying ? "Pause reading" : "Play reading"}
-        >
-          {isPlaying ? "⏸ Pause" : "▶ Play"}
-        </Button>
-
-        <Button
-          size="$4"
-          accessible
-          accessibilityRole="button"
-          accessibilityLabel="Record your reading"
-        >
-          🎙 Record
-        </Button>
-      </XStack>
+      {lastRecordingUri ? (
+        <XStack justifyContent="center">
+          <Button
+            circular
+            size="$6"
+            backgroundColor={COLORS.orange}
+            icon={<Volume2 color={COLORS.textDark} size={22} />}
+            onPress={async () => {
+              await playbackRecording(lastRecordingUri);
+            }}
+            accessible
+            accessibilityRole="button"
+            accessibilityLabel="Nghe bản ghi mới nhất"
+          />
+        </XStack>
+      ) : null}
     </YStack>
   );
 }

@@ -1,5 +1,13 @@
-import React from "react";
-import { Button, Card, ScrollView, Text, XStack, YStack } from "tamagui";
+import { useRouter } from "expo-router";
+import React, { useMemo } from "react";
+import { Alert, FlatList } from "react-native";
+import { Text, XStack, YStack } from "tamagui";
+
+import { RecordingTile } from "@/src/components/child/RecordingTile";
+import { COLORS } from "@/src/core/constants/colors";
+import { Recording } from "@/src/core/types";
+import { useAudioRecording } from "@/src/hooks/useAudioRecording";
+import { useRecordingStore } from "@/src/store/useRecordingStore";
 
 /**
  * History Screen
@@ -8,70 +16,70 @@ import { Button, Card, ScrollView, Text, XStack, YStack } from "tamagui";
  * - Audio Vault: Saved voice recordings
  */
 export default function HistoryScreen(): React.ReactElement {
-  // Mock history data (TODO: Replace with useHistoryQuery hook)
-  const mockHistory = [
-    {
-      id: "rec-1",
-      bookTitle: "The Quick Fox",
-      date: "2026-04-28",
-      duration: "5:30",
-      type: "recording",
-    },
-    {
-      id: "rec-2",
-      bookTitle: "Adventure Awaits",
-      date: "2026-04-27",
-      duration: "8:15",
-      type: "reading",
-    },
-  ];
+  const router = useRouter();
+  const { recordings, removeRecording } = useRecordingStore();
+  const { playbackRecording } = useAudioRecording();
+
+  const sortedRecordings = useMemo<Recording[]>(() => {
+    return [...recordings].sort(
+      (left, right) =>
+        new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime(),
+    );
+  }, [recordings]);
+
+  const handleDelete = (recordingId: string): void => {
+    Alert.alert("Xóa bản ghi", "Bạn muốn xóa bản ghi này chứ?", [
+      { text: "Hủy", style: "cancel" },
+      { text: "Xóa", style: "destructive", onPress: () => removeRecording(recordingId) },
+    ]);
+  };
 
   return (
-    <YStack flex={1} backgroundColor="$background" padding="$4" gap="$4">
-      <Text
-        fontSize="$7"
-        fontWeight="bold"
-        accessibilityRole="header"
-        accessibilityLabel="Reading History"
-      >
-        🎙️ My Recordings
-      </Text>
+    <YStack flex={1} backgroundColor={COLORS.cream} padding="$4" gap="$4">
+      <XStack justifyContent="space-between" alignItems="center">
+        <Text
+          fontSize="$7"
+          fontWeight="bold"
+          accessibilityRole="header"
+          accessibilityLabel="Reading History"
+        >
+          🎙️ Kho ghi âm
+        </Text>
+        <Text
+          onPress={() => router.replace("/(auth)/role-selection")}
+          padding="$2"
+          color={COLORS.blue}
+          fontWeight="700"
+          accessible
+          accessibilityRole="button"
+          accessibilityLabel="Quay lại chọn vai trò"
+        >
+          Đổi vai trò
+        </Text>
+      </XStack>
 
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <YStack gap="$3">
-          {mockHistory.map((item) => (
-            <Card
-              key={item.id}
-              padding="$4"
-              accessible
-              accessibilityRole="button"
-              accessibilityLabel={`${item.bookTitle} - ${item.date}`}
-            >
-              <YStack gap="$2">
-                <Text fontSize="$5" fontWeight="bold">
-                  {item.bookTitle}
-                </Text>
-                <XStack justifyContent="space-between">
-                  <Text fontSize="$3" color="$gray">
-                    {item.date}
-                  </Text>
-                  <Text fontSize="$3" color="$blue">
-                    {item.duration}
-                  </Text>
-                </XStack>
-                <Button
-                  size="$3"
-                  accessible
-                  accessibilityRole="button"
-                  accessibilityLabel={`Play ${item.bookTitle}`}
-                >
-                  ▶ Play
-                </Button>
-              </YStack>
-            </Card>
-          ))}
-        </YStack>
-      </ScrollView>
+      <FlatList
+        data={sortedRecordings}
+        keyExtractor={(item) => item.id}
+        ItemSeparatorComponent={() => <YStack height="$3" />}
+        renderItem={({ item }) => (
+          <RecordingTile
+            recording={item}
+            onPlay={async (recording) => {
+              await playbackRecording(recording.filePath);
+            }}
+            onDelete={handleDelete}
+          />
+        )}
+        ListEmptyComponent={
+          <YStack paddingVertical="$8" alignItems="center">
+            <Text color={COLORS.textMuted}>
+              Chưa có ghi âm nào. Hãy bắt đầu đọc sách!
+            </Text>
+          </YStack>
+        }
+        showsVerticalScrollIndicator={false}
+      />
     </YStack>
   );
 }

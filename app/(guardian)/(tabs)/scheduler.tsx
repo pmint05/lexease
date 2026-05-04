@@ -1,3 +1,4 @@
+import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
     Button,
@@ -19,6 +20,7 @@ import {
  * - Track adherence
  */
 export default function SchedulerScreen(): React.ReactElement {
+  const router = useRouter();
   const [schedule, setSchedule] = useState({
     monday: true,
     tuesday: true,
@@ -43,14 +45,27 @@ export default function SchedulerScreen(): React.ReactElement {
 
   return (
     <YStack flex={1} backgroundColor="$background" padding="$4" gap="$4">
-      <Text
-        fontSize="$7"
-        fontWeight="bold"
-        accessibilityRole="header"
-        accessibilityLabel="Practice Scheduler"
-      >
-        📅 Practice Scheduler
-      </Text>
+      <XStack justifyContent="space-between" alignItems="center">
+        <Text
+          fontSize="$7"
+          fontWeight="bold"
+          accessibilityRole="header"
+          accessibilityLabel="Practice Scheduler"
+        >
+          📅 Practice Scheduler
+        </Text>
+        <Text
+          onPress={() => router.replace("/(auth)/role-selection")}
+          padding="$2"
+          color="$blue10"
+          fontWeight="700"
+          accessible
+          accessibilityRole="button"
+          accessibilityLabel="Quay lại chọn vai trò"
+        >
+          Đổi vai trò
+        </Text>
+      </XStack>
 
       <ScrollView showsVerticalScrollIndicator={false}>
         <YStack gap="$4">

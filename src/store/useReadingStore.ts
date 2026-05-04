@@ -4,13 +4,13 @@ import { create } from "zustand";
  * Reading Store
  * Manages global reading session state
  * - Current word/phrase index (for Karaoke highlighting)
- * - Playback speed (Turtle/Hare)
+ * - Playback speed (0.5x - 1.5x)
  * - Playback state (playing/paused)
  * - Audio position
  * Non-persisted (ephemeral, session-only state)
  */
 
-export type Speed = "turtle" | "hare";
+export type Speed = 0.5 | 0.75 | 1 | 1.25 | 1.5;
 
 export interface AudioState {
   position: number; // milliseconds
@@ -40,7 +40,7 @@ const initialAudioState: AudioState = {
 export const useReadingStore = create<ReadingStoreState>((set) => ({
   // Initial state
   currentIndex: 0,
-  speed: "hare",
+  speed: 1,
   isPlaying: false,
   audioState: initialAudioState,
 
@@ -58,7 +58,7 @@ export const useReadingStore = create<ReadingStoreState>((set) => ({
   reset: () =>
     set({
       currentIndex: 0,
-      speed: "hare",
+      speed: 1,
       isPlaying: false,
       audioState: initialAudioState,
     }),

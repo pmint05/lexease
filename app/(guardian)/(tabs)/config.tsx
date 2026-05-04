@@ -1,4 +1,5 @@
 import { useConfigStore } from "@/src/store/useConfigStore";
+import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
     Button,
@@ -22,6 +23,7 @@ import {
  * - Settings persist to device
  */
 export default function ConfigScreen(): React.ReactElement {
+  const router = useRouter();
   const {
     fontSize,
     backgroundColor,
@@ -50,14 +52,27 @@ export default function ConfigScreen(): React.ReactElement {
 
   return (
     <YStack flex={1} backgroundColor="$background" padding="$4" gap="$4">
-      <Text
-        fontSize="$7"
-        fontWeight="bold"
-        accessibilityRole="header"
-        accessibilityLabel="Visual Customizer"
-      >
-        🎨 Visual Customizer
-      </Text>
+      <XStack justifyContent="space-between" alignItems="center">
+        <Text
+          fontSize="$7"
+          fontWeight="bold"
+          accessibilityRole="header"
+          accessibilityLabel="Visual Customizer"
+        >
+          🎨 Visual Customizer
+        </Text>
+        <Text
+          onPress={() => router.replace("/(auth)/role-selection")}
+          padding="$2"
+          color="$blue10"
+          fontWeight="700"
+          accessible
+          accessibilityRole="button"
+          accessibilityLabel="Quay lại chọn vai trò"
+        >
+          Đổi vai trò
+        </Text>
+      </XStack>
 
       <ScrollView showsVerticalScrollIndicator={false}>
         <YStack gap="$4">

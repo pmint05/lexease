@@ -25,6 +25,12 @@ export default function AuthLayout(): React.ReactElement {
           title: "Select Role",
         }}
       />
+      <Stack.Screen
+        name="register"
+        options={{
+          title: "Register",
+        }}
+      />
     </Stack>
   );
 }
