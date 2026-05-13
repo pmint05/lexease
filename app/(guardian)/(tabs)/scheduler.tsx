@@ -1,3 +1,4 @@
+import { useAuthStore } from "@/src/store/useAuthStore";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
@@ -21,6 +22,7 @@ import {
  */
 export default function SchedulerScreen(): React.ReactElement {
   const router = useRouter();
+  const { logout } = useAuthStore();
   const [schedule, setSchedule] = useState({
     monday: true,
     tuesday: true,
@@ -55,15 +57,19 @@ export default function SchedulerScreen(): React.ReactElement {
           📅 Practice Scheduler
         </Text>
         <Text
-          onPress={() => router.replace("/(auth)/role-selection")}
+          onPress={async () => {
+            logout();
+            await new Promise((resolve) => setTimeout(resolve, 100));
+            router.replace("/(auth)/login");
+          }}
           padding="$2"
           color="$blue10"
           fontWeight="700"
           accessible
           accessibilityRole="button"
-          accessibilityLabel="Quay lại chọn vai trò"
+          accessibilityLabel="Đăng xuất"
         >
-          Đổi vai trò
+          Đăng xuất
         </Text>
       </XStack>
 

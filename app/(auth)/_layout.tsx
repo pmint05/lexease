@@ -20,12 +20,6 @@ export default function AuthLayout(): React.ReactElement {
         }}
       />
       <Stack.Screen
-        name="role-selection"
-        options={{
-          title: "Select Role",
-        }}
-      />
-      <Stack.Screen
         name="register"
         options={{
           title: "Register",

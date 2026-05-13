@@ -6,19 +6,50 @@ import { RecordingTile } from "@/src/components/child/RecordingTile";
 import { COLORS } from "@/src/core/constants/colors";
 import { getBookById } from "@/src/data/local/books";
 import { useAudioRecording } from "@/src/hooks/useAudioRecording";
+import { useAuthStore } from "@/src/store/useAuthStore";
+import { useFamilyStore } from "@/src/store/useFamilyStore";
 import { useLearningStore } from "@/src/store/useLearningStore";
 import { useRecordingStore } from "@/src/store/useRecordingStore";
 
 export default function GuardianBookDetailScreen(): React.ReactElement {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
+  const { user } = useAuthStore();
+  const guardianId = user?.id ?? "";
   const { sessions } = useLearningStore();
   const { recordings, removeRecording } = useRecordingStore();
   const { playbackRecording } = useAudioRecording();
+  const children = useFamilyStore((state) =>
+    guardianId ? state.getChildrenForGuardian(guardianId) : [],
+  );
+  const selectedChildId = useFamilyStore((state) =>
+    guardianId ? state.getSelectedChildId(guardianId) : null,
+  );
+
+  const selectedChild = useMemo(
+    () => children.find((child) => child.childId === selectedChildId) ?? null,
+    [children, selectedChildId],
+  );
 
   const book = useMemo(() => getBookById(id), [id]);
-  const bookSessions = useMemo(() => sessions.filter((session) => session.bookId === id), [id, sessions]);
-  const bookRecordings = useMemo(() => recordings.filter((recording) => recording.bookId === id), [id, recordings]);
+  const bookSessions = useMemo(
+    () =>
+      sessions.filter(
+        (session) =>
+          session.bookId === id &&
+          (!selectedChildId || session.childId === selectedChildId),
+      ),
+    [id, selectedChildId, sessions],
+  );
+  const bookRecordings = useMemo(
+    () =>
+      recordings.filter(
+        (recording) =>
+          recording.bookId === id &&
+          (!selectedChildId || recording.childId === selectedChildId),
+      ),
+    [id, recordings, selectedChildId],
+  );
 
   if (!book) {
     return (
@@ -41,6 +72,9 @@ export default function GuardianBookDetailScreen(): React.ReactElement {
         <YStack gap="$2">
           <Text fontSize="$6" fontWeight="700">{book.title}</Text>
           <Text color="$color10">{book.author}</Text>
+          <Text color="$color10">
+            Bé đang xem: {selectedChild?.childName ?? "Chưa chọn bé"}
+          </Text>
           <Text color="$color10">{bookSessions.length} lần học · {bookRecordings.length} bản ghi</Text>
         </YStack>
       </Card>

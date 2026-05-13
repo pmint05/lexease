@@ -10,6 +10,8 @@ import { ReadingRate } from "@/src/core/types";
 import { getBookById } from "@/src/data/local/books";
 import { useAudioRecording } from "@/src/hooks/useAudioRecording";
 import { useTextToSpeech } from "@/src/hooks/useTextToSpeech";
+import { useAuthStore } from "@/src/store/useAuthStore";
+import { useConfigStore } from "@/src/store/useConfigStore";
 import { useLearningStore } from "@/src/store/useLearningStore";
 import { useReadingStore } from "@/src/store/useReadingStore";
 import { useRecordingStore } from "@/src/store/useRecordingStore";
@@ -29,8 +31,10 @@ export default function ReadingScreen(): React.ReactElement {
   const book = useMemo(() => getBookById(id), [id]);
   const { currentIndex, speed, setSpeed, setIsPlaying, setIndex, reset } =
     useReadingStore();
+  const { user } = useAuthStore();
   const { addRecording } = useRecordingStore();
   const { addSession } = useLearningStore();
+  const { backgroundColor } = useConfigStore();
   const { isRecording, recordingDuration, startRecording, stopRecording, playbackRecording } =
     useAudioRecording();
   const [lastRecordingUri, setLastRecordingUri] = useState<string | null>(null);
@@ -65,6 +69,7 @@ export default function ReadingScreen(): React.ReactElement {
     const completedAt = Date.now();
     addSession({
       id: `learn-${completedAt}`,
+      childId: user?.id ?? "unknown-child",
       bookId: book.id,
       bookTitle: book.title,
       startedAt: new Date(startedAt).toISOString(),
@@ -75,7 +80,7 @@ export default function ReadingScreen(): React.ReactElement {
     });
     sessionLoggedRef.current = true;
     sessionStartRef.current = 0;
-  }, [addSession, book]);
+  }, [addSession, book, user?.id]);
 
   useEffect(() => {
     // Handle hardware back button (Expo Router handles this)
@@ -101,6 +106,7 @@ export default function ReadingScreen(): React.ReactElement {
         addRecording({
           id: `rec-${Date.now()}`,
           sessionId: `session-${Date.now()}`,
+          childId: user?.id ?? "unknown-child",
           bookId: book.id,
           bookTitle: book.title,
           filePath: uri,
@@ -124,7 +130,7 @@ export default function ReadingScreen(): React.ReactElement {
   }
 
   return (
-    <YStack flex={1} backgroundColor={COLORS.cream} padding="$4" gap="$4">
+    <YStack flex={1} backgroundColor={backgroundColor} padding="$4" gap="$4">
       <XStack justifyContent="space-between" alignItems="center">
         <Text fontSize="$6" fontWeight="bold" accessibilityRole="header">
           📖 {book.title}

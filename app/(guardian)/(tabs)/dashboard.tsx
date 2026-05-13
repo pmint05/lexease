@@ -1,7 +1,11 @@
 import { useRouter } from "expo-router";
 import { ChevronRight, Target, TrendingUp, Zap } from "lucide-react-native";
 import React, { useMemo } from "react";
-import { Card, ScrollView, Text, XStack, YStack } from "tamagui";
+import { Button, Card, Input, ScrollView, Slider, Text, XStack, YStack } from "tamagui";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useFamilyStore } from "@/src/store/useFamilyStore";
+import { useConfigStore } from "@/src/store/useConfigStore";
+import { useAuthStore } from "@/src/store/useAuthStore";
 
 import { RecordingTile } from "@/src/components/child/RecordingTile";
 import { COLORS } from "@/src/core/constants/colors";
@@ -21,9 +25,20 @@ import { useRecordingStore } from "@/src/store/useRecordingStore";
  */
 export default function DashboardScreen(): React.ReactElement {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const { user, logout } = useAuthStore();
   const { sessions } = useLearningStore();
   const { recordings, removeRecording } = useRecordingStore();
   const { playbackRecording } = useAudioRecording();
+  const { fontSize: globalFontSize, backgroundColor: globalBg, letterSpacing: globalLetter, lineSpacing: globalLine } = useConfigStore();
+  const guardianId = user?.id ?? "guardian-1"; // derive from logged-in user when available
+  const children = useFamilyStore((s) => s.getChildrenForGuardian(guardianId));
+  const selectedChildId = useFamilyStore((s) => s.getSelectedChildId(guardianId));
+  const setSelectedChild = useFamilyStore((s) => s.setSelectedChild);
+  const updateChildName = useFamilyStore((s) => s.updateChildName);
+  const setChildDisplaySettings = useFamilyStore((s) => s.setChildDisplaySettings);
+  const getDocumentsForChild = useFamilyStore((s) => s.getDocumentsForChild);
+  const documents = selectedChildId ? getDocumentsForChild(guardianId, selectedChildId) : [];
 
   const summary = useMemo(() => {
     const totalDurationMs = sessions.reduce((sum, session) => sum + session.durationMs, 0);
@@ -207,7 +222,7 @@ export default function DashboardScreen(): React.ReactElement {
   }, [sessions, statistics, summary]);
 
   return (
-    <YStack flex={1} backgroundColor={COLORS.cream} padding="$4" gap="$4">
+    <YStack flex={1} backgroundColor={COLORS.cream} padding="$4" gap="$4" paddingTop={insets.top} paddingBottom={insets.bottom}>
       <XStack justifyContent="space-between" alignItems="center">
         <Text
           fontSize="$7"
@@ -217,17 +232,7 @@ export default function DashboardScreen(): React.ReactElement {
         >
           📊 Guardian Dashboard
         </Text>
-        <Text
-          onPress={() => router.replace("/(auth)/role-selection")}
-          padding="$2"
-          color={COLORS.blue}
-          fontWeight="700"
-          accessible
-          accessibilityRole="button"
-          accessibilityLabel="Quay lại chọn vai trò"
-        >
-          Đổi vai trò
-        </Text>
+        
       </XStack>
 
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -336,30 +341,18 @@ export default function DashboardScreen(): React.ReactElement {
           <Card padding="$4" borderWidth={1} borderColor="$color5">
             <YStack gap="$3">
               <XStack justifyContent="space-between" alignItems="center">
-                <Text fontSize="$5" fontWeight="700">
-                  � Lời khuyên cho phụ huynh
-                </Text>
+                <Text fontSize="$5" fontWeight="700">Lời khuyên cho phụ huynh</Text>
               </XStack>
 
               <YStack gap="$2">
                 {insights.map((insight, idx) => (
-                  <Card
-                    key={idx}
-                    padding="$3"
-                    borderWidth={1}
-                    borderColor="$color4"
-                    backgroundColor="$color2"
-                  >
+                  <Card key={idx} padding="$3" borderWidth={1} borderColor="$color4" backgroundColor="$color2">
                     <YStack gap="$2">
                       <XStack alignItems="center" gap="$2">
                         <Text fontSize="$6">{insight.emoji}</Text>
-                        <Text fontSize="$4" fontWeight="700" color={COLORS.textDark}>
-                          {insight.title}
-                        </Text>
+                        <Text fontSize="$4" fontWeight="700" color={COLORS.textDark}>{insight.title}</Text>
                       </XStack>
-                      <Text fontSize="$3" color={COLORS.textMuted} lineHeight={20}>
-                        {insight.text}
-                      </Text>
+                      <Text fontSize="$3" color={COLORS.textMuted} lineHeight={20}>{insight.text}</Text>
                     </YStack>
                   </Card>
                 ))}
@@ -370,7 +363,7 @@ export default function DashboardScreen(): React.ReactElement {
           <Card padding="$4" borderWidth={1} borderColor="$color5">
             <YStack gap="$3">
               <Text fontSize="$5" fontWeight="700">
-                📈 Thống kê chi tiết
+                Thống kê chi tiết
               </Text>
 
               <YStack gap="$3">
@@ -433,6 +426,59 @@ export default function DashboardScreen(): React.ReactElement {
                   </XStack>
                 </YStack>
               </YStack>
+            </YStack>
+          </Card>
+
+          {/* Child management quick-edit (inline, live preview) */}
+          <Card padding="$4" borderWidth={1} borderColor="$color5">
+            <YStack gap="$3">
+              <Text fontSize="$5" fontWeight="700">Quản lý bé (nhanh)</Text>
+              {children.length === 0 ? (
+                <Text color={COLORS.textMuted}>Chưa có bé nào.</Text>
+              ) : (
+                <YStack gap="$2">
+                  <XStack gap="$2">
+                    {children.map((c) => (
+                      <Button key={c.id} size="$3" onPress={() => setSelectedChild(guardianId, c.childId)}
+                        backgroundColor={selectedChildId === c.childId ? COLORS.blue : "$background"}
+                        color={selectedChildId === c.childId ? "white" : COLORS.textDark}
+                      >
+                        {c.childName}
+                      </Button>
+                    ))}
+                  </XStack>
+
+                  {selectedChildId && (
+                    <YStack gap="$2">
+                      <Text fontSize="$3" color={COLORS.textMuted}>Chỉnh sửa tên bé</Text>
+                      <Input value={children.find((x)=>x.childId===selectedChildId)?.childName ?? ""}
+                        onChangeText={(t)=> updateChildName(guardianId, selectedChildId, t)}
+                      />
+
+                      <Text fontSize="$3" color={COLORS.textMuted}>Font size</Text>
+                      <Slider min={12} max={32} value={[children.find((x)=>x.childId===selectedChildId)?.displaySettings?.fontSize ?? globalFontSize]}
+                        onValueChange={(v)=> setChildDisplaySettings(guardianId, selectedChildId, { fontSize: v[0] })}
+                      />
+
+                      <Text fontSize="$3" color={COLORS.textMuted}>Màu nền</Text>
+                      <XStack gap="$2">
+                        {["#FFF8F0","#F0F8FF","#F5F5F5"].map((col)=> (
+                          <Button key={col} width={40} height={40} backgroundColor={col}
+                            onPress={()=> setChildDisplaySettings(guardianId, selectedChildId, { backgroundColor: col })}
+                          />
+                        ))}
+                      </XStack>
+
+                      <Text fontSize="$3" color={COLORS.textMuted}>Xem trước</Text>
+                      <Card padding="$3" backgroundColor={children.find((x)=>x.childId===selectedChildId)?.displaySettings?.backgroundColor ?? globalBg}>
+                        <Text fontSize={(children.find((x)=>x.childId===selectedChildId)?.displaySettings?.fontSize ?? globalFontSize)}>
+                          {children.find((x)=>x.childId===selectedChildId)?.childName}
+                        </Text>
+                      </Card>
+                    </YStack>
+                  )}
+                </YStack>
+              )}
             </YStack>
           </Card>
 
@@ -647,6 +693,23 @@ export default function DashboardScreen(): React.ReactElement {
           )}
         </YStack>
       </ScrollView>
+
+      {/* Bottom child selector & logout */}
+      <XStack justifyContent="space-between" alignItems="center" padding="$3" borderTopWidth={1} borderTopColor="$color4" backgroundColor="$background">
+        <XStack gap="$2">
+          {children.map((c) => (
+            <Button key={c.id} size="$3" onPress={() => setSelectedChild(guardianId, c.childId)}
+              backgroundColor={selectedChildId === c.childId ? COLORS.blue : "$background"}
+              color={selectedChildId === c.childId ? "white" : COLORS.textDark}
+            >
+              {c.childName}
+            </Button>
+          ))}
+        </XStack>
+        <Button theme="red" size="$3" onPress={async () => { logout(); await new Promise((r)=>setTimeout(r,100)); router.replace("/(auth)/login"); }}>
+          Đăng xuất
+        </Button>
+      </XStack>
     </YStack>
   );
 }

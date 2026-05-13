@@ -2,6 +2,7 @@ import { ReadingRate } from "./reading";
 
 export interface LearningSession {
   id: string;
+  childId: string;
   bookId: string;
   bookTitle: string;
   startedAt: string;

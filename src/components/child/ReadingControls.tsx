@@ -63,7 +63,7 @@ export const ReadingControls = ({
           accessibilityRole="button"
           accessibilityLabel={isRecording ? "Đang ghi âm" : "Bắt đầu ghi âm"}
         >
-          {isRecording ? "Ghi" : "Thu"}
+          {isRecording ? "Dừng" : "Ghi"}
         </Button>
 
       </XStack>

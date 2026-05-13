@@ -12,18 +12,21 @@ import { Text, YStack } from "tamagui";
  */
 export default function IndexScreen(): React.ReactElement {
   const router = useRouter();
-  const { token, role } = useAuthStore();
+  const { token, role, user } = useAuthStore();
+  const effectiveRole = role ?? user?.role ?? null;
 
   useEffect(() => {
     // Redirect based on auth state
     if (!token) {
       router.replace("/(auth)/login");
-    } else if (role === "child") {
+    } else if (effectiveRole === "child") {
       router.replace("/(child)/(tabs)/library");
-    } else if (role === "guardian") {
+    } else if (effectiveRole === "guardian") {
       router.replace("/(guardian)/(tabs)/dashboard");
+    } else {
+      router.replace("/(auth)/login");
     }
-  }, [token, role, router]);
+  }, [token, effectiveRole, router]);
 
   // Show minimal UI while redirecting
   return (

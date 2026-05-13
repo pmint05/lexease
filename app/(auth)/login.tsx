@@ -6,11 +6,11 @@ import { Button, Form, Input, Text, XStack, YStack } from "tamagui";
 /**
  * Login Screen
  * Email/password authentication
- * Routes to role-selection on success
+ * Routes directly to the user's fixed role area on success
  */
 export default function LoginScreen(): React.ReactElement {
   const router = useRouter();
-  const { setToken, setUser } = useAuthStore();
+  const { login } = useAuthStore();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -24,17 +24,18 @@ export default function LoginScreen(): React.ReactElement {
 
     setLoading(true);
     try {
-      // TODO: Replace with actual API call
-      // For now, mock login success
-      setToken("mock-token-" + Date.now());
-      setUser({
-        id: "user-1",
-        email,
-        name: "Test User",
-      });
+      const result = login({ email, password });
 
-      // Navigate to role selection
-      router.push("/(auth)/role-selection");
+      if (!result.success || !result.user) {
+        setError(result.error ?? "Đăng nhập thất bại");
+        return;
+      }
+
+      if (result.user.role === "child") {
+        router.replace("/(child)/(tabs)/library");
+      } else {
+        router.replace("/(guardian)/(tabs)/dashboard");
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed");
     } finally {

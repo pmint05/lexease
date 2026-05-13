@@ -7,6 +7,7 @@ import { RecordingTile } from "@/src/components/child/RecordingTile";
 import { COLORS } from "@/src/core/constants/colors";
 import { Recording } from "@/src/core/types";
 import { useAudioRecording } from "@/src/hooks/useAudioRecording";
+import { useAuthStore } from "@/src/store/useAuthStore";
 import { useRecordingStore } from "@/src/store/useRecordingStore";
 
 /**
@@ -17,15 +18,18 @@ import { useRecordingStore } from "@/src/store/useRecordingStore";
  */
 export default function HistoryScreen(): React.ReactElement {
   const router = useRouter();
+  const { user, logout } = useAuthStore();
   const { recordings, removeRecording } = useRecordingStore();
   const { playbackRecording } = useAudioRecording();
 
   const sortedRecordings = useMemo<Recording[]>(() => {
-    return [...recordings].sort(
+    return recordings
+      .filter((recording) => recording.childId === user?.id)
+      .sort(
       (left, right) =>
         new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime(),
     );
-  }, [recordings]);
+  }, [recordings, user?.id]);
 
   const handleDelete = (recordingId: string): void => {
     Alert.alert("Xóa bản ghi", "Bạn muốn xóa bản ghi này chứ?", [
@@ -46,15 +50,19 @@ export default function HistoryScreen(): React.ReactElement {
           🎙️ Kho ghi âm
         </Text>
         <Text
-          onPress={() => router.replace("/(auth)/role-selection")}
+          onPress={async () => {
+            logout();
+            await new Promise((resolve) => setTimeout(resolve, 100));
+            router.replace("/(auth)/login");
+          }}
           padding="$2"
           color={COLORS.blue}
           fontWeight="700"
           accessible
           accessibilityRole="button"
-          accessibilityLabel="Quay lại chọn vai trò"
+          accessibilityLabel="Đăng xuất"
         >
-          Đổi vai trò
+          Đăng xuất
         </Text>
       </XStack>
 

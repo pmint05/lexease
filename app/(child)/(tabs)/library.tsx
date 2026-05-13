@@ -7,6 +7,7 @@ import { BookTile } from "@/src/components/child/BookTile";
 import { COLORS } from "@/src/core/constants/colors";
 import { BookDifficulty } from "@/src/core/types";
 import { sampleBooks } from "@/src/data/local/books";
+import { useAuthStore } from "@/src/store/useAuthStore";
 
 /**
  * Library Screen
@@ -17,6 +18,7 @@ import { sampleBooks } from "@/src/data/local/books";
  */
 export default function LibraryScreen(): React.ReactElement {
   const router = useRouter();
+  const { logout } = useAuthStore();
   const [search, setSearch] = useState("");
   const [difficulty, setDifficulty] = useState<BookDifficulty | "all">("all");
 
@@ -57,15 +59,19 @@ export default function LibraryScreen(): React.ReactElement {
           📚 Thư viện của bé
         </Text>
         <Text
-          onPress={() => router.replace("/(auth)/role-selection")}
+          onPress={async () => {
+            logout();
+            await new Promise((resolve) => setTimeout(resolve, 100));
+            router.replace("/(auth)/login");
+          }}
           padding="$2"
           color={COLORS.blue}
           fontWeight="700"
           accessible
           accessibilityRole="button"
-          accessibilityLabel="Quay lại chọn vai trò"
+          accessibilityLabel="Đăng xuất"
         >
-          Đổi vai trò
+          Đăng xuất
         </Text>
       </XStack>
 

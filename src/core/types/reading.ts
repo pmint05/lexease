@@ -31,6 +31,7 @@ export interface ReadingSession {
 export interface Recording {
   id: string;
   sessionId: string;
+  childId: string;
   bookId: string;
   bookTitle: string;
   filePath: string;
