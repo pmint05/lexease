@@ -1,8 +1,6 @@
 import React from "react";
 import { Text, XStack } from "tamagui";
 
-import { COLORS } from "@/src/core/constants/colors";
-
 interface KaraokeTileProps {
   word: string;
   isHighlighted: boolean;
@@ -14,7 +12,7 @@ export const KaraokeTile = ({ word, isHighlighted }: KaraokeTileProps): React.Re
       paddingHorizontal="$2"
       paddingVertical="$1"
       borderRadius="$3"
-      backgroundColor={isHighlighted ? COLORS.yellow : "transparent"}
+      backgroundColor={isHighlighted ? "$secondary" : "transparent"}
       accessible
       accessibilityRole="text"
       accessibilityLabel={isHighlighted ? `Từ đang được đọc: ${word}` : word}
@@ -22,7 +20,7 @@ export const KaraokeTile = ({ word, isHighlighted }: KaraokeTileProps): React.Re
       <Text
         fontSize="$6"
         fontWeight={isHighlighted ? "700" : "400"}
-        color={COLORS.textDark}
+        color="$foreground"
         letterSpacing={1}
       >
         {word}

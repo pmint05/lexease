@@ -2,7 +2,6 @@ import { Mic, Pause, Play, SkipBack } from "lucide-react-native";
 import React from "react";
 import { Button, Text, XStack, YStack } from "tamagui";
 
-import { COLORS } from "@/src/core/constants/colors";
 import { ReadingRate } from "@/src/core/types";
 
 interface ReadingControlsProps {
@@ -34,7 +33,7 @@ export const ReadingControls = ({
         <Button
           size="$5"
           onPress={onReset}
-          icon={<SkipBack color={COLORS.textDark} size={20} />}
+          icon={<SkipBack color="$foreground" size={20} />}
           accessible
           accessibilityRole="button"
           accessibilityLabel="Quay về đầu bài"
@@ -45,8 +44,9 @@ export const ReadingControls = ({
         <Button
           size="$5"
           onPress={isPlaying ? onPause : onPlay}
-          icon={isPlaying ? <Pause color={COLORS.textDark} size={20} /> : <Play color={COLORS.textDark} size={20} />}
-          backgroundColor={COLORS.green}
+          icon={isPlaying ? <Pause color="$accentForeground" size={20} /> : <Play color="$accentForeground" size={20} />}
+          backgroundColor="$accent"
+          color="$accentForeground"
           accessible
           accessibilityRole="button"
           accessibilityLabel={isPlaying ? "Tạm dừng đọc" : "Bắt đầu đọc"}
@@ -57,8 +57,9 @@ export const ReadingControls = ({
         <Button
           size="$5"
           onPress={onRecord}
-          icon={<Mic color={COLORS.textDark} size={20} />}
-          backgroundColor={isRecording ? COLORS.red : COLORS.orange}
+          icon={<Mic color={isRecording ? "$destructiveForeground" : "$secondaryForeground"} size={20} />}
+          backgroundColor={isRecording ? "$destructive" : "$secondary"}
+          color={isRecording ? "$destructiveForeground" : "$secondaryForeground"}
           accessible
           accessibilityRole="button"
           accessibilityLabel={isRecording ? "Đang ghi âm" : "Bắt đầu ghi âm"}
@@ -69,7 +70,7 @@ export const ReadingControls = ({
       </XStack>
 
       <YStack gap="$2" alignItems="center">
-        <Text fontSize="$3" color={COLORS.textMuted}>
+        <Text fontSize="$3" color="$mutedForeground">
           Tốc độ đọc
         </Text>
         <XStack gap="$2" flexWrap="wrap" justifyContent="center">
@@ -78,15 +79,15 @@ export const ReadingControls = ({
               key={option}
               size="$3"
               onPress={() => onSpeedSelect(option)}
-              backgroundColor={speed === option ? COLORS.blue : "$background"}
+              backgroundColor={speed === option ? "$primary" : "$background"}
               borderWidth={1}
-              borderColor={speed === option ? COLORS.blue : "$color5"}
+              borderColor={speed === option ? "$primary" : "$border"}
               accessible
               accessibilityRole="button"
               accessibilityLabel={`Đặt tốc độ ${option}`}
               accessibilityState={{ selected: speed === option }}
             >
-              <Text color={speed === option ? "white" : COLORS.textDark}>
+              <Text color={speed === option ? "$primaryForeground" : "$foreground"}>
                 {option}x
               </Text>
             </Button>

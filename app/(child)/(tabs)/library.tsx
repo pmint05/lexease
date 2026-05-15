@@ -4,7 +4,6 @@ import { FlatList } from "react-native";
 import { Input, Text, XStack, YStack } from "tamagui";
 
 import { BookTile } from "@/src/components/child/BookTile";
-import { COLORS } from "@/src/core/constants/colors";
 import { BookDifficulty } from "@/src/core/types";
 import { sampleBooks } from "@/src/data/local/books";
 import { useAuthStore } from "@/src/store/useAuthStore";
@@ -48,11 +47,12 @@ export default function LibraryScreen(): React.ReactElement {
   };
 
   return (
-    <YStack flex={1} backgroundColor={COLORS.cream} padding="$4" gap="$4">
+    <YStack flex={1} backgroundColor="$background" padding="$4" gap="$4">
       <XStack justifyContent="space-between" alignItems="center">
         <Text
           fontSize="$7"
           fontWeight="bold"
+          color="$foreground"
           accessibilityRole="header"
           accessibilityLabel="Book Library"
         >
@@ -65,7 +65,7 @@ export default function LibraryScreen(): React.ReactElement {
             router.replace("/(auth)/login");
           }}
           padding="$2"
-          color={COLORS.blue}
+          color="$primary"
           fontWeight="700"
           accessible
           accessibilityRole="button"
@@ -81,6 +81,9 @@ export default function LibraryScreen(): React.ReactElement {
           onChangeText={setSearch}
           placeholder="Tìm sách, tác giả hoặc từ khóa"
           size="$4"
+          backgroundColor="$background"
+          borderColor="$border"
+          color="$foreground"
           accessibilityLabel="Tìm sách"
         />
 
@@ -92,8 +95,10 @@ export default function LibraryScreen(): React.ReactElement {
               paddingHorizontal="$3"
               paddingVertical="$2"
               borderRadius="$10"
-              backgroundColor={difficulty === item ? COLORS.blue : "$background"}
-              color={difficulty === item ? "white" : COLORS.textDark}
+              backgroundColor={difficulty === item ? "$primary" : "$background"}
+              color={difficulty === item ? "$primaryForeground" : "$foreground"}
+              borderColor="$border"
+              borderWidth={1}
               accessible
               accessibilityRole="button"
               accessibilityLabel={`Lọc theo ${item}`}
@@ -114,7 +119,7 @@ export default function LibraryScreen(): React.ReactElement {
         keyboardShouldPersistTaps="handled"
         ListEmptyComponent={
           <YStack paddingVertical="$8" alignItems="center">
-            <Text color={COLORS.textMuted}>Không tìm thấy sách phù hợp</Text>
+            <Text color="$mutedForeground">Không tìm thấy sách phù hợp</Text>
           </YStack>
         }
         showsVerticalScrollIndicator={false}
@@ -122,3 +127,4 @@ export default function LibraryScreen(): React.ReactElement {
     </YStack>
   );
 }
+

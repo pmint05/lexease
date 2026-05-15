@@ -39,11 +39,12 @@ export default function HistoryScreen(): React.ReactElement {
   };
 
   return (
-    <YStack flex={1} backgroundColor={COLORS.cream} padding="$4" gap="$4">
+    <YStack flex={1} backgroundColor="$background" padding="$4" gap="$4">
       <XStack justifyContent="space-between" alignItems="center">
         <Text
           fontSize="$7"
           fontWeight="bold"
+          color="$foreground"
           accessibilityRole="header"
           accessibilityLabel="Reading History"
         >
@@ -56,7 +57,7 @@ export default function HistoryScreen(): React.ReactElement {
             router.replace("/(auth)/login");
           }}
           padding="$2"
-          color={COLORS.blue}
+          color="$primary"
           fontWeight="700"
           accessible
           accessibilityRole="button"
@@ -81,7 +82,7 @@ export default function HistoryScreen(): React.ReactElement {
         )}
         ListEmptyComponent={
           <YStack paddingVertical="$8" alignItems="center">
-            <Text color={COLORS.textMuted}>
+            <Text color="$mutedForeground">
               Chưa có ghi âm nào. Hãy bắt đầu đọc sách!
             </Text>
           </YStack>

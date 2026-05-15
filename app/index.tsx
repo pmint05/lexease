@@ -1,42 +1,42 @@
 import { useAuthStore } from "@/src/store/useAuthStore";
-import { useRouter } from "expo-router";
-import React, { useEffect } from "react";
+import { Redirect } from "expo-router";
+import React from "react";
 import { Text, YStack } from "tamagui";
 
 /**
  * Entry Point Screen
- * Redirects based on auth state and user role
- * - Not authenticated → (auth)/login
- * - Child user → (child)/library
- * - Guardian user → (guardian)/dashboard
+ * Uses declarative Redirect to avoid mounting race conditions
  */
 export default function IndexScreen(): React.ReactElement {
-  const router = useRouter();
-  const { token, role, user } = useAuthStore();
-  const effectiveRole = role ?? user?.role ?? null;
+  const { token, role, _hasHydrated } = useAuthStore();
 
-  useEffect(() => {
-    // Redirect based on auth state
-    if (!token) {
-      router.replace("/(auth)/login");
-    } else if (effectiveRole === "child") {
-      router.replace("/(child)/(tabs)/library");
-    } else if (effectiveRole === "guardian") {
-      router.replace("/(guardian)/(tabs)/dashboard");
-    } else {
-      router.replace("/(auth)/login");
-    }
-  }, [token, effectiveRole, router]);
+  // Wait for hydration before making any redirection decisions
+  if (!_hasHydrated) {
+    return (
+      <YStack
+        flex={1}
+        justifyContent="center"
+        alignItems="center"
+        backgroundColor="$background"
+      >
+        <Text>LexEase initializing...</Text>
+      </YStack>
+    );
+  }
 
-  // Show minimal UI while redirecting
-  return (
-    <YStack
-      flex={1}
-      justifyContent="center"
-      alignItems="center"
-      backgroundColor="$background"
-    >
-      <Text>Loading LexEase...</Text>
-    </YStack>
-  );
+  // Redirect based on auth state
+  if (!token) {
+    return <Redirect href="/(auth)/login" />;
+  }
+
+  if (role === "child") {
+    return <Redirect href="/(child)/(tabs)/library" />;
+  }
+
+  if (role === "guardian") {
+    return <Redirect href="/(guardian)/(tabs)/dashboard" />;
+  }
+
+  // Fallback
+  return <Redirect href="/(auth)/login" />;
 }

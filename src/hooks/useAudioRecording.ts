@@ -1,4 +1,11 @@
-import { Audio } from "expo-av";
+import {
+    RecordingPresets,
+    requestRecordingPermissionsAsync,
+    setAudioModeAsync,
+    useAudioPlayer,
+    useAudioRecorder,
+    useAudioRecorderState,
+} from "expo-audio";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 interface UseAudioRecordingReturn {
@@ -13,8 +20,11 @@ interface UseAudioRecordingReturn {
 export const useAudioRecording = (): UseAudioRecordingReturn => {
   const [isRecording, setIsRecording] = useState(false);
   const [recordingDuration, setRecordingDuration] = useState(0);
-  const recordingRef = useRef<Audio.Recording | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const recorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
+  useAudioRecorderState(recorder); // keep state subscribed if consumer needs it
+  const player = useAudioPlayer(null as any);
 
   const clearTimer = useCallback((): void => {
     if (timerRef.current) {
@@ -24,59 +34,59 @@ export const useAudioRecording = (): UseAudioRecordingReturn => {
   }, []);
 
   const requestPermissions = useCallback(async (): Promise<boolean> => {
-    const { status } = await Audio.requestPermissionsAsync();
-    return status === "granted";
+    const { granted } = await requestRecordingPermissionsAsync();
+    return !!granted;
   }, []);
 
   const startRecording = useCallback(async (): Promise<void> => {
     const granted = await requestPermissions();
-    if (!granted) {
-      return;
-    }
+    if (!granted) return;
 
-    await Audio.setAudioModeAsync({
-      allowsRecordingIOS: true,
-      playsInSilentModeIOS: true,
-      staysActiveInBackground: false,
+    await setAudioModeAsync({
+      allowsRecording: true,
+      playsInSilentMode: true,
+      allowsBackgroundRecording: false,
     });
 
-    const recording = new Audio.Recording();
-    await recording.prepareToRecordAsync(Audio.RecordingOptionsPresets.HIGH_QUALITY);
-    await recording.startAsync();
+    await recorder.prepareToRecordAsync();
+    recorder.record();
 
-    recordingRef.current = recording;
     setIsRecording(true);
     setRecordingDuration(0);
     clearTimer();
     timerRef.current = setInterval(() => {
-      setRecordingDuration((value) => value + 1);
+      setRecordingDuration((v) => v + 1);
     }, 1000);
-  }, [clearTimer, requestPermissions]);
+  }, [clearTimer, requestPermissions, recorder]);
 
   const stopRecording = useCallback(async (): Promise<string | null> => {
-    if (!recordingRef.current) {
-      return null;
-    }
+    if (!recorder) return null;
 
     clearTimer();
-    await recordingRef.current.stopAndUnloadAsync();
-    const uri = recordingRef.current.getURI();
-    recordingRef.current = null;
+    await recorder.stop();
+    const uri = (recorder as any).uri ?? null;
     setIsRecording(false);
     return uri;
-  }, [clearTimer]);
+  }, [clearTimer, recorder]);
 
-  const playbackRecording = useCallback(async (uri: string): Promise<void> => {
-    const { sound } = await Audio.Sound.createAsync({ uri });
-    await sound.playAsync();
-  }, []);
+  const playbackRecording = useCallback(
+    async (uri: string): Promise<void> => {
+      try {
+        await player.replace(uri);
+        player.play();
+      } catch {
+        // ignore
+      }
+    },
+    [player],
+  );
 
   useEffect(() => {
     return () => {
       clearTimer();
-      recordingRef.current?.stopAndUnloadAsync().catch(() => undefined);
+      recorder?.stop().catch(() => undefined);
     };
-  }, [clearTimer]);
+  }, [clearTimer, recorder]);
 
   return {
     isRecording,

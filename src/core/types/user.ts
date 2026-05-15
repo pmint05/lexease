@@ -3,10 +3,21 @@ export type UserRole = "child" | "guardian";
 export interface User {
   id: string;
   email: string;
+  name: string;
   role: UserRole;
-  displayName: string;
   avatarUrl?: string;
+}
+
+export interface Account extends User {
+  password: string;
   createdAt: string;
+}
+
+export interface AuthResult {
+  success: boolean;
+  error?: string;
+  user?: User;
+  token?: string;
 }
 
 export interface Child extends User {

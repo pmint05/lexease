@@ -3,6 +3,8 @@ const { withNativeWind } = require("nativewind/metro");
 
 const config = getDefaultConfig(__dirname);
 
+// Add .mjs to source extensions
+config.resolver.sourceExts.push("mjs", "cjs");
 config.resolver.unstable_enablePackageExports = true;
 
-module.exports = withNativeWind(config, { input: "./global.css" });
+module.exports = withNativeWind(config, { input: "./app/global.css" });
