@@ -54,7 +54,7 @@ export default function LibraryScreen(): React.ReactElement {
           fontWeight="bold"
           color="$foreground"
           accessibilityRole="header"
-          accessibilityLabel="Book Library"
+          accessibilitylabel="Book Library"
         >
           📚 Thư viện của bé
         </Text>
@@ -69,7 +69,7 @@ export default function LibraryScreen(): React.ReactElement {
           fontWeight="700"
           accessible
           accessibilityRole="button"
-          accessibilityLabel="Đăng xuất"
+          accessibilitylabel="Đăng xuất"
         >
           Đăng xuất
         </Text>
@@ -84,7 +84,7 @@ export default function LibraryScreen(): React.ReactElement {
           backgroundColor="$background"
           borderColor="$border"
           color="$foreground"
-          accessibilityLabel="Tìm sách"
+          accessibilitylabel="Tìm sách"
         />
 
         <XStack gap="$2" flexWrap="wrap">
@@ -101,7 +101,7 @@ export default function LibraryScreen(): React.ReactElement {
               borderWidth={1}
               accessible
               accessibilityRole="button"
-              accessibilityLabel={`Lọc theo ${item}`}
+              accessibilitylabel={`Lọc theo ${item}`}
             >
               {item === "all" ? "Tất cả" : item}
             </Text>

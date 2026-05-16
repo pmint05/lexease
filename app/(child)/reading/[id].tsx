@@ -139,7 +139,7 @@ export default function ReadingScreen(): React.ReactElement {
           onPress={() => router.back()}
           accessible
           accessibilityRole="button"
-          accessibilityLabel="Quay lại thư viện"
+          accessibilitylabel="Quay lại thư viện"
           padding="$2"
         >
           ✕
@@ -218,7 +218,7 @@ export default function ReadingScreen(): React.ReactElement {
             }}
             accessible
             accessibilityRole="button"
-            accessibilityLabel="Nghe bản ghi mới nhất"
+            accessibilitylabel="Nghe bản ghi mới nhất"
           />
         </XStack>
       ) : null}

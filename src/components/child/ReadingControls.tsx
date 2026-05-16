@@ -36,7 +36,7 @@ export const ReadingControls = ({
           icon={<SkipBack color="$foreground" size={20} />}
           accessible
           accessibilityRole="button"
-          accessibilityLabel="Quay về đầu bài"
+          accessibilitylabel="Quay về đầu bài"
         >
           Đầu
         </Button>
@@ -44,12 +44,18 @@ export const ReadingControls = ({
         <Button
           size="$5"
           onPress={isPlaying ? onPause : onPlay}
-          icon={isPlaying ? <Pause color="$accentForeground" size={20} /> : <Play color="$accentForeground" size={20} />}
+          icon={
+            isPlaying ? (
+              <Pause color="$accentForeground" size={20} />
+            ) : (
+              <Play color="$accentForeground" size={20} />
+            )
+          }
           backgroundColor="$accent"
           color="$accentForeground"
           accessible
           accessibilityRole="button"
-          accessibilityLabel={isPlaying ? "Tạm dừng đọc" : "Bắt đầu đọc"}
+          accessibilitylabel={isPlaying ? "Tạm dừng đọc" : "Bắt đầu đọc"}
         >
           {isPlaying ? "Dừng" : "Đọc"}
         </Button>
@@ -57,16 +63,24 @@ export const ReadingControls = ({
         <Button
           size="$5"
           onPress={onRecord}
-          icon={<Mic color={isRecording ? "$destructiveForeground" : "$secondaryForeground"} size={20} />}
+          icon={
+            <Mic
+              color={
+                isRecording ? "$destructiveForeground" : "$secondaryForeground"
+              }
+              size={20}
+            />
+          }
           backgroundColor={isRecording ? "$destructive" : "$secondary"}
-          color={isRecording ? "$destructiveForeground" : "$secondaryForeground"}
+          color={
+            isRecording ? "$destructiveForeground" : "$secondaryForeground"
+          }
           accessible
           accessibilityRole="button"
-          accessibilityLabel={isRecording ? "Đang ghi âm" : "Bắt đầu ghi âm"}
+          accessibilitylabel={isRecording ? "Đang ghi âm" : "Bắt đầu ghi âm"}
         >
           {isRecording ? "Dừng" : "Ghi"}
         </Button>
-
       </XStack>
 
       <YStack gap="$2" alignItems="center">
@@ -84,10 +98,12 @@ export const ReadingControls = ({
               borderColor={speed === option ? "$primary" : "$border"}
               accessible
               accessibilityRole="button"
-              accessibilityLabel={`Đặt tốc độ ${option}`}
+              accessibilitylabel={`Đặt tốc độ ${option}`}
               accessibilityState={{ selected: speed === option }}
             >
-              <Text color={speed === option ? "$primaryForeground" : "$foreground"}>
+              <Text
+                color={speed === option ? "$primaryForeground" : "$foreground"}
+              >
                 {option}x
               </Text>
             </Button>

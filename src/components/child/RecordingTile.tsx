@@ -28,7 +28,7 @@ export const RecordingTile = ({ recording, onPlay, onDelete }: RecordingTileProp
             icon={<Volume2 color="$foreground" size={16} />}
             accessible
             accessibilityRole="button"
-            accessibilityLabel={`Phát bản ghi của ${recording.bookTitle}`}
+            accessibilitylabel={`Phát bản ghi của ${recording.bookTitle}`}
           >
             Nghe
           </Button>
@@ -40,7 +40,7 @@ export const RecordingTile = ({ recording, onPlay, onDelete }: RecordingTileProp
             color="$primaryForeground"
             accessible
             accessibilityRole="button"
-            accessibilityLabel={`Xóa bản ghi của ${recording.bookTitle}`}
+            accessibilitylabel={`Xóa bản ghi của ${recording.bookTitle}`}
           >
             Xóa
           </Button>

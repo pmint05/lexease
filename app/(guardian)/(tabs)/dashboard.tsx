@@ -1,11 +1,11 @@
+import { useAuthStore } from "@/src/store/useAuthStore";
+import { useConfigStore } from "@/src/store/useConfigStore";
+import { useFamilyStore } from "@/src/store/useFamilyStore";
 import { useRouter } from "expo-router";
 import { ChevronRight, Target, TrendingUp, Zap } from "lucide-react-native";
 import React, { useMemo } from "react";
-import { Button, Card, Input, ScrollView, Slider, Text, XStack, YStack } from "tamagui";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useFamilyStore } from "@/src/store/useFamilyStore";
-import { useConfigStore } from "@/src/store/useConfigStore";
-import { useAuthStore } from "@/src/store/useAuthStore";
+import { Button, Card, Input, ScrollView, Slider, Text, XStack, YStack } from "tamagui";
 
 import { RecordingTile } from "@/src/components/child/RecordingTile";
 import { COLORS } from "@/src/core/constants/colors";
@@ -228,7 +228,7 @@ export default function DashboardScreen(): React.ReactElement {
           fontSize="$7"
           fontWeight="bold"
           accessibilityRole="header"
-          accessibilityLabel="Guardian dashboard"
+          accessibilitylabel="Guardian dashboard"
         >
           📊 Guardian Dashboard
         </Text>
@@ -555,7 +555,7 @@ export default function DashboardScreen(): React.ReactElement {
                     onPress={() => router.push({ pathname: "/(guardian)/book/[id]", params: { id: book.bookId } })}
                     accessible
                     accessibilityRole="button"
-                    accessibilityLabel={`Xem chi tiết sách ${book.title}`}
+                    accessibilitylabel={`Xem chi tiết sách ${book.title}`}
                   >
                     <YStack>
                       <Text fontWeight="700">{book.title}</Text>
@@ -587,7 +587,7 @@ export default function DashboardScreen(): React.ReactElement {
             pressStyle={{ scale: 0.98 }}
             accessible
             accessibilityRole="button"
-            accessibilityLabel="Xem chi tiết lần học gần nhất"
+            accessibilitylabel="Xem chi tiết lần học gần nhất"
           >
             <YStack gap="$2">
               <XStack justifyContent="space-between">
@@ -632,7 +632,7 @@ export default function DashboardScreen(): React.ReactElement {
             borderColor="$color5"
             accessible
             accessibilityRole="summary"
-            accessibilityLabel="Recent child reading sessions"
+            accessibilitylabel="Recent child reading sessions"
           >
             <YStack gap="$3">
               <Text fontSize="$5" fontWeight="700">

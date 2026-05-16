@@ -17,7 +17,11 @@ const difficultyColor: Record<Book["difficulty"], string> = {
   hard: COLORS.hard,
 };
 
-export const BookTile = ({ book, onPress, onRead }: BookTileProps): React.ReactElement => {
+export const BookTile = ({
+  book,
+  onPress,
+  onRead,
+}: BookTileProps): React.ReactElement => {
   return (
     <Card
       padding="$4"
@@ -26,8 +30,8 @@ export const BookTile = ({ book, onPress, onRead }: BookTileProps): React.ReactE
       backgroundColor="$background"
       accessible
       accessibilityRole="summary"
-      accessibilityLabel={`Sách ${book.title} của ${book.author}. Độ khó ${book.difficulty}`}
-      accessibilityHint="Dùng nút Xem hoặc Đọc ở bên phải"
+      accessibilitylabel={`Sách ${book.title} của ${book.author}. Độ khó ${book.difficulty}`}
+      accessibilityhint="Dùng nút Xem hoặc Đọc ở bên phải"
     >
       <XStack gap="$3" alignItems="center">
         <YStack
@@ -42,7 +46,12 @@ export const BookTile = ({ book, onPress, onRead }: BookTileProps): React.ReactE
         </YStack>
 
         <YStack flex={1} gap="$2">
-          <Text fontSize="$5" fontWeight="700" color="$foreground" numberOfLines={1}>
+          <Text
+            fontSize="$5"
+            fontWeight="700"
+            color="$foreground"
+            numberOfLines={1}
+          >
             {book.title}
           </Text>
           <Text color="$mutedForeground" numberOfLines={1}>
@@ -52,7 +61,9 @@ export const BookTile = ({ book, onPress, onRead }: BookTileProps): React.ReactE
             <Text color="$mutedForeground">{book.difficulty}</Text>
             <XStack gap="$1" alignItems="center">
               <Clock3 color="$mutedForeground" size={14} />
-              <Text color="$mutedForeground">~{book.estimatedMinutes} phút</Text>
+              <Text color="$mutedForeground">
+                ~{book.estimatedMinutes} phút
+              </Text>
             </XStack>
           </XStack>
         </YStack>
@@ -63,7 +74,7 @@ export const BookTile = ({ book, onPress, onRead }: BookTileProps): React.ReactE
             onPress={() => onPress(book.id)}
             icon={<ChevronRight color="$foreground" size={16} />}
             accessibilityRole="button"
-            accessibilityLabel={`Xem chi tiết ${book.title}`}
+            accessibilitylabel={`Xem chi tiết ${book.title}`}
           >
             Xem
           </Button>
@@ -74,7 +85,7 @@ export const BookTile = ({ book, onPress, onRead }: BookTileProps): React.ReactE
             backgroundColor="$accent"
             color="$primaryForeground"
             accessibilityRole="button"
-            accessibilityLabel={`Đọc ngay ${book.title}`}
+            accessibilitylabel={`Đọc ngay ${book.title}`}
           >
             Đọc
           </Button>

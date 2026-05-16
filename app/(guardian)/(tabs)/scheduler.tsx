@@ -52,7 +52,7 @@ export default function SchedulerScreen(): React.ReactElement {
           fontSize="$7"
           fontWeight="bold"
           accessibilityRole="header"
-          accessibilityLabel="Practice Scheduler"
+          accessibilitylabel="Practice Scheduler"
         >
           📅 Practice Scheduler
         </Text>
@@ -67,7 +67,7 @@ export default function SchedulerScreen(): React.ReactElement {
           fontWeight="700"
           accessible
           accessibilityRole="button"
-          accessibilityLabel="Đăng xuất"
+          accessibilitylabel="Đăng xuất"
         >
           Đăng xuất
         </Text>
@@ -91,7 +91,7 @@ export default function SchedulerScreen(): React.ReactElement {
                 }
                 size="$4"
                 accessible
-                accessibilityLabel="Time input"
+                accessibilitylabel="Time input"
               />
             </YStack>
           </Card>
@@ -113,7 +113,7 @@ export default function SchedulerScreen(): React.ReactElement {
                 keyboardType="number-pad"
                 size="$4"
                 accessible
-                accessibilityLabel="Duration input"
+                accessibilitylabel="Duration input"
               />
             </YStack>
           </Card>
@@ -150,7 +150,7 @@ export default function SchedulerScreen(): React.ReactElement {
                         backgroundColor={isSelected ? "$green" : "$gray"}
                         accessible
                         accessibilityRole="switch"
-                        accessibilityLabel={`${day} reading scheduled`}
+                        accessibilitylabel={`${day} reading scheduled`}
                         accessibilityState={{ checked: Boolean(isSelected) }}
                       >
                         {isSelected ? "✓" : "✕"}
@@ -167,7 +167,7 @@ export default function SchedulerScreen(): React.ReactElement {
             size="$5"
             accessible
             accessibilityRole="button"
-            accessibilityLabel="Save schedule settings"
+            accessibilitylabel="Save schedule settings"
           >
             💾 Save Schedule
           </Button>

@@ -4,7 +4,6 @@ import { Alert, FlatList } from "react-native";
 import { Text, XStack, YStack } from "tamagui";
 
 import { RecordingTile } from "@/src/components/child/RecordingTile";
-import { COLORS } from "@/src/core/constants/colors";
 import { Recording } from "@/src/core/types";
 import { useAudioRecording } from "@/src/hooks/useAudioRecording";
 import { useAuthStore } from "@/src/store/useAuthStore";
@@ -46,7 +45,7 @@ export default function HistoryScreen(): React.ReactElement {
           fontWeight="bold"
           color="$foreground"
           accessibilityRole="header"
-          accessibilityLabel="Reading History"
+          accessibilitylabel="Reading History"
         >
           🎙️ Kho ghi âm
         </Text>
@@ -61,7 +60,7 @@ export default function HistoryScreen(): React.ReactElement {
           fontWeight="700"
           accessible
           accessibilityRole="button"
-          accessibilityLabel="Đăng xuất"
+          accessibilitylabel="Đăng xuất"
         >
           Đăng xuất
         </Text>

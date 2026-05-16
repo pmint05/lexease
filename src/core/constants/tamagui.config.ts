@@ -134,6 +134,7 @@ export const tamaguiConfig = createTamagui({
       ring: "#0066CC",
       borderColorFocus: "#0070f3", // Màu xanh bạn muốn hiển thị khi focus
       outlineColorFocus: "transparent", // Ẩn viền đen thô mặc định của trình duyệt web
+      borderSizeFocus: 1, // Tăng kích thước viền khi focus để dễ nhận biết hơn
     },
     dark: {
       ...configV5.themes.dark,

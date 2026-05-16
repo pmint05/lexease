@@ -15,7 +15,7 @@ export const KaraokeTile = ({ word, isHighlighted }: KaraokeTileProps): React.Re
       backgroundColor={isHighlighted ? "$secondary" : "transparent"}
       accessible
       accessibilityRole="text"
-      accessibilityLabel={isHighlighted ? `Từ đang được đọc: ${word}` : word}
+      accessibilitylabel={isHighlighted ? `Từ đang được đọc: ${word}` : word}
     >
       <Text
         fontSize="$6"

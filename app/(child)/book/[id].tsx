@@ -38,7 +38,7 @@ export default function BookDetailScreen(): React.ReactElement {
           onPress={() => router.back()}
           accessible
           accessibilityRole="button"
-          accessibilityLabel="Quay lại thư viện"
+          accessibilitylabel="Quay lại thư viện"
           padding="$2"
         >
           ✕
@@ -59,7 +59,7 @@ export default function BookDetailScreen(): React.ReactElement {
             onPress={() => router.push({ pathname: "/(child)/reading/[id]", params: { id: book.id } })}
             backgroundColor={COLORS.green}
             accessibilityRole="button"
-            accessibilityLabel={`Bắt đầu đọc ${book.title}`}
+            accessibilitylabel={`Bắt đầu đọc ${book.title}`}
           >
             Đọc ngay
           </Button>
