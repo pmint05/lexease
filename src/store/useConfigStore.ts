@@ -1,37 +1,31 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
+import { ReadingConfig } from "../core/types/config";
 
 /**
  * Config Store
  * Manages global UI customizer settings (Dyslexia-friendly)
- * - Font size
- * - Background color
- * - Letter spacing
- * - Line spacing
  * - Persisted to device via middleware (AsyncStorage)
+ * - Can be synced from server (Guardian settings)
  */
 
-export interface ConfigStoreState {
-  // State
-  fontSize: number; // points (12-32)
-  backgroundColor: string; // hex color
-  letterSpacing: number; // multiplier (1-2.5)
-  lineSpacing: number; // multiplier (1-2)
-
+export interface ConfigStoreState extends ReadingConfig {
   // Actions
-  setFontSize: (size: number) => void;
-  setBackgroundColor: (color: string) => void;
-  setLetterSpacing: (spacing: number) => void;
-  setLineSpacing: (spacing: number) => void;
+  setConfig: (config: Partial<ReadingConfig>) => void;
+  syncFromServer: (serverConfig: ReadingConfig) => void;
   reset: () => void;
 }
 
-const DEFAULT_CONFIG = {
-  fontSize: 16,
+const DEFAULT_CONFIG: ReadingConfig = {
+  fontSize: 20,
   backgroundColor: "#FFF8F0", // Warm cream
+  textColor: "#2D3436",
   letterSpacing: 1.2,
-  lineSpacing: 1.5,
+  lineHeight: 1.5,
+  fontFamily: "Lexend",
+  highlightColor: "#FFD93D", // Bright yellow
+  wordsPerHighlight: 1,
 };
 
 export const useConfigStore = create<ConfigStoreState>()(
@@ -41,10 +35,13 @@ export const useConfigStore = create<ConfigStoreState>()(
       ...DEFAULT_CONFIG,
 
       // Actions
-      setFontSize: (size) => set({ fontSize: size }),
-      setBackgroundColor: (color) => set({ backgroundColor: color }),
-      setLetterSpacing: (spacing) => set({ letterSpacing: spacing }),
-      setLineSpacing: (spacing) => set({ lineSpacing: spacing }),
+      setConfig: (config) => set((state) => ({ ...state, ...config })),
+      
+      syncFromServer: (serverConfig) => set((state) => ({ 
+        ...state, 
+        ...serverConfig 
+      })),
+
       reset: () => set(DEFAULT_CONFIG),
     }),
     {

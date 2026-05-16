@@ -47,35 +47,8 @@ export default function LibraryScreen(): React.ReactElement {
   };
 
   return (
-    <YStack flex={1} backgroundColor="$background" padding="$4" gap="$4">
-      <XStack justifyContent="space-between" alignItems="center">
-        <Text
-          fontSize="$7"
-          fontWeight="bold"
-          color="$foreground"
-          accessibilityRole="header"
-          accessibilitylabel="Book Library"
-        >
-          📚 Thư viện của bé
-        </Text>
-        <Text
-          onPress={async () => {
-            logout();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            router.replace("/(auth)/login");
-          }}
-          padding="$2"
-          color="$primary"
-          fontWeight="700"
-          accessible
-          accessibilityRole="button"
-          accessibilitylabel="Đăng xuất"
-        >
-          Đăng xuất
-        </Text>
-      </XStack>
-
-      <YStack gap="$3">
+    <YStack flex={1} backgroundColor="$background" paddingHorizontal="$4" gap="$4">
+      <YStack gap="$3" paddingTop="$4">
         <Input
           value={search}
           onChangeText={setSearch}

@@ -38,37 +38,11 @@ export default function HistoryScreen(): React.ReactElement {
   };
 
   return (
-    <YStack flex={1} backgroundColor="$background" padding="$4" gap="$4">
-      <XStack justifyContent="space-between" alignItems="center">
-        <Text
-          fontSize="$7"
-          fontWeight="bold"
-          color="$foreground"
-          accessibilityRole="header"
-          accessibilitylabel="Reading History"
-        >
-          🎙️ Kho ghi âm
-        </Text>
-        <Text
-          onPress={async () => {
-            logout();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            router.replace("/(auth)/login");
-          }}
-          padding="$2"
-          color="$primary"
-          fontWeight="700"
-          accessible
-          accessibilityRole="button"
-          accessibilitylabel="Đăng xuất"
-        >
-          Đăng xuất
-        </Text>
-      </XStack>
-
+    <YStack flex={1} backgroundColor="$background" paddingHorizontal="$4" gap="$4">
       <FlatList
         data={sortedRecordings}
         keyExtractor={(item) => item.id}
+        contentContainerStyle={{ paddingTop: 16 }}
         ItemSeparatorComponent={() => <YStack height="$3" />}
         renderItem={({ item }) => (
           <RecordingTile

@@ -3,6 +3,18 @@ export const FONTS = {
   lexend: "Lexend",
 } as const;
 
+/**
+ * Maps ReadingConfig fontFamily values to Tamagui font keys
+ */
+export const FONT_MAP = {
+  OpenDyslexic: "dyslexic",
+  Lexend: "lexend",
+  System: "system",
+  // Dễ dàng thêm font mới ở đây
+} as const;
+
+export type ConfigFontFamily = keyof typeof FONT_MAP;
+
 export const FONT_SIZES = {
   xs: 12,
   sm: 14,

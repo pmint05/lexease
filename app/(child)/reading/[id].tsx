@@ -34,9 +34,21 @@ export default function ReadingScreen(): React.ReactElement {
   const { user } = useAuthStore();
   const { addRecording } = useRecordingStore();
   const { addSession } = useLearningStore();
-  const { backgroundColor } = useConfigStore();
-  const { isRecording, recordingDuration, startRecording, stopRecording, playbackRecording } =
-    useAudioRecording();
+  const {
+    backgroundColor,
+    textColor,
+    lineHeight,
+    fontFamily,
+    syncFromServer,
+    reset: resetConfig,
+  } = useConfigStore();
+  const {
+    isRecording,
+    recordingDuration,
+    startRecording,
+    stopRecording,
+    playbackRecording,
+  } = useAudioRecording();
   const [lastRecordingUri, setLastRecordingUri] = useState<string | null>(null);
   const sessionStartRef = useRef(0);
   const sessionLoggedRef = useRef(false);
@@ -130,38 +142,44 @@ export default function ReadingScreen(): React.ReactElement {
   }
 
   return (
-    <YStack flex={1} backgroundColor={backgroundColor} padding="$4" gap="$4">
-      <XStack justifyContent="space-between" alignItems="center">
+    <YStack flex={1} backgroundColor={backgroundColor} paddingHorizontal="$4" gap="$4">
+      <XStack justifyContent="space-between" alignItems="center" paddingTop="$4">
         <Text fontSize="$6" fontWeight="bold" accessibilityRole="header">
-          📖 {book.title}
+          {book.title}
         </Text>
-        <Text
-          onPress={() => router.back()}
-          accessible
-          accessibilityRole="button"
-          accessibilitylabel="Quay lại thư viện"
-          padding="$2"
-        >
-          ✕
-        </Text>
+        <XStack gap="$2">
+          <Text
+            onPress={() => router.back()}
+            accessible
+            accessibilityRole="button"
+            accessibilityLabel="Quay lại thư viện"
+            padding="$2"
+            fontSize="$6"
+          >
+            ✕
+          </Text>
+        </XStack>
       </XStack>
 
-      <ScrollView
-        flex={1}
-        showsVerticalScrollIndicator={false}
-      >
+      <ScrollView flex={1} showsVerticalScrollIndicator={false}>
         <YStack gap="$4" paddingVertical="$4">
           <Text color={COLORS.textMuted}>
             {book.author} · {book.difficulty} · ~{book.estimatedMinutes} phút
           </Text>
 
-          <Card padding="$4" borderWidth={1} borderColor="$color5" backgroundColor="$background">
+          <Card
+            padding="$4"
+            borderWidth={1}
+            borderColor="$color5"
+            backgroundColor="$background"
+          >
             <YStack gap="$2">
               <Text fontSize="$4" fontWeight="700">
                 Đang đọc theo nhịp
               </Text>
               <Text color={COLORS.textMuted}>
-                Từ đang đọc sẽ tự bám theo nhịp giọng đọc; nếu lệch, hãy dừng và đọc lại.
+                Từ đang đọc sẽ tự bám theo nhịp giọng đọc; nếu lệch, hãy dừng và
+                đọc lại.
               </Text>
               <Text fontSize="$7" fontWeight="700" color={COLORS.blue}>
                 Từ {currentIndex + 1} / {words.length}
@@ -171,7 +189,11 @@ export default function ReadingScreen(): React.ReactElement {
 
           <XStack flexWrap="wrap" gap="$2" alignItems="center">
             {words.map((word, idx) => (
-              <KaraokeTile key={`${word}-${idx}`} word={word} isHighlighted={idx === currentIndex} />
+              <KaraokeTile
+                key={`${word}-${idx}`}
+                word={word}
+                isHighlighted={idx === currentIndex}
+              />
             ))}
           </XStack>
         </YStack>
@@ -218,7 +240,7 @@ export default function ReadingScreen(): React.ReactElement {
             }}
             accessible
             accessibilityRole="button"
-            accessibilitylabel="Nghe bản ghi mới nhất"
+            accessibilityLabel="Nghe bản ghi mới nhất"
           />
         </XStack>
       ) : null}

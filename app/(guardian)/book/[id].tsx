@@ -60,8 +60,8 @@ export default function GuardianBookDetailScreen(): React.ReactElement {
   }
 
   return (
-    <YStack flex={1} backgroundColor={COLORS.cream} padding="$4" gap="$4">
-      <XStack justifyContent="space-between" alignItems="center">
+    <YStack flex={1} backgroundColor="$background" paddingHorizontal="$4" gap="$4">
+      <XStack justifyContent="space-between" alignItems="center" paddingTop="$4">
         <Text fontSize="$6" fontWeight="700">Chi tiết sách của bé</Text>
         <Button size="$3" onPress={() => router.back()} accessibilitylabel="Quay lại Guardian dashboard">
           Quay lại

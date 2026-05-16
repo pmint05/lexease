@@ -100,6 +100,7 @@ export const tamaguiConfig = createTamagui({
   fonts: {
     heading: lexendFont, // Font cho tiêu đề
     body: lexendFont, // Font cho nội dung
+    lexend: lexendFont, // Thêm key lexend để khớp với FONT_MAP
     dyslexic: openDyslexicFont, // Font đặc biệt
   },
   tokens: {

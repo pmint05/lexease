@@ -36,51 +36,25 @@ export default function SchedulerScreen(): React.ReactElement {
   });
 
   const days = [
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
-    "Sunday",
+    "Thứ Hai",
+    "Thứ Ba",
+    "Thứ Tư",
+    "Thứ Năm",
+    "Thứ Sáu",
+    "Thứ Bảy",
+    "Chủ Nhật",
   ];
 
   return (
-    <YStack flex={1} backgroundColor="$background" padding="$4" gap="$4">
-      <XStack justifyContent="space-between" alignItems="center">
-        <Text
-          fontSize="$7"
-          fontWeight="bold"
-          accessibilityRole="header"
-          accessibilitylabel="Practice Scheduler"
-        >
-          📅 Practice Scheduler
-        </Text>
-        <Text
-          onPress={async () => {
-            logout();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            router.replace("/(auth)/login");
-          }}
-          padding="$2"
-          color="$blue10"
-          fontWeight="700"
-          accessible
-          accessibilityRole="button"
-          accessibilitylabel="Đăng xuất"
-        >
-          Đăng xuất
-        </Text>
-      </XStack>
-
-      <ScrollView showsVerticalScrollIndicator={false}>
+    <YStack flex={1} backgroundColor="$background" paddingHorizontal="$4" gap="$4">
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingVertical: 16 }}>
         <YStack gap="$4">
           {/* Time Settings */}
-          <Card padding="$4">
+          <Card padding="$4" bordered>
             <YStack gap="$3">
               <Label>
                 <Text fontSize="$4" fontWeight="bold">
-                  Preferred Time
+                  Giờ học ưu tiên
                 </Text>
               </Label>
               <Input
@@ -97,11 +71,11 @@ export default function SchedulerScreen(): React.ReactElement {
           </Card>
 
           {/* Duration */}
-          <Card padding="$4">
+          <Card padding="$4" bordered>
             <YStack gap="$3">
               <Label>
                 <Text fontSize="$4" fontWeight="bold">
-                  Session Duration (minutes)
+                  Thời lượng phiên (phút)
                 </Text>
               </Label>
               <Input
@@ -119,17 +93,20 @@ export default function SchedulerScreen(): React.ReactElement {
           </Card>
 
           {/* Days Selection */}
-          <Card padding="$4">
+          <Card padding="$4" bordered>
             <YStack gap="$3">
               <Label>
                 <Text fontSize="$4" fontWeight="bold">
-                  Reading Days
+                  Ngày học trong tuần
                 </Text>
               </Label>
               <YStack gap="$2">
                 {days.map((day, idx) => {
-                  const key = day.toLowerCase();
-                  const isSelected = schedule[key as keyof typeof schedule];
+                  const key = day.toLowerCase().replace(" ", ""); // simplified key
+                  // Original keys are english, mapping them:
+                  const englishDays = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
+                  const engKey = englishDays[idx];
+                  const isSelected = schedule[engKey as keyof typeof schedule];
 
                   return (
                     <XStack
@@ -144,16 +121,19 @@ export default function SchedulerScreen(): React.ReactElement {
                         onPress={() =>
                           setSchedule({
                             ...schedule,
-                            [key]: !schedule[key as keyof typeof schedule],
+                            [engKey]: !schedule[engKey as keyof typeof schedule],
                           })
                         }
-                        backgroundColor={isSelected ? "$green" : "$gray"}
+                        backgroundColor={isSelected ? "$primary" : "$background"}
+                        color={isSelected ? "white" : "$foreground"}
+                        borderWidth={1}
+                        borderColor="$border"
                         accessible
                         accessibilityRole="switch"
                         accessibilitylabel={`${day} reading scheduled`}
-                        accessibilityState={{ checked: Boolean(isSelected) }}
+                        accessibilitystate={{ checked: Boolean(isSelected) }}
                       >
-                        {isSelected ? "✓" : "✕"}
+                        {isSelected ? "Bật" : "Tắt"}
                       </Button>
                     </XStack>
                   );
@@ -165,17 +145,18 @@ export default function SchedulerScreen(): React.ReactElement {
           {/* Save Button */}
           <Button
             size="$5"
+            theme="active"
             accessible
             accessibilityRole="button"
             accessibilitylabel="Save schedule settings"
           >
-            💾 Save Schedule
+            Lưu lịch học
           </Button>
 
           {/* Info */}
-          <Card padding="$4" backgroundColor="$blue2">
-            <Text fontSize="$3" color="$blue">
-              📌 Reminders will be sent at the selected time on chosen days
+          <Card padding="$4" backgroundColor="$color2" bordered>
+            <Text fontSize="$3" color="$mutedForeground">
+              Nhắc nhở sẽ được gửi vào khung giờ đã chọn vào các ngày trong tuần.
             </Text>
           </Card>
         </YStack>

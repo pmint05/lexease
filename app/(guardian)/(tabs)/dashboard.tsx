@@ -159,19 +159,16 @@ export default function DashboardScreen(): React.ReactElement {
 
     if (sessions.length === 0) {
       tips.push({
-        emoji: "🚀",
         title: "Bắt đầu hành trình",
         text: "Khuyến khích con đọc sách đầu tiên để bắt đầu trải nghiệm!",
       });
     } else if (sessions.length < 5) {
       tips.push({
-        emoji: "⭐",
         title: "Tốt lắm!",
         text: "Con đang xây dựng thói quen đọc tuyệt vời. Hãy tiếp tục!",
       });
     } else if (sessions.length >= 10) {
       tips.push({
-        emoji: "🏆",
         title: "Đạt mốc 10 phiên!",
         text: "Con đã hoàn thành 10 phiên đọc. Đó là một thành tích lớn!",
       });
@@ -179,7 +176,6 @@ export default function DashboardScreen(): React.ReactElement {
 
     if (statistics.favoriteDifficulty === "easy" && sessions.length >= 5) {
       tips.push({
-        emoji: "💪",
         title: "Sẵn sàng thử thách?",
         text: "Con thành thạo với sách dễ. Hãy thử sách trung bình để tiến bộ!",
       });
@@ -187,7 +183,6 @@ export default function DashboardScreen(): React.ReactElement {
 
     if (statistics.progressTrend === "improving") {
       tips.push({
-        emoji: "📈",
         title: "Tiến độ tuyệt vời",
         text: `Tốc độ đọc của con đang cải thiện. Con đang từ ${statistics.avgSpeedPerSession.toFixed(2)}x!
 `,
@@ -196,7 +191,6 @@ export default function DashboardScreen(): React.ReactElement {
 
     if (statistics.totalSessions > 0 && summary.totalDurationMs > 3600000) {
       tips.push({
-        emoji: "⏱️",
         title: "Học tập kiên trì",
         text: `Con đã dành ${Math.round(summary.totalDurationMs / 3600000)} giờ để đọc. Tuyệt vời!",`,
       });
@@ -204,7 +198,6 @@ export default function DashboardScreen(): React.ReactElement {
 
     if (statistics.totalSessions > 0 && statistics.avgWordsPerSession > 100) {
       tips.push({
-        emoji: "📚",
         title: "Từ vựng phong phú",
         text: `Con đã học trung bình ${Math.round(statistics.avgWordsPerSession)} từ mỗi phiên!`,
       });
@@ -214,7 +207,6 @@ export default function DashboardScreen(): React.ReactElement {
       ? tips.slice(0, 2)
       : [
           {
-            emoji: "💡",
             title: "Mẹo",
             text: "Mỗi lần đọc là một cơ hội để học. Hãy khuyến khích con đọc mỗi ngày!",
           },
@@ -222,26 +214,14 @@ export default function DashboardScreen(): React.ReactElement {
   }, [sessions, statistics, summary]);
 
   return (
-    <YStack flex={1} backgroundColor={COLORS.cream} padding="$4" gap="$4" paddingTop={insets.top} paddingBottom={insets.bottom}>
-      <XStack justifyContent="space-between" alignItems="center">
-        <Text
-          fontSize="$7"
-          fontWeight="bold"
-          accessibilityRole="header"
-          accessibilitylabel="Guardian dashboard"
-        >
-          📊 Guardian Dashboard
-        </Text>
-        
-      </XStack>
-
-      <ScrollView showsVerticalScrollIndicator={false}>
+    <YStack flex={1} backgroundColor="$background" paddingHorizontal="$4" gap="$4">
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingVertical: 16 }}>
         <YStack gap="$3">
           <Card
             padding="$4"
             borderWidth={1}
             borderColor="$color5"
-            backgroundColor={COLORS.blue}
+            backgroundColor="$primary"
           >
             <YStack gap="$2">
               <Text fontSize="$2" color="white" fontWeight="600">
@@ -349,7 +329,6 @@ export default function DashboardScreen(): React.ReactElement {
                   <Card key={idx} padding="$3" borderWidth={1} borderColor="$color4" backgroundColor="$color2">
                     <YStack gap="$2">
                       <XStack alignItems="center" gap="$2">
-                        <Text fontSize="$6">{insight.emoji}</Text>
                         <Text fontSize="$4" fontWeight="700" color={COLORS.textDark}>{insight.title}</Text>
                       </XStack>
                       <Text fontSize="$3" color={COLORS.textMuted} lineHeight={20}>{insight.text}</Text>
@@ -493,7 +472,6 @@ export default function DashboardScreen(): React.ReactElement {
                     {summary.booksRead} cuốn
                   </Text>
                 </YStack>
-                <Text fontSize="$8">📚</Text>
               </XStack>
 
               <YStack height={200} justifyContent="flex-end">
@@ -604,7 +582,6 @@ export default function DashboardScreen(): React.ReactElement {
                     </Text>
                   ) : null}
                 </YStack>
-                <Text fontSize="$7">🎯</Text>
               </XStack>
             </YStack>
           </Card>
@@ -621,7 +598,6 @@ export default function DashboardScreen(): React.ReactElement {
                     {recordings.length} file
                   </Text>
                 </YStack>
-                <Text fontSize="$8">🎙️</Text>
               </XStack>
             </YStack>
           </Card>
@@ -636,7 +612,7 @@ export default function DashboardScreen(): React.ReactElement {
           >
             <YStack gap="$3">
               <Text fontSize="$5" fontWeight="700">
-                📝 Nhật kí học gần đây
+                Nhật kí học gần đây
               </Text>
               {recentBooks.length > 0 ? (
                 recentBooks.map((session) => (
@@ -673,7 +649,7 @@ export default function DashboardScreen(): React.ReactElement {
           {recordings.length > 0 && (
           <Card padding="$4" borderWidth={1} borderColor="$color5">
             <YStack gap="$3">
-              <Text fontSize="$5" fontWeight="700">🎙️ File ghi âm gần đây</Text>
+              <Text fontSize="$5" fontWeight="700">File ghi âm gần đây</Text>
               {recordings.length > 0 ? (
                 recordings.slice(0, 5).map((recording) => (
                   <RecordingTile
@@ -693,23 +669,6 @@ export default function DashboardScreen(): React.ReactElement {
           )}
         </YStack>
       </ScrollView>
-
-      {/* Bottom child selector & logout */}
-      <XStack justifyContent="space-between" alignItems="center" padding="$3" borderTopWidth={1} borderTopColor="$color4" backgroundColor="$background">
-        <XStack gap="$2">
-          {children.map((c) => (
-            <Button key={c.id} size="$3" onPress={() => setSelectedChild(guardianId, c.childId)}
-              backgroundColor={selectedChildId === c.childId ? COLORS.blue : "$background"}
-              color={selectedChildId === c.childId ? "white" : COLORS.textDark}
-            >
-              {c.childName}
-            </Button>
-          ))}
-        </XStack>
-        <Button theme="red" size="$3" onPress={async () => { logout(); await new Promise((r)=>setTimeout(r,100)); router.replace("/(auth)/login"); }}>
-          Đăng xuất
-        </Button>
-      </XStack>
     </YStack>
   );
 }

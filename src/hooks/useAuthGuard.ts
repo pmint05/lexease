@@ -1,17 +1,34 @@
 import { useAuthStore } from "@/src/store/useAuthStore";
+import { useConfigStore } from "@/src/store/useConfigStore";
+import { MOCK_SERVER_CONFIG } from "@/src/data/local/mockConfigData";
 import { useRootNavigationState, useRouter, useSegments } from "expo-router";
 import { useEffect } from "react";
 
 /**
  * useAuthGuard Hook
  * Handles navigation redirects based on authentication state and user roles
+ * Also manages automatic synchronization of configurations
  */
 export const useAuthGuard = () => {
   const segments = useSegments();
   const router = useRouter();
   const navigationState = useRootNavigationState();
 
-  const { token, role, _hasHydrated } = useAuthStore();
+  const { token, role, user, _hasHydrated } = useAuthStore();
+  const { syncFromServer } = useConfigStore();
+
+  useEffect(() => {
+    // 1. Sync configuration automatically when Child role is active
+    if (token && role === "child" && user) {
+      // Logic: In real app, call API here
+      // const config = await fetchConfig(user.id);
+      // syncFromServer(config);
+      
+      // Simulation for now:
+      syncFromServer(MOCK_SERVER_CONFIG);
+      console.log("[Auto-Sync] Child config updated from server");
+    }
+  }, [token, role, user?.id, syncFromServer]);
 
   useEffect(() => {
     // Wait for navigation state to be ready

@@ -10,12 +10,49 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { TamaguiProvider } from "tamagui";
 import "./globall.css";
 import { useAuthStore } from "../src/store/useAuthStore";
+import { useAuthGuard } from "../src/hooks/useAuthGuard";
 
 // Initialize providers outside component to persist across navigation
 const queryClient = new QueryClient();
 
 // Keep the splash screen visible while we fetch resources
 SplashScreen.preventAutoHideAsync();
+
+/**
+ * Separated component to use hooks that depend on context (if any)
+ * and to keep RootLayout clean.
+ */
+function RootLayoutContent() {
+  useAuthGuard();
+
+  return (
+    <Stack
+      screenOptions={{
+        headerShown: false,
+      }}
+    >
+      <Stack.Screen name="index" options={{}} />
+      <Stack.Screen
+        name="(auth)"
+        options={{
+          gestureEnabled: false,
+        }}
+      />
+      <Stack.Screen
+        name="(child)"
+        options={{
+          gestureEnabled: false,
+        }}
+      />
+      <Stack.Screen
+        name="(guardian)"
+        options={{
+          gestureEnabled: false,
+        }}
+      />
+    </Stack>
+  );
+}
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -65,11 +102,6 @@ export default function RootLayout() {
     }
   }, [loaded, error, _hasHydrated]);
 
-  // MANDATORY: RootLayout MUST always return a navigator if possible, 
-  // or at least a structure that leads to one immediately.
-  // We avoid returning null even during font loading because 
-  // SplashScreen handles the visual wait.
-  
   return (
     <SafeAreaProvider>
       <TamaguiProvider
@@ -83,31 +115,7 @@ export default function RootLayout() {
             }
             style={{ flex: 1 }}
           >
-            <Stack
-              screenOptions={{
-                headerShown: false,
-              }}
-            >
-              <Stack.Screen name="index" options={{}} />
-              <Stack.Screen
-                name="(auth)"
-                options={{
-                  gestureEnabled: false,
-                }}
-              />
-              <Stack.Screen
-                name="(child)"
-                options={{
-                  gestureEnabled: false,
-                }}
-              />
-              <Stack.Screen
-                name="(guardian)"
-                options={{
-                  gestureEnabled: false,
-                }}
-              />
-            </Stack>
+            <RootLayoutContent />
           </View>
         </QueryClientProvider>
       </TamaguiProvider>

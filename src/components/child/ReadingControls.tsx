@@ -99,7 +99,7 @@ export const ReadingControls = ({
               accessible
               accessibilityRole="button"
               accessibilitylabel={`Đặt tốc độ ${option}`}
-              accessibilityState={{ selected: speed === option }}
+              accessibilitystate={{ selected: speed === option }}
             >
               <Text
                 color={speed === option ? "$primaryForeground" : "$foreground"}
