@@ -26,7 +26,13 @@ export const useAuthGuard = () => {
       
       // Simulation for now:
       syncFromServer(MOCK_SERVER_CONFIG);
-      console.log("[Auto-Sync] Child config updated from server");
+      
+      // Update mock points if not exist
+      if (user && user.points === undefined) {
+        useAuthStore.getState().setUser({ ...user, points: 1250 });
+      }
+      
+      console.log("[Auto-Sync] Child config and points updated");
     }
   }, [token, role, user?.id, syncFromServer]);
 

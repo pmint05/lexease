@@ -6,6 +6,7 @@ export interface User {
   name: string;
   role: UserRole;
   avatarUrl?: string;
+  points?: number; // Hệ thống điểm thưởng
 }
 
 export interface Account extends User {
@@ -24,6 +25,7 @@ export interface Child extends User {
   role: "child";
   guardianId: string;
   readingLevel: 1 | 2 | 3;
+  points: number; // Điểm thưởng cho trẻ
 }
 
 export interface Guardian extends User {
