@@ -21,13 +21,10 @@ interface UseTextToSpeechProps {
 
 interface UseTextToSpeechReturn {
   isPlaying: boolean;
-  currentSpeed: ReadingRate;
   words: string[];
-  wordTimestamps: number[];
-  play: () => void;
+  play: (startIndex?: number, skipSpeak?: boolean) => void;
   pause: () => void;
   stop: () => void;
-  toggleSpeed: () => void;
 }
 
 export const useTextToSpeech = ({
@@ -37,41 +34,64 @@ export const useTextToSpeech = ({
   onFinish,
 }: UseTextToSpeechProps): UseTextToSpeechReturn => {
   const [isPlaying, setIsPlaying] = useState(false);
-  const [currentSpeed, setCurrentSpeed] = useState<ReadingRate>(speed);
   const words = useMemo(() => tokenizeText(text), [text]);
-  const wordTimestamps = useMemo(
-    () => estimateWordTimestamps(words, SPEED_MAP[currentSpeed]),
-    [currentSpeed, words],
-  );
+  
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const finishTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const startTimeRef = useRef(0);
+  const currentWordTimestamps = useRef<number[]>([]);
+  
+  const onWordBoundaryRef = useRef(onWordBoundary);
+  const onFinishRef = useRef(onFinish);
+
+  useEffect(() => {
+    onWordBoundaryRef.current = onWordBoundary;
+  }, [onWordBoundary]);
+
+  useEffect(() => {
+    onFinishRef.current = onFinish;
+  }, [onFinish]);
 
   const clearTimer = useCallback((): void => {
     if (timerRef.current) {
       clearInterval(timerRef.current);
       timerRef.current = null;
     }
+    if (finishTimeoutRef.current) {
+      clearTimeout(finishTimeoutRef.current);
+      finishTimeoutRef.current = null;
+    }
   }, []);
 
-  const startTracking = useCallback((): void => {
+  const startTracking = useCallback((startIndex: number): void => {
     clearTimer();
     startTimeRef.current = Date.now();
 
     timerRef.current = setInterval(() => {
       const elapsed = Date.now() - startTimeRef.current;
-      let nextIndex = 0;
+      let relativeIndex = 0;
 
-      for (let index = 0; index < wordTimestamps.length; index += 1) {
-        if (elapsed >= wordTimestamps[index]) {
-          nextIndex = index;
+      for (let index = 0; index < currentWordTimestamps.current.length; index += 1) {
+        if (elapsed >= currentWordTimestamps.current[index]) {
+          relativeIndex = index;
         } else {
           break;
         }
       }
 
-      onWordBoundary?.(nextIndex);
-    }, 80);
-  }, [clearTimer, onWordBoundary, wordTimestamps]);
+      const absoluteIndex = startIndex + relativeIndex;
+      onWordBoundaryRef.current?.(absoluteIndex);
+
+      // Check for completion - ONLY trigger if not already finishing
+      if (relativeIndex >= currentWordTimestamps.current.length - 1 && !finishTimeoutRef.current) {
+        finishTimeoutRef.current = setTimeout(() => {
+          clearTimer();
+          setIsPlaying(false);
+          onFinishRef.current?.();
+        }, 500);
+      }
+    }, 50);
+  }, [clearTimer]);
 
   const stop = useCallback((): void => {
     clearTimer();
@@ -83,49 +103,37 @@ export const useTextToSpeech = ({
     stop();
   }, [stop]);
 
-  const play = useCallback((): void => {
-    if (!text.trim()) {
-      return;
-    }
+  const play = useCallback((startIndex: number = 0, skipSpeak: boolean = false): void => {
+    if (!text.trim() || words.length === 0) return;
 
     clearTimer();
     Speech.stop();
-    setIsPlaying(false);
-    onWordBoundary?.(0);
+    
+    const wordsToSpeak = words.slice(startIndex);
+    if (wordsToSpeak.length === 0) {
+      onFinishRef.current?.();
+      return;
+    }
 
-    Speech.speak(text, {
-      rate: SPEED_MAP[currentSpeed],
-      language: "en-US",
-      onStart: () => {
-        setIsPlaying(true);
-        startTracking();
-      },
-      onDone: () => {
-        clearTimer();
-        setIsPlaying(false);
-        onWordBoundary?.(Math.max(0, words.length - 1));
-        onFinish?.();
-      },
-      onStopped: () => {
-        clearTimer();
-        setIsPlaying(false);
-      },
-      onError: () => {
-        clearTimer();
-        setIsPlaying(false);
-      },
-    });
-  }, [clearTimer, currentSpeed, onFinish, onWordBoundary, startTracking, text, words.length]);
+    currentWordTimestamps.current = estimateWordTimestamps(wordsToSpeak, SPEED_MAP[speed]);
+    setIsPlaying(true);
 
-  const toggleSpeed = useCallback((): void => {
-    const speedOptions: ReadingRate[] = [0.5, 0.75, 1, 1.25, 1.5];
-    const currentIndex = speedOptions.indexOf(currentSpeed);
-    setCurrentSpeed(speedOptions[(currentIndex + 1) % speedOptions.length]);
-  }, [currentSpeed]);
-
-  useEffect(() => {
-    setCurrentSpeed(speed);
-  }, [speed]);
+    if (skipSpeak) {
+      startTracking(startIndex);
+    } else {
+      startTracking(startIndex);
+      Speech.speak(wordsToSpeak.join(" "), {
+        rate: SPEED_MAP[speed],
+        language: "vi-VN",
+        onStopped: () => {
+          // If system stops TTS, visuals can continue unless clearTimer was called
+        },
+        onError: (error) => {
+          console.error("TTS Error:", error);
+        },
+      });
+    }
+  }, [clearTimer, speed, startTracking, text, words]);
 
   useEffect(() => {
     return () => {
@@ -136,12 +144,9 @@ export const useTextToSpeech = ({
 
   return {
     isPlaying,
-    currentSpeed,
     words,
-    wordTimestamps,
     play,
     pause,
     stop,
-    toggleSpeed,
   };
 };
