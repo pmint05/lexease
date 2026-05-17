@@ -33,19 +33,20 @@ export const ReadingBottomBar = ({
         {...(Platform.OS === "ios"
           ? { intensity: 80, tint: "light" }
           : {
-              backgroundColor: "rgba(255, 255, 255, 0.85)",
+              backgroundColor: "rgba(255, 255, 255, 0.8)",
             })}
         style={{
           borderTopLeftRadius: 32,
           borderTopRightRadius: 32,
           overflow: "hidden",
           borderTopWidth: 1,
+          backdropFilter: "blur(4px)",
           borderTopColor: "rgba(255, 255, 255, 0.5)",
         }}
       >
         <XStack
           paddingHorizontal="$8"
-          justifyContent="space-between"
+          justifyContent="space-around"
           alignItems="center"
           height={90}
         >

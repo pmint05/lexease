@@ -1,6 +1,6 @@
 import React from "react";
 import { Text, XStack } from "tamagui";
-import { useConfigStore } from "@/src/store/useConfigStore";
+import { useReadingStore } from "@/src/store/useReadingStore";
 import { FONT_MAP } from "@/src/core/constants/fonts";
 
 interface KaraokeTileProps {
@@ -9,7 +9,7 @@ interface KaraokeTileProps {
 }
 
 export const KaraokeTile = ({ word, isHighlighted }: KaraokeTileProps): React.ReactElement => {
-  const { fontSize, fontFamily, textColor, highlightColor, letterSpacing, lineHeight } = useConfigStore();
+  const { fontSize, fontFamily, textColor, highlightColor, letterSpacing, lineHeight } = useReadingStore();
   
   const tamaguiFontKey = FONT_MAP[fontFamily] || "body";
 

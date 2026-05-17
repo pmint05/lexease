@@ -1,43 +1,32 @@
-import { useConfigStore } from "@/src/store/useConfigStore";
-import { Palette, Settings, ShieldCheck } from "lucide-react-native";
 import React from "react";
-import {
-  Button,
-  Card,
-  Label,
-  ScrollView,
-  Switch,
-  Text,
-  XStack,
-  YStack,
-} from "tamagui";
+import { ScrollView, Text, YStack, Card, XStack, Label, Switch, Button } from "tamagui";
+import { Settings, Palette, ShieldCheck } from "lucide-react-native";
+import { useReadingStore } from "@/src/store/useReadingStore";
 
 /**
  * Settings Screen
  * Manage child's reading configuration and guardian preferences
  */
 export default function SettingsScreen(): React.ReactElement {
-  const { fontSize, fontFamily, backgroundColor, textColor, setConfig } =
-    useConfigStore();
+  const { 
+    fontSize, 
+    fontFamily, 
+    backgroundColor,
+    textColor,
+    setVisuals 
+  } = useReadingStore();
 
   return (
-    <ScrollView
-      backgroundColor="$background"
-      contentContainerStyle={{ paddingVertical: 16 }}
-    >
+    <ScrollView backgroundColor="$background">
       <YStack paddingHorizontal="$4" gap="$4">
-        <XStack gap="$2" alignItems="center" marginBottom="$2">
+        <XStack gap="$2" alignItems="center" marginBottom="$2" paddingTop="$4">
           <Settings size={24} color="$primary" />
-          <Text fontSize="$6" fontWeight="700">
-            Cài đặt hệ thống
-          </Text>
+          <Text fontSize="$6" fontWeight="700">Cài đặt hệ thống</Text>
         </XStack>
 
         <YStack gap="$4">
-          <Text fontWeight="700" fontSize="$5" color="$mutedForeground">
-            Cấu hình phiên đọc cho con
-          </Text>
-
+          <Text fontWeight="700" fontSize="$5" color="$mutedForeground">Cấu hình phiên đọc cho con</Text>
+          
           <Card padding="$4" bordered backgroundColor="$background">
             <YStack gap="$4">
               <XStack justifyContent="space-between" alignItems="center">
@@ -45,24 +34,16 @@ export default function SettingsScreen(): React.ReactElement {
                   <Palette size={20} color="$primary" />
                   <Text fontWeight="600">Giao diện đọc</Text>
                 </XStack>
-                <Text color="$primary" fontWeight="700">
-                  Tùy chỉnh
-                </Text>
+                <Text color="$primary" fontWeight="700">Tùy chỉnh</Text>
               </XStack>
-
+              
               <YStack gap="$2">
                 <Text fontSize="$3" color="$mutedForeground">
-                  Điều chỉnh màu nền, cỡ chữ và font chữ để phù hợp với thị giác
-                  của trẻ. Các thay đổi sẽ được áp dụng tự động xuống máy của
-                  trẻ.
+                  Điều chỉnh màu nền, cỡ chữ và font chữ để phù hợp với thị giác của trẻ. Các thay đổi sẽ được áp dụng tự động xuống máy của trẻ.
                 </Text>
                 <XStack gap="$2" marginTop="$2">
-                  <Button size="$3" theme="active">
-                    Mặc định
-                  </Button>
-                  <Button size="$3" variant="outline">
-                    Ban đêm
-                  </Button>
+                  <Button size="$3" theme="active">Mặc định</Button>
+                  <Button size="$3" variant="outline">Ban đêm</Button>
                 </XStack>
               </YStack>
             </YStack>
@@ -76,22 +57,18 @@ export default function SettingsScreen(): React.ReactElement {
                   <Text fontWeight="600">Quyền riêng tư & Bảo mật</Text>
                 </XStack>
               </XStack>
-
+              
               <XStack justifyContent="space-between" alignItems="center">
-                <Label f={1} fontSize="$4">
-                  Ghi âm tự động
-                </Label>
+                <Label f={1} fontSize="$4">Ghi âm tự động</Label>
                 <Switch defaultChecked size="$3">
-                  <Switch.Thumb />
+                  <Switch.Thumb animation="quick" />
                 </Switch>
               </XStack>
 
               <XStack justifyContent="space-between" alignItems="center">
-                <Label f={1} fontSize="$4">
-                  Báo cáo hàng tuần qua Email
-                </Label>
+                <Label f={1} fontSize="$4">Báo cáo hàng tuần qua Email</Label>
                 <Switch size="$3">
-                  <Switch.Thumb />
+                  <Switch.Thumb animation="quick" />
                 </Switch>
               </XStack>
             </YStack>

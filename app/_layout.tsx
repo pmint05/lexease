@@ -8,9 +8,9 @@ import { Platform, useColorScheme, View } from "react-native";
 import "react-native-reanimated";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { TamaguiProvider } from "tamagui";
-import "./globall.css";
-import { useAuthStore } from "../src/store/useAuthStore";
 import { useAuthGuard } from "../src/hooks/useAuthGuard";
+import { useAuthStore } from "../src/store/useAuthStore";
+import "./globall.css";
 
 // Initialize providers outside component to persist across navigation
 const queryClient = new QueryClient();
@@ -106,12 +106,14 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <TamaguiProvider
         config={tamaguiConfig}
-        defaultTheme={effectiveColorScheme === "dark" ? "dark" : "light"}
+        // defaultTheme={effectiveColorScheme === "dark" ? "dark" : "light"}
+        defaultTheme={"light"}
       >
         <QueryClientProvider client={queryClient}>
           <View
             className={
-              effectiveColorScheme === "dark" ? "dark flex-1" : "flex-1"
+              "flex-1"
+              // effectiveColorScheme === "dark" ? "dark flex-1" : "flex-1"
             }
             style={{ flex: 1 }}
           >

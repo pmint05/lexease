@@ -48,6 +48,7 @@ export const ReadingHeader = ({
         <Button
           icon={<Settings size={22} />}
           chromeless
+          circular
           onPress={onOpenSettings}
         />
       </XStack>

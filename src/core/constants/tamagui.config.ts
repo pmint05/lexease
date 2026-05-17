@@ -191,6 +191,12 @@ export const tamaguiConfig = createTamagui({
     defaultFont: "body",
     defaultTheme: "light",
   },
+  shorthands: {
+    ...configV5.shorthands,
+    br: "borderRadius",
+    bg: "backgroundColor",
+    p: "padding",
+  },
 });
 
 export type AppConfig = typeof tamaguiConfig;

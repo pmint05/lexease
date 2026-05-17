@@ -1,5 +1,5 @@
 import { useAuthStore } from "@/src/store/useAuthStore";
-import { useConfigStore } from "@/src/store/useConfigStore";
+import { useReadingStore } from "@/src/store/useReadingStore";
 import { MOCK_SERVER_CONFIG } from "@/src/data/local/mockConfigData";
 import { useRootNavigationState, useRouter, useSegments } from "expo-router";
 import { useEffect } from "react";
@@ -15,15 +15,11 @@ export const useAuthGuard = () => {
   const navigationState = useRootNavigationState();
 
   const { token, role, user, _hasHydrated } = useAuthStore();
-  const { syncFromServer } = useConfigStore();
+  const { syncFromServer } = useReadingStore();
 
   useEffect(() => {
     // 1. Sync configuration automatically when Child role is active
     if (token && role === "child" && user) {
-      // Logic: In real app, call API here
-      // const config = await fetchConfig(user.id);
-      // syncFromServer(config);
-      
       // Simulation for now:
       syncFromServer(MOCK_SERVER_CONFIG);
       

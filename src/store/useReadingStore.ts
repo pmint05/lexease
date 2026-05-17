@@ -1,65 +1,117 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { create } from "zustand";
+import { createJSONStorage, persist } from "zustand/middleware";
+import { ConfigFontFamily } from "../core/constants/fonts";
 
 /**
  * Reading Store
- * Manages global reading session state
- * - Current word/phrase index (for Karaoke highlighting)
- * - Playback speed (0.5x - 1.5x)
- * - Playback state (playing/paused)
- * - Audio position
- * Non-persisted (ephemeral, session-only state)
+ * Unified store for everything related to the reading experience.
+ * Includes:
+ * - Visual settings (Guardian-set, Persisted)
+ * - User preferences (Child-set, Persisted)
+ * - Active session state (Ephemeral, Not Persisted)
  */
 
-export type Speed = 0.5 | 0.75 | 1 | 1.25 | 1.5;
-
-export interface AudioState {
-  position: number; // milliseconds
-  duration: number; // milliseconds
-}
-
 export interface ReadingStoreState {
-  // State
-  currentIndex: number; // Current word index for highlighting
-  speed: Speed; // Playback speed
-  isPlaying: boolean; // Playback state
-  audioState: AudioState; // Audio position and duration
+  // --- Visuals (Guardian/Persisted) ---
+  fontSize: number;
+  fontFamily: ConfigFontFamily;
+  backgroundColor: string;
+  textColor: string;
+  letterSpacing: number;
+  lineHeight: number;
+  highlightColor: string;
 
-  // Actions
+  // --- Preferences (Child/Persisted) ---
+  speed: number;
+  isTtsEnabled: boolean;
+
+  // --- Session State (Transient/Not Persisted) ---
+  currentIndex: number;
+  isPlaying: boolean;
+  isRecording: boolean;
+
+  // --- Actions ---
+  // Visual actions
+  setVisuals: (config: Partial<ReadingStoreState>) => void;
+  syncFromServer: (config: Partial<ReadingStoreState>) => void;
+
+  // Preference actions
+  setSpeed: (speed: number) => void;
+  setIsTtsEnabled: (enabled: boolean) => void;
+
+  // Session actions
   setIndex: (index: number) => void;
-  setSpeed: (speed: Speed) => void;
   setIsPlaying: (playing: boolean) => void;
-  setAudioState: (state: Partial<AudioState>) => void;
-  reset: () => void;
+  setIsRecording: (recording: boolean) => void;
+  resetSession: () => void;
+  resetAll: () => void;
 }
 
-const initialAudioState: AudioState = {
-  position: 0,
-  duration: 0,
+const DEFAULT_VISUALS = {
+  fontSize: 20,
+  fontFamily: "Lexend" as ConfigFontFamily,
+  backgroundColor: "#FFF8F0",
+  textColor: "#2D3436",
+  letterSpacing: 1.2,
+  lineHeight: 1.5,
+  highlightColor: "#FFD93D",
 };
 
-export const useReadingStore = create<ReadingStoreState>((set) => ({
-  // Initial state
-  currentIndex: 0,
-  speed: 1,
-  isPlaying: false,
-  audioState: initialAudioState,
+const DEFAULT_PREFERENCES = {
+  speed: 1.0,
+  isTtsEnabled: true,
+};
 
-  // Actions
-  setIndex: (index) => set({ currentIndex: index }),
-  setSpeed: (speed) => set({ speed }),
-  setIsPlaying: (playing) => set({ isPlaying: playing }),
-  setAudioState: (state) =>
-    set((prev) => ({
-      audioState: {
-        ...prev.audioState,
-        ...state,
-      },
-    })),
-  reset: () =>
-    set({
-      currentIndex: 0,
-      speed: 1,
-      isPlaying: false,
-      audioState: initialAudioState,
+const INITIAL_SESSION = {
+  currentIndex: 0,
+  isPlaying: false,
+  isRecording: false,
+};
+
+export const useReadingStore = create<ReadingStoreState>()(
+  persist(
+    (set) => ({
+      ...DEFAULT_VISUALS,
+      ...DEFAULT_PREFERENCES,
+      ...INITIAL_SESSION,
+
+      // Visuals
+      setVisuals: (config) => set((state) => ({ ...state, ...config })),
+      syncFromServer: (config) => set((state) => ({ ...state, ...config })),
+
+      // Preferences
+      setSpeed: (speed) => set({ speed: Math.min(Math.max(speed, 0.5), 2.0) }),
+      setIsTtsEnabled: (enabled) => set({ isTtsEnabled: enabled }),
+
+      // Session
+      setIndex: (index) => set({ currentIndex: index }),
+      setIsPlaying: (playing) => set({ isPlaying: playing }),
+      setIsRecording: (recording) => set({ isRecording: recording }),
+      
+      resetSession: () => set(INITIAL_SESSION),
+      
+      resetAll: () => set({
+        ...DEFAULT_VISUALS,
+        ...DEFAULT_PREFERENCES,
+        ...INITIAL_SESSION,
+      }),
     }),
-}));
+    {
+      name: "lexease-reading-v2",
+      storage: createJSONStorage(() => AsyncStorage),
+      // Only persist visuals and preferences, NOT the session state
+      partialize: (state) => ({
+        fontSize: state.fontSize,
+        fontFamily: state.fontFamily,
+        backgroundColor: state.backgroundColor,
+        textColor: state.textColor,
+        letterSpacing: state.letterSpacing,
+        lineHeight: state.lineHeight,
+        highlightColor: state.highlightColor,
+        speed: state.speed,
+        isTtsEnabled: state.isTtsEnabled,
+      }),
+    }
+  )
+);

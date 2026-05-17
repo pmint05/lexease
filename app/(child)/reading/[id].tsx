@@ -10,37 +10,44 @@ import { ReadingBottomBar } from "@/src/components/child/ReadingBottomBar";
 import { ReadingSettingsModal } from "@/src/components/child/ReadingSettingsModal";
 import { ReadingExitModal } from "@/src/components/child/ReadingExitModal";
 
-import { ReadingRate } from "@/src/core/types";
 import { getBookById } from "@/src/data/local/books";
 import { useAudioRecording } from "@/src/hooks/useAudioRecording";
 import { useTextToSpeech } from "@/src/hooks/useTextToSpeech";
 import { useAuthStore } from "@/src/store/useAuthStore";
-import { useConfigStore } from "@/src/store/useConfigStore";
 import { useLearningStore } from "@/src/store/useLearningStore";
 import { useReadingStore } from "@/src/store/useReadingStore";
 import { useRecordingStore } from "@/src/store/useRecordingStore";
 
 /**
  * Modern Reading Space Screen
- * Focused on dyslexia-friendly experience, minimalist UI, and interactive spotlight.
+ * Unified store integration and minimalist UI.
  */
 export default function ReadingScreen(): React.ReactElement {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const book = useMemo(() => getBookById(id), [id]);
   
-  const { currentIndex, speed, isPlaying, setIsPlaying, setIndex, reset } = useReadingStore();
+  const { 
+    currentIndex, 
+    speed, 
+    isPlaying, 
+    isTtsEnabled,
+    backgroundColor,
+    setIsPlaying, 
+    setIndex, 
+    setIsTtsEnabled,
+    resetSession 
+  } = useReadingStore();
+  
   const { user } = useAuthStore();
   const { addRecording } = useRecordingStore();
   const { addSession } = useLearningStore();
-  const { backgroundColor } = useConfigStore();
   
   const { isRecording, startRecording, stopRecording, recordingDuration } = useAudioRecording();
   
   // UI State
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isExitModalOpen, setIsExitModalOpen] = useState(false);
-  const [isTtsEnabled, setIsTtsEnabled] = useState(true);
   
   const sessionStartRef = useRef(0);
   const sessionLoggedRef = useRef(false);
@@ -57,7 +64,7 @@ export default function ReadingScreen(): React.ReactElement {
   // TTS Hook
   const { play, pause, stop } = useTextToSpeech({
     text: words.join(" "),
-    speed: speed as ReadingRate,
+    speed: speed,
     onWordBoundary: (newIndex) => {
       setIndex(newIndex);
     },
@@ -80,7 +87,7 @@ export default function ReadingScreen(): React.ReactElement {
       completedAt: new Date(completedAt).toISOString(),
       durationMs: Math.max(1000, completedAt - startedAt),
       wordsRead: currentIndex + 1,
-      speed: speed as ReadingRate,
+      speed: speed,
     });
     sessionLoggedRef.current = true;
   }, [addSession, book, user?.id, currentIndex, speed]);
@@ -146,7 +153,7 @@ export default function ReadingScreen(): React.ReactElement {
 
   const handleConfirmExit = () => {
     finalizeSession();
-    reset();
+    resetSession();
     stop();
     router.replace("/(child)/(tabs)/library");
   };

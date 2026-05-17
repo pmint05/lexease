@@ -1,8 +1,8 @@
-import { FONT_MAP } from "@/src/core/constants/fonts";
-import { useConfigStore } from "@/src/store/useConfigStore";
 import React, { useEffect, useRef } from "react";
-import { ScrollView } from "react-native";
-import { Text, XStack, YStack } from "tamagui";
+import { ScrollView, NativeSyntheticEvent, NativeScrollEvent } from "react-native";
+import { YStack, XStack, Text } from "tamagui";
+import { useReadingStore } from "@/src/store/useReadingStore";
+import { FONT_MAP } from "@/src/core/constants/fonts";
 
 interface ReadingContentProps {
   words: string[];
@@ -17,16 +17,17 @@ export const ReadingContent = ({
   currentIndex,
   isPlaying,
   onWordPress,
-  onManualScroll,
+  onManualScroll
 }: ReadingContentProps): React.ReactElement => {
-  const {
-    fontSize,
-    fontFamily,
-    textColor,
-    highlightColor,
-    letterSpacing,
-    lineHeight,
-  } = useConfigStore();
+  const { 
+    fontSize, 
+    fontFamily, 
+    textColor, 
+    highlightColor, 
+    letterSpacing, 
+    lineHeight 
+  } = useReadingStore();
+  
   const scrollRef = useRef<ScrollView>(null);
   const wordLayouts = useRef<Record<number, number>>({});
   const isAutoScrolling = useRef(false);
@@ -39,7 +40,7 @@ export const ReadingContent = ({
       isAutoScrolling.current = true;
       scrollRef.current?.scrollTo({
         y: wordLayouts.current[currentIndex] - 150, // Approx center
-        animated: true,
+        animated: true
       });
       setTimeout(() => {
         isAutoScrolling.current = false;
@@ -54,16 +55,16 @@ export const ReadingContent = ({
   return (
     <ScrollView
       ref={scrollRef}
+      flex={1}
+      paddingHorizontal="$4"
       showsVerticalScrollIndicator={false}
       onScrollBeginDrag={handleScrollBeginDrag}
       scrollEventThrottle={16}
-      contentContainerStyle={{ paddingBottom: 100 }}
+      contentContainerStyle={{ paddingVertical: 200 }} // Extra space for centering
     >
-      <XStack flexWrap="wrap" gap="$1" alignItems="center" padding="$4">
+      <XStack flexWrap="wrap" gap="$1" alignItems="center">
         {words.map((word, idx) => {
           const isHighlighted = idx === currentIndex;
-          const isPast = idx < currentIndex;
-          const isFuture = idx > currentIndex;
 
           return (
             <YStack

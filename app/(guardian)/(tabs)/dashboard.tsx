@@ -1,5 +1,5 @@
 import { useAuthStore } from "@/src/store/useAuthStore";
-import { useConfigStore } from "@/src/store/useConfigStore";
+import { useReadingStore } from "@/src/store/useReadingStore";
 import { useFamilyStore } from "@/src/store/useFamilyStore";
 import { useRouter } from "expo-router";
 import { ChevronRight, Target, TrendingUp, Zap } from "lucide-react-native";

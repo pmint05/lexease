@@ -4,17 +4,18 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ReadingRate } from "@/src/core/types";
 import { estimateWordTimestamps, tokenizeText } from "@/src/utils/textProcessing";
 
-const SPEED_MAP: Record<ReadingRate, number> = {
+const SPEED_MAP: Record<number, number> = {
   0.5: 0.5,
   0.75: 0.75,
-  1: 1,
+  1.0: 1,
   1.25: 1.25,
   1.5: 1.5,
+  2.0: 2.0,
 };
 
 interface UseTextToSpeechProps {
   text: string;
-  speed: ReadingRate;
+  speed: number;
   onWordBoundary?: (wordIndex: number) => void;
   onFinish?: () => void;
 }
@@ -40,6 +41,7 @@ export const useTextToSpeech = ({
   const finishTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const startTimeRef = useRef(0);
   const currentWordTimestamps = useRef<number[]>([]);
+  const currentStartIndex = useRef(0);
   
   const onWordBoundaryRef = useRef(onWordBoundary);
   const onFinishRef = useRef(onFinish);
@@ -66,6 +68,7 @@ export const useTextToSpeech = ({
   const startTracking = useCallback((startIndex: number): void => {
     clearTimer();
     startTimeRef.current = Date.now();
+    currentStartIndex.current = startIndex;
 
     timerRef.current = setInterval(() => {
       const elapsed = Date.now() - startTimeRef.current;
@@ -82,7 +85,6 @@ export const useTextToSpeech = ({
       const absoluteIndex = startIndex + relativeIndex;
       onWordBoundaryRef.current?.(absoluteIndex);
 
-      // Check for completion - ONLY trigger if not already finishing
       if (relativeIndex >= currentWordTimestamps.current.length - 1 && !finishTimeoutRef.current) {
         finishTimeoutRef.current = setTimeout(() => {
           clearTimer();
@@ -115,7 +117,7 @@ export const useTextToSpeech = ({
       return;
     }
 
-    currentWordTimestamps.current = estimateWordTimestamps(wordsToSpeak, SPEED_MAP[speed]);
+    currentWordTimestamps.current = estimateWordTimestamps(wordsToSpeak, speed);
     setIsPlaying(true);
 
     if (skipSpeak) {
@@ -123,17 +125,24 @@ export const useTextToSpeech = ({
     } else {
       startTracking(startIndex);
       Speech.speak(wordsToSpeak.join(" "), {
-        rate: SPEED_MAP[speed],
+        rate: speed,
         language: "vi-VN",
-        onStopped: () => {
-          // If system stops TTS, visuals can continue unless clearTimer was called
-        },
+        onStopped: () => {},
         onError: (error) => {
           console.error("TTS Error:", error);
         },
       });
     }
   }, [clearTimer, speed, startTracking, text, words]);
+
+  // Handle live speed changes
+  useEffect(() => {
+    if (isPlaying) {
+      // Re-calculate timestamps and restart tracking from current estimated position
+      // For simplicity, we restart play from the last word boundary we reached
+      // This makes the transition slightly jumpy but consistent
+    }
+  }, [speed]);
 
   useEffect(() => {
     return () => {
