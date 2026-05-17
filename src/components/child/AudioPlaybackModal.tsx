@@ -1,9 +1,26 @@
-import React, { useEffect, useState } from "react";
-import { Sheet, YStack, Text, XStack, Button, Slider, Separator } from "tamagui";
-import { Play, Pause, SkipBack, SkipForward, X, Trash2 } from "lucide-react-native";
-import { useAudioPlayer, useAudioPlayerStatus } from "expo-audio";
 import { formatDuration } from "@/src/utils/textProcessing";
+import { useAudioPlayer, useAudioPlayerStatus } from "expo-audio";
+import {
+  Pause,
+  Play,
+  SkipBack,
+  SkipForward,
+  Trash2,
+  X,
+} from "lucide-react-native";
+import React, { useEffect, useState } from "react";
+import {
+  Button,
+  Separator,
+  Sheet,
+  Slider,
+  Text,
+  XStack,
+  YStack,
+} from "tamagui";
 import { AudioWaveform } from "./AudioWaveform";
+import { fetchAndComputeMetering } from "@/src/utils/audioProcessing";
+import { Platform } from "react-native";
 
 interface AudioPlaybackModalProps {
   uri: string | null;
@@ -20,11 +37,12 @@ export const AudioPlaybackModal = ({
   meteringData = [],
   open,
   onOpenChange,
-  onDelete
+  onDelete,
 }: AudioPlaybackModalProps): React.ReactElement => {
   const player = useAudioPlayer(uri);
   const status = useAudioPlayerStatus(player);
   const [speed, setSpeed] = useState(1.0);
+  const [localMetering, setLocalMetering] = useState<number[] | undefined>(undefined);
 
   const handleTogglePlay = () => {
     if (status.playing) {
@@ -56,12 +74,21 @@ export const AudioPlaybackModal = ({
   useEffect(() => {
     if (open && uri) {
       player.replace(uri);
+
+      // If on web and no metering provided, compute from audio blob
+      if (Platform.OS === "web" && (!meteringData || meteringData.length === 0)) {
+        (async () => {
+          const computed = await fetchAndComputeMetering(uri as string, 120);
+          if (computed && computed.length > 0) setLocalMetering(computed);
+        })();
+      }
     } else {
       player.pause();
     }
-  }, [open, uri]);
+  }, [open, uri, player, meteringData]);
 
-  const progress = status.duration > 0 ? status.currentTime / status.duration : 0;
+  const progress =
+    status.duration > 0 ? status.currentTime / status.duration : 0;
 
   return (
     <Sheet
@@ -70,6 +97,7 @@ export const AudioPlaybackModal = ({
       snapPointsMode="fit"
       dismissOnSnapToBottom
       position={0}
+      modal
       animation="medium"
     >
       <Sheet.Overlay
@@ -79,12 +107,7 @@ export const AudioPlaybackModal = ({
         exitStyle={{ opacity: 0 }}
       />
 
-      <Sheet.Frame 
-        padding="$4" 
-        backgroundColor="transparent"
-        justifyContent="center"
-        alignItems="center"
-      >
+      <Sheet.Frame backgroundColor="transparent" paddingBottom={"$2"}>
         <Sheet.Handle marginBottom="$4" />
 
         <YStack
@@ -95,7 +118,6 @@ export const AudioPlaybackModal = ({
           elevate
           shadowColor="rgba(0,0,0,0.1)"
           shadowRadius={30}
-          width="100%"
           maxWidth={450} // Kích thước tối ưu cho mobile
           alignSelf="center"
         >
@@ -125,11 +147,16 @@ export const AudioPlaybackModal = ({
           </XStack>
 
           {/* Real Audio Waveform */}
-          <YStack height={80} alignItems="center" justifyContent="center" width="100%">
+          <YStack
+            height={80}
+            alignItems="center"
+            justifyContent="center"
+            width="100%"
+          >
             <AudioWaveform 
-                meteringData={meteringData} 
-                progress={progress} 
-                height={80} 
+              meteringData={localMetering && localMetering.length > 0 ? localMetering : meteringData}
+              progress={progress} 
+              height={80} 
             />
           </YStack>
 
@@ -205,9 +232,9 @@ export const AudioPlaybackModal = ({
 
           {/* Footer Actions */}
           <XStack justifyContent="space-between" alignItems="center">
-            <Button 
-              size="$3" 
-              variant="outline" 
+            <Button
+              size="$3"
+              variant="outline"
               borderRadius="$10"
               onPress={handleToggleSpeed}
               minWidth={100}

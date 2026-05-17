@@ -28,22 +28,36 @@ export const AudioWaveform = ({
     // If no data, we will return null and handle it in render
     if (!meteringData || meteringData.length === 0) return null;
 
-    // Normalization logic: convert dB (-160 to 0) to 0-1 range
-    const normalizedData = meteringData.map((db) =>
-      Math.max(0.1, (db + 160) / 160),
+    const sourceData = meteringData.map((db) =>
+      Number.isFinite(db) ? db : -160,
     );
+    const minDb = Math.min(...sourceData);
+    const maxDb = Math.max(...sourceData);
+    const range = Math.max(maxDb - minDb, 1);
 
-    // Sampling logic: ensure we have exactly N bars across the width
-    const numberOfBars = 60;
+    const normalizedData = sourceData.map((db) => {
+      const relative = (db - minDb) / range;
+      const boosted = Math.pow(relative, 0.65);
+      return Math.max(0.08, boosted);
+    });
+
+    // Sampling logic: produce N bars across the width using linear interpolation
+    const numberOfBars: number = 60;
     const sampledData: number[] = [];
+    const len = normalizedData.length;
+    if (len === 0) return [];
 
     for (let i = 0; i < numberOfBars; i++) {
-      const index = Math.min(
-        Math.floor(i * (normalizedData.length / numberOfBars)),
-        normalizedData.length - 1,
-      );
-
-      sampledData.push(normalizedData[index]);
+      // Map bar index to position in the source array (0 .. len-1)
+      const t = numberOfBars === 1 ? 0 : i / (numberOfBars - 1);
+      const pos = t * (len - 1);
+      const lo = Math.floor(pos);
+      const hi = Math.min(len - 1, Math.ceil(pos));
+      const frac = pos - lo;
+      const vLo = normalizedData[lo] ?? 0.1;
+      const vHi = normalizedData[hi] ?? vLo;
+      const value = vLo + (vHi - vLo) * frac;
+      sampledData.push(value);
     }
 
     const barWidth = canvasWidth / numberOfBars;
@@ -51,9 +65,12 @@ export const AudioWaveform = ({
     const actualBarWidth = Math.max(1, barWidth - gap);
 
     return sampledData.map((val, i) => {
-      const barHeight = val * height;
+      // apply a sqrt transform for better visual dynamics
+      const adjusted = Math.sqrt(val);
+      const barHeight = adjusted * height;
       const x = i * barWidth;
-      const y = (height - barHeight) / 2;
+      // anchor to bottom (so bars grow upwards)
+      const y = height - barHeight;
       return { x, y, width: actualBarWidth, height: barHeight };
     });
   }, [meteringData, canvasWidth, height]);

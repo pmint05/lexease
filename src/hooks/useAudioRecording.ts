@@ -23,10 +23,15 @@ export const useAudioRecording = (): UseAudioRecordingReturn => {
   const [recordingDuration, setRecordingDuration] = useState(0);
   const [meteringData, setMeteringData] = useState<number[]>([]);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const meteringIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const meteringIntervalRef = useRef<ReturnType<typeof setInterval> | null>(
+    null,
+  );
 
-  const recorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
-  const recorderState = useAudioRecorderState(recorder);
+  const recorder = useAudioRecorder({
+    ...RecordingPresets.HIGH_QUALITY,
+    isMeteringEnabled: true,
+  });
+  const recorderState = useAudioRecorderState(recorder, 100);
   const player = useAudioPlayer(null as any);
 
   // Keep a ref to the latest metering value to use in the interval
@@ -80,9 +85,8 @@ export const useAudioRecording = (): UseAudioRecordingReturn => {
 
     // Metering timer - collect data every 100ms from the state-driven ref
     meteringIntervalRef.current = setInterval(() => {
-      setMeteringData(prev => [...prev, latestMetering.current]);
+      setMeteringData((prev) => [...prev, latestMetering.current]);
     }, 100);
-
   }, [clearTimers, requestPermissions, recorder]);
 
   const stopRecording = useCallback(async (): Promise<string | null> => {

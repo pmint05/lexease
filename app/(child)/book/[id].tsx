@@ -1,3 +1,4 @@
+import * as FileSystem from "expo-file-system";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import {
   BarChart,
@@ -10,7 +11,6 @@ import {
 import { useMemo, useState } from "react";
 import { Alert } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import * as FileSystem from "expo-file-system";
 import {
   Card,
   H3,
@@ -22,16 +22,16 @@ import {
   YStack,
 } from "tamagui";
 
-import { RecordingTile } from "@/src/components/child/RecordingTile";
 import { AudioPlaybackModal } from "@/src/components/child/AudioPlaybackModal";
+import { RecordingTile } from "@/src/components/child/RecordingTile";
 import { Button } from "@/src/components/shared/Button";
 import { COLORS } from "@/src/core/constants/colors";
+import { Recording } from "@/src/core/types";
 import { getBookById } from "@/src/data/local/books";
 import { useAudioRecording } from "@/src/hooks/useAudioRecording";
 import { useLearningStore } from "@/src/store/useLearningStore";
 import { useReadingStore } from "@/src/store/useReadingStore";
 import { useRecordingStore } from "@/src/store/useRecordingStore";
-import { Recording } from "@/src/core/types";
 
 /**
  * Reading Detail Screen (Chi tiết bài đọc)
@@ -50,8 +50,12 @@ export default function ReadingDetailScreen(): React.ReactElement {
 
   // Playback Modal State
   const [playbackUri, setPlaybackUri] = useState<string | null>(null);
-  const [selectedRecordingId, setSelectedRecordingId] = useState<string | null>(null);
-  const [playbackMeteringData, setPlaybackMeteringData] = useState<number[] | undefined>([]);
+  const [selectedRecordingId, setSelectedRecordingId] = useState<string | null>(
+    null,
+  );
+  const [playbackMeteringData, setPlaybackMeteringData] = useState<
+    number[] | undefined
+  >([]);
   const [isPlaybackOpen, setIsPlaybackOpen] = useState(false);
 
   const bookRecordings = useMemo(
@@ -62,19 +66,19 @@ export default function ReadingDetailScreen(): React.ReactElement {
   const handleOpenPlayback = async (recording: Recording) => {
     try {
       const fileInfo = await FileSystem.getInfoAsync(recording.filePath);
-      
+
       if (!fileInfo.exists) {
         Alert.alert(
           "Lỗi tập tin",
           "Bản ghi âm này không còn tồn tại trên thiết bị. Bé có muốn xóa thông tin bản ghi này không?",
           [
             { text: "Để sau", style: "cancel" },
-            { 
-              text: "Xóa ngay", 
-              style: "destructive", 
-              onPress: () => removeRecording(recording.id) 
-            }
-          ]
+            {
+              text: "Xóa ngay",
+              style: "destructive",
+              onPress: () => removeRecording(recording.id),
+            },
+          ],
         );
         return;
       }
@@ -118,7 +122,7 @@ export default function ReadingDetailScreen(): React.ReactElement {
       <XStack
         paddingTop={insets.top}
         paddingHorizontal="$4"
-        paddingVertical="$2"
+        paddingVertical="$4"
         alignItems="center"
         backgroundColor="$background"
       >
@@ -140,7 +144,7 @@ export default function ReadingDetailScreen(): React.ReactElement {
       <ScrollView showsVerticalScrollIndicator={false}>
         <YStack paddingHorizontal="$4" gap="$6" paddingBottom={100}>
           {/* 2. Hero Section: Cover & Basic Info */}
-          <XStack gap="$4" paddingTop="$4">
+          <XStack gap="$4">
             <Card
               width={120}
               height={180}
@@ -285,8 +289,10 @@ export default function ReadingDetailScreen(): React.ReactElement {
           {bookRecordings.length > 0 && (
             <YStack gap="$4" marginTop="$2">
               <XStack alignItems="center" gap="$2">
-                <Headphones size={22} color="$primary" />
-                <Text fontSize="$5" fontWeight="900">Bản ghi của bé</Text>
+                <Headphones size={22} />
+                <Text fontSize="$5" fontWeight="900">
+                  Bản ghi của bé
+                </Text>
               </XStack>
 
               <YStack gap="$3">
@@ -299,22 +305,20 @@ export default function ReadingDetailScreen(): React.ReactElement {
                   />
                 ))}
               </YStack>
-              <Text fontSize="$2" color="$mutedForeground" textAlign="center" marginTop="$1">
-                Nhấn giữ vào bản ghi để hiện thêm tùy chọn
-              </Text>
             </YStack>
           )}
-
         </YStack>
       </ScrollView>
 
-      <AudioPlaybackModal 
+      <AudioPlaybackModal
         uri={playbackUri}
         title={book.title}
         meteringData={playbackMeteringData}
         open={isPlaybackOpen}
         onOpenChange={setIsPlaybackOpen}
-        onDelete={() => selectedRecordingId && removeRecording(selectedRecordingId)}
+        onDelete={() =>
+          selectedRecordingId && removeRecording(selectedRecordingId)
+        }
       />
     </YStack>
   );

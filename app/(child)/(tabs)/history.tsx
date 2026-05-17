@@ -42,13 +42,47 @@ export default function HistoryScreen(): React.ReactElement {
   const handleOpenPlayback = async (recording: Recording) => {
     try {
       if (Platform.OS === "web") {
-        Alert.alert(
-          "Không hỗ trợ trên web",
-          "Nghe lại bản ghi chỉ khả dụng trên thiết bị iOS/Android vì file âm thanh được lưu cục bộ trên máy.",
-        );
+        // On web, recordings may be stored as blob: or http(s) URLs.
+        // Try to fetch the resource (HEAD then GET) to detect availability.
+        const webUri = (recording as any).webUri ?? recording.filePath;
+        if (!webUri) {
+          Alert.alert(
+            "Lỗi tập tin",
+            "Không tìm thấy đường dẫn bản ghi trên web.",
+          );
+          return;
+        }
+
+        let ok = false;
+        try {
+          const head = await fetch(webUri, { method: "HEAD" });
+          ok = head.ok;
+        } catch {
+          try {
+            const get = await fetch(webUri);
+            ok = get.ok;
+          } catch {
+            ok = false;
+          }
+        }
+
+        if (!ok) {
+          Alert.alert(
+            "Lỗi tập tin",
+            "Không thể truy cập file âm thanh trên web. Hãy kiểm tra file hoặc dùng thiết bị thật để phát lại.",
+          );
+          return;
+        }
+
+        setPlaybackUri(webUri);
+        setPlaybackTitle(recording.bookTitle);
+        setSelectedRecordingId(recording.id);
+        setPlaybackMeteringData(recording.meteringData);
+        setIsPlaybackOpen(true);
         return;
       }
 
+      // Native platforms: use expo-file-system to verify file exists
       const fileInfo = await FileSystem.getInfoAsync(recording.filePath);
 
       if (!fileInfo.exists) {
@@ -93,16 +127,6 @@ export default function HistoryScreen(): React.ReactElement {
             onDelete={removeRecording}
           />
         )}
-        ListHeaderComponent={
-          <Text
-            fontSize="$2"
-            color="$mutedForeground"
-            textAlign="center"
-            marginBottom="$4"
-          >
-            Nhấn giữ vào bản ghi để hiện thêm tùy chọn
-          </Text>
-        }
         ListEmptyComponent={
           <YStack paddingVertical="$10" alignItems="center" gap="$2">
             <Headphones size={48} color="$color5" />

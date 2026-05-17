@@ -35,3 +35,15 @@ export const formatDate = (isoString: string): string => {
     month: "long",
   });
 };
+
+export const formatDateTime = (isoString: string): string => {
+  const date = new Date(isoString);
+  // Always include date and time in Vietnamese locale
+  return date.toLocaleString("vi-VN", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};

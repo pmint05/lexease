@@ -1,9 +1,9 @@
-import { Trash2, Play, Mic } from "lucide-react-native";
+import { Mic, Play, Trash2 } from "lucide-react-native";
 import React, { useState } from "react";
-import { Button, Text, XStack, YStack, Circle, Popover } from "tamagui";
+import { Button, Circle, Popover, Text, XStack, YStack } from "tamagui";
 
 import { Recording } from "@/src/core/types";
-import { formatDate, formatReadingTime } from "@/src/utils/formatters";
+import { formatDateTime, formatReadingTime } from "@/src/utils/formatters";
 
 interface RecordingTileProps {
   recording: Recording;
@@ -12,44 +12,53 @@ interface RecordingTileProps {
   onDelete: (recordingId: string) => void;
 }
 
-export const RecordingTile = ({ 
-  recording, 
-  showTitle = false, 
-  onPlay, 
-  onDelete 
+export const RecordingTile = ({
+  recording,
+  showTitle = false,
+  onPlay,
+  onDelete,
 }: RecordingTileProps): React.ReactElement => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <Popover 
-      open={isOpen} 
-      onOpenChange={setIsOpen} 
-      placement="bottom" 
+    <Popover
+      open={isOpen}
+      onOpenChange={setIsOpen}
+      placement="bottom"
       size="$4"
     >
       <Popover.Trigger asChild>
-        <XStack 
-          padding="$3" 
-          backgroundColor="$color2" 
-          borderRadius="$4" 
-          alignItems="center" 
+        <XStack
+          padding="$3"
+          backgroundColor="$color2"
+          borderRadius="$4"
+          alignItems="center"
           gap="$3"
           onLongPress={() => setIsOpen(true)}
           pressStyle={{ backgroundColor: "$color3" }}
         >
           {/* Icon indicator */}
-          <Circle size={44} backgroundColor="$primary" opacity={0.1}>
-            <Mic size={22} color="$primary" />
+          <Circle size={44} backgroundColor="$primaryForeground">
+            <Mic size={22} />
           </Circle>
 
           <YStack flex={1} gap="$0.5">
             {showTitle && (
-              <Text fontSize="$4" fontWeight="700" color="$foreground" numberOfLines={1}>
+              <Text
+                fontSize="$4"
+                fontWeight="700"
+                color="$foreground"
+                numberOfLines={1}
+              >
                 {recording.bookTitle}
               </Text>
             )}
-            <Text fontSize="$3" fontWeight={showTitle ? "500" : "700"} color={showTitle ? "$mutedForeground" : "$foreground"}>
-              Bản ghi ngày {formatDate(recording.createdAt)}
+            <Text
+              fontSize="$3"
+              fontWeight={showTitle ? "500" : "700"}
+              color={showTitle ? "$mutedForeground" : "$foreground"}
+            >
+              Bản ghi: {formatDateTime(recording.createdAt)}
             </Text>
             <Text fontSize="$2" color="$mutedForeground">
               Thời lượng: {formatReadingTime(recording.durationMs)}
@@ -62,7 +71,9 @@ export const RecordingTile = ({
             backgroundColor="$background"
             bordered
             borderColor="$border"
-            icon={<Play size={20} fill="$primary" color="$primary" marginLeft={2} />}
+            icon={
+              <Play size={20} fill="$primary" color="$primary" marginLeft={2} />
+            }
             onPress={() => onPlay(recording)}
             pressStyle={{ backgroundColor: "$color4" }}
             elevate
@@ -77,7 +88,7 @@ export const RecordingTile = ({
         exitStyle={{ y: -10, opacity: 0 }}
         elevate
         animation={[
-          'quick',
+          "quick",
           {
             opacity: {
               overshootClamping: true,

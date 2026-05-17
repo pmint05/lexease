@@ -24,18 +24,33 @@ export const AudioWaveform = ({
   const bars = useMemo(() => {
     if (!meteringData || meteringData.length === 0) return null;
 
-    const normalizedData = meteringData.map((db) =>
-      Math.max(0.1, (db + 160) / 160),
+    const sourceData = meteringData.map((db) =>
+      Number.isFinite(db) ? db : -160,
     );
-    const numberOfBars = 60;
+    const minDb = Math.min(...sourceData);
+    const maxDb = Math.max(...sourceData);
+    const range = Math.max(maxDb - minDb, 1);
+
+    const normalizedData = sourceData.map((db) => {
+      const relative = (db - minDb) / range;
+      const boosted = Math.pow(relative, 0.65);
+      return Math.max(0.08, boosted);
+    });
+    const numberOfBars: number = 60;
     const sampledData: number[] = [];
+    const len = normalizedData.length;
+    if (len === 0) return null;
 
     for (let i = 0; i < numberOfBars; i++) {
-      const index = Math.min(
-        Math.floor(i * (normalizedData.length / numberOfBars)),
-        normalizedData.length - 1,
-      );
-      sampledData.push(normalizedData[index]);
+      const t = numberOfBars === 1 ? 0 : i / (numberOfBars - 1);
+      const pos = t * (len - 1);
+      const lo = Math.floor(pos);
+      const hi = Math.min(len - 1, Math.ceil(pos));
+      const frac = pos - lo;
+      const vLo = normalizedData[lo] ?? 0.1;
+      const vHi = normalizedData[hi] ?? vLo;
+      const value = vLo + (vHi - vLo) * frac;
+      sampledData.push(value);
     }
 
     const barWidth = canvasWidth / numberOfBars;
@@ -43,7 +58,8 @@ export const AudioWaveform = ({
     const actualBarWidth = Math.max(1, barWidth - gap);
 
     return sampledData.map((value, index) => {
-      const barHeight = value * height;
+      // apply sqrt to enhance perceptual differences for small amplitudes
+      const barHeight = Math.sqrt(value) * height;
       const barProgress = (index + 1) / numberOfBars;
 
       return {
@@ -81,7 +97,7 @@ export const AudioWaveform = ({
         width: canvasWidth,
         height,
         flexDirection: "row",
-        alignItems: "center",
+        alignItems: "flex-end",
       }}
     >
       {bars.map((bar, index) => (
