@@ -93,7 +93,7 @@ export default function RootLayout() {
   });
 
   useEffect(() => {
-    // ONLY hide splash screen when fonts AND hydration are both complete
+    // Only hide splash screen when fonts and auth hydration are complete.
     if ((loaded || error) && _hasHydrated) {
       if (error) {
         console.warn("Error loading fonts:", error);
@@ -106,14 +106,12 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <TamaguiProvider
         config={tamaguiConfig}
-        // defaultTheme={effectiveColorScheme === "dark" ? "dark" : "light"}
-        defaultTheme={"light"}
+        defaultTheme={effectiveColorScheme === "dark" ? "dark" : "light"}
       >
         <QueryClientProvider client={queryClient}>
           <View
             className={
-              "flex-1"
-              // effectiveColorScheme === "dark" ? "dark flex-1" : "flex-1"
+              effectiveColorScheme === "dark" ? "dark flex-1" : "flex-1"
             }
             style={{ flex: 1 }}
           >

@@ -71,6 +71,12 @@ export const Button = styled(TamaguiButton, {
     },
 
     size: {
+      xsmall: {
+        minHeight: 32,
+        height: "fit-content",
+        paddingHorizontal: "$2",
+        fontSize: "$2",
+      },
       small: {
         minHeight: 40,
         paddingHorizontal: "$3",

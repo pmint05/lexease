@@ -43,7 +43,7 @@ export default function ReadingScreen(): React.ReactElement {
   const { addRecording } = useRecordingStore();
   const { addSession } = useLearningStore();
   
-  const { isRecording, startRecording, stopRecording, recordingDuration } = useAudioRecording();
+  const { isRecording, startRecording, stopRecording, recordingDuration, meteringData } = useAudioRecording();
   
   // UI State
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -144,6 +144,7 @@ export default function ReadingScreen(): React.ReactElement {
           durationMs: Math.max(1000, recordingDuration * 1000),
           createdAt: new Date().toISOString(),
           sizeBytes: 0,
+          meteringData: [...meteringData],
         });
       }
     } else {

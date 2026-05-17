@@ -1,51 +1,109 @@
-import { Trash2, Volume2 } from "lucide-react-native";
-import React from "react";
-import { Button, Card, Text, XStack, YStack } from "tamagui";
+import { Trash2, Play, Mic } from "lucide-react-native";
+import React, { useState } from "react";
+import { Button, Text, XStack, YStack, Circle, Popover } from "tamagui";
 
 import { Recording } from "@/src/core/types";
 import { formatDate, formatReadingTime } from "@/src/utils/formatters";
 
 interface RecordingTileProps {
   recording: Recording;
+  showTitle?: boolean; // Hiển thị tên sách nếu cần (ví dụ trong trang Lịch sử)
   onPlay: (recording: Recording) => void;
   onDelete: (recordingId: string) => void;
 }
 
-export const RecordingTile = ({ recording, onPlay, onDelete }: RecordingTileProps): React.ReactElement => {
-  return (
-    <Card padding="$4" borderWidth={1} borderColor="$border" backgroundColor="$background">
-      <YStack gap="$2">
-        <Text fontSize="$5" fontWeight="700" color="$foreground">
-          {recording.bookTitle}
-        </Text>
-        <Text color="$mutedForeground">{formatDate(recording.createdAt)}</Text>
-        <Text color="$mutedForeground">{formatReadingTime(recording.durationMs)}</Text>
+export const RecordingTile = ({ 
+  recording, 
+  showTitle = false, 
+  onPlay, 
+  onDelete 
+}: RecordingTileProps): React.ReactElement => {
+  const [isOpen, setIsOpen] = useState(false);
 
-        <XStack gap="$2" justifyContent="flex-end">
+  return (
+    <Popover 
+      open={isOpen} 
+      onOpenChange={setIsOpen} 
+      placement="bottom" 
+      size="$4"
+    >
+      <Popover.Trigger asChild>
+        <XStack 
+          padding="$3" 
+          backgroundColor="$color2" 
+          borderRadius="$4" 
+          alignItems="center" 
+          gap="$3"
+          onLongPress={() => setIsOpen(true)}
+          pressStyle={{ backgroundColor: "$color3" }}
+        >
+          {/* Icon indicator */}
+          <Circle size={44} backgroundColor="$primary" opacity={0.1}>
+            <Mic size={22} color="$primary" />
+          </Circle>
+
+          <YStack flex={1} gap="$0.5">
+            {showTitle && (
+              <Text fontSize="$4" fontWeight="700" color="$foreground" numberOfLines={1}>
+                {recording.bookTitle}
+              </Text>
+            )}
+            <Text fontSize="$3" fontWeight={showTitle ? "500" : "700"} color={showTitle ? "$mutedForeground" : "$foreground"}>
+              Bản ghi ngày {formatDate(recording.createdAt)}
+            </Text>
+            <Text fontSize="$2" color="$mutedForeground">
+              Thời lượng: {formatReadingTime(recording.durationMs)}
+            </Text>
+          </YStack>
+
           <Button
-            size="$3"
+            size="$4"
+            circular
+            backgroundColor="$background"
+            bordered
+            borderColor="$border"
+            icon={<Play size={20} fill="$primary" color="$primary" marginLeft={2} />}
             onPress={() => onPlay(recording)}
-            icon={<Volume2 color="$foreground" size={16} />}
-            accessible
-            accessibilityRole="button"
-            accessibilitylabel={`Phát bản ghi của ${recording.bookTitle}`}
-          >
-            Nghe
-          </Button>
-          <Button
-            size="$3"
-            onPress={() => onDelete(recording.id)}
-            icon={<Trash2 color="$primaryForeground" size={16} />}
-            backgroundColor="$destructive"
-            color="$primaryForeground"
-            accessible
-            accessibilityRole="button"
-            accessibilitylabel={`Xóa bản ghi của ${recording.bookTitle}`}
-          >
-            Xóa
-          </Button>
+            pressStyle={{ backgroundColor: "$color4" }}
+            elevate
+          />
         </XStack>
-      </YStack>
-    </Card>
+      </Popover.Trigger>
+
+      <Popover.Content
+        borderWidth={1}
+        borderColor="$border"
+        enterStyle={{ y: -10, opacity: 0 }}
+        exitStyle={{ y: -10, opacity: 0 }}
+        elevate
+        animation={[
+          'quick',
+          {
+            opacity: {
+              overshootClamping: true,
+            },
+          },
+        ]}
+        padding="$2"
+        backgroundColor="$background"
+      >
+        <YStack width={180}>
+          <Button
+            chromeless
+            justifyContent="flex-start"
+            icon={<Trash2 size={18} color="$destructive" />}
+            onPress={() => {
+              setIsOpen(false);
+              onDelete(recording.id);
+            }}
+            color="$destructive"
+            fontWeight="700"
+            fontSize="$3"
+          >
+            Xóa bản ghi này
+          </Button>
+        </YStack>
+      </Popover.Content>
+    </Popover>
   );
 };

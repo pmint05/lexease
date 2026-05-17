@@ -39,4 +39,5 @@ export interface Recording {
   durationMs: number;
   createdAt: string;
   sizeBytes: number;
+  meteringData?: number[]; // Biên độ âm thanh theo thời gian
 }

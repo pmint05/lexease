@@ -1,66 +1,129 @@
-import { useRouter } from "expo-router";
-import React, { useMemo } from "react";
-import { Alert, FlatList } from "react-native";
-import { Text, XStack, YStack } from "tamagui";
+import * as FileSystem from "expo-file-system/legacy";
+import { Headphones } from "lucide-react-native";
+import React, { useMemo, useState } from "react";
+import { Alert, FlatList, Platform } from "react-native";
+import { Text, YStack } from "tamagui";
 
+import { AudioPlaybackModal } from "@/src/components/child/AudioPlaybackModal";
 import { RecordingTile } from "@/src/components/child/RecordingTile";
 import { Recording } from "@/src/core/types";
-import { useAudioRecording } from "@/src/hooks/useAudioRecording";
 import { useAuthStore } from "@/src/store/useAuthStore";
 import { useRecordingStore } from "@/src/store/useRecordingStore";
 
 /**
  * History Screen
  * Displays child's past recordings and reading history
- * - List of recorded readings with playback
- * - Audio Vault: Saved voice recordings
  */
 export default function HistoryScreen(): React.ReactElement {
-  const router = useRouter();
-  const { user, logout } = useAuthStore();
+  const { user } = useAuthStore();
   const { recordings, removeRecording } = useRecordingStore();
-  const { playbackRecording } = useAudioRecording();
+
+  // Playback State
+  const [playbackUri, setPlaybackUri] = useState<string | null>(null);
+  const [playbackTitle, setPlaybackTitle] = useState("");
+  const [selectedRecordingId, setSelectedRecordingId] = useState<string | null>(
+    null,
+  );
+  const [playbackMeteringData, setPlaybackMeteringData] = useState<
+    number[] | undefined
+  >([]);
+  const [isPlaybackOpen, setIsPlaybackOpen] = useState(false);
 
   const sortedRecordings = useMemo<Recording[]>(() => {
     return recordings
       .filter((recording) => recording.childId === user?.id)
       .sort(
-      (left, right) =>
-        new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime(),
-    );
+        (left, right) =>
+          new Date(right.createdAt).getTime() -
+          new Date(left.createdAt).getTime(),
+      );
   }, [recordings, user?.id]);
 
-  const handleDelete = (recordingId: string): void => {
-    Alert.alert("Xóa bản ghi", "Bạn muốn xóa bản ghi này chứ?", [
-      { text: "Hủy", style: "cancel" },
-      { text: "Xóa", style: "destructive", onPress: () => removeRecording(recordingId) },
-    ]);
+  const handleOpenPlayback = async (recording: Recording) => {
+    try {
+      if (Platform.OS === "web") {
+        Alert.alert(
+          "Không hỗ trợ trên web",
+          "Nghe lại bản ghi chỉ khả dụng trên thiết bị iOS/Android vì file âm thanh được lưu cục bộ trên máy.",
+        );
+        return;
+      }
+
+      const fileInfo = await FileSystem.getInfoAsync(recording.filePath);
+
+      if (!fileInfo.exists) {
+        Alert.alert(
+          "Lỗi tập tin",
+          "Bản ghi âm này không còn tồn tại trên thiết bị. Bé có muốn xóa thông tin bản ghi này không?",
+          [
+            { text: "Để sau", style: "cancel" },
+            {
+              text: "Xóa ngay",
+              style: "destructive",
+              onPress: () => removeRecording(recording.id),
+            },
+          ],
+        );
+        return;
+      }
+
+      setPlaybackUri(recording.filePath);
+      setPlaybackTitle(recording.bookTitle);
+      setSelectedRecordingId(recording.id);
+      setPlaybackMeteringData(recording.meteringData);
+      setIsPlaybackOpen(true);
+    } catch (error) {
+      console.error("Error checking file:", error);
+      Alert.alert("Lỗi", "Không thể kiểm tra tập tin âm thanh.");
+    }
   };
 
   return (
-    <YStack flex={1} backgroundColor="$background" paddingHorizontal="$4" gap="$4">
+    <YStack flex={1} backgroundColor="$background" paddingHorizontal="$4">
       <FlatList
         data={sortedRecordings}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={{ paddingTop: 16 }}
+        contentContainerStyle={{ paddingTop: 16, paddingBottom: 100 }}
         ItemSeparatorComponent={() => <YStack height="$3" />}
         renderItem={({ item }) => (
           <RecordingTile
             recording={item}
-            onPlay={async (recording) => {
-              await playbackRecording(recording.filePath);
-            }}
-            onDelete={handleDelete}
+            showTitle={true}
+            onPlay={handleOpenPlayback}
+            onDelete={removeRecording}
           />
         )}
+        ListHeaderComponent={
+          <Text
+            fontSize="$2"
+            color="$mutedForeground"
+            textAlign="center"
+            marginBottom="$4"
+          >
+            Nhấn giữ vào bản ghi để hiện thêm tùy chọn
+          </Text>
+        }
         ListEmptyComponent={
-          <YStack paddingVertical="$8" alignItems="center">
-            <Text color="$mutedForeground">
-              Chưa có ghi âm nào. Hãy bắt đầu đọc sách!
+          <YStack paddingVertical="$10" alignItems="center" gap="$2">
+            <Headphones size={48} color="$color5" />
+            <Text color="$mutedForeground" textAlign="center">
+              Chưa có ghi âm nào. Hãy bắt đầu đọc sách để lưu giữ giọng đọc của
+              bé nhé!
             </Text>
           </YStack>
         }
         showsVerticalScrollIndicator={false}
+      />
+
+      <AudioPlaybackModal
+        uri={playbackUri}
+        title={playbackTitle}
+        meteringData={playbackMeteringData}
+        open={isPlaybackOpen}
+        onOpenChange={setIsPlaybackOpen}
+        onDelete={() =>
+          selectedRecordingId && removeRecording(selectedRecordingId)
+        }
       />
     </YStack>
   );
