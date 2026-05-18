@@ -1,11 +1,26 @@
+import { COLORS } from "@/src/core/constants/colors";
 import { useAuthStore } from "@/src/store/useAuthStore";
 import { useLearningStore } from "@/src/store/useLearningStore";
 import { useRouter } from "expo-router";
-import { LogOut, Award, BookOpen, Clock, User as UserIcon } from "lucide-react-native";
+import {
+  Award,
+  BookOpen,
+  Clock,
+  LogOut,
+  User as UserIcon,
+} from "lucide-react-native";
 import React, { useMemo } from "react";
 import { ScrollView } from "react-native";
-import { Button, Card, H3, H4, Text, XStack, YStack, Avatar, Separator } from "tamagui";
-import { COLORS } from "@/src/core/constants/colors";
+import {
+  Avatar,
+  Button,
+  Card,
+  H3,
+  Separator,
+  Text,
+  XStack,
+  YStack
+} from "tamagui";
 
 /**
  * Child Profile Screen
@@ -28,10 +43,10 @@ export default function ProfileScreen(): React.ReactElement {
 
   const statistics = useMemo(() => {
     const totalMinutes = Math.round(
-      sessions.reduce((sum, s) => sum + s.durationMs, 0) / 60000
+      sessions.reduce((sum, s) => sum + s.durationMs, 0) / 60000,
     );
     const booksRead = new Set(sessions.map((s) => s.bookId)).size;
-    
+
     return {
       totalMinutes,
       booksRead,
@@ -45,28 +60,42 @@ export default function ProfileScreen(): React.ReactElement {
   return (
     <YStack flex={1} backgroundColor="$background">
       <ScrollView showsVerticalScrollIndicator={false}>
-        <YStack paddingHorizontal="$4" paddingTop="$6" gap="$6" paddingBottom="$10">
-          
+        <YStack
+          paddingHorizontal="$4"
+          paddingTop="$6"
+          gap="$6"
+          paddingBottom="$10"
+        >
           {/* 1. Profile Header */}
           <XStack alignItems="center" gap="$4">
             <Avatar circular size="$8" bordered borderColor="$border">
-              <Avatar.Image source={{ uri: user?.avatarUrl || "https://placehold.co/100x100/A5D6A7/333333?text=Bé" }} />
+              <Avatar.Image
+                source={{
+                  uri:
+                    user?.avatarUrl ||
+                    "https://placehold.co/100x100/A5D6A7/333333?text=Bé",
+                }}
+              />
               <Avatar.Fallback backgroundColor="$color5" />
             </Avatar>
             <YStack gap="$1">
               <H3 fontWeight="800">{user?.name || "Bé LexEase"}</H3>
-              <Text color="$mutedForeground" fontSize="$3">{user?.email}</Text>
-              <XStack 
-                backgroundColor="$color3" 
-                paddingHorizontal="$3" 
-                paddingVertical="$1" 
-                borderRadius="$10" 
-                alignItems="center" 
+              <Text color="$mutedForeground" fontSize="$3">
+                {user?.email}
+              </Text>
+              <XStack
+                backgroundColor="$color3"
+                paddingHorizontal="$3"
+                paddingVertical="$1"
+                borderRadius="$10"
+                alignItems="center"
                 gap="$1.5"
                 marginTop="$1"
               >
                 <Award size={14} color="$primary" />
-                <Text fontSize="$2" fontWeight="700" color="$primary">Hạng: Người khám phá</Text>
+                <Text fontSize="$2" fontWeight="700" color="$primary">
+                  Hạng: Người khám phá
+                </Text>
               </XStack>
             </YStack>
           </XStack>
@@ -75,14 +104,25 @@ export default function ProfileScreen(): React.ReactElement {
           <Card padding="$4" bordered elevate backgroundColor="$primary">
             <XStack justifyContent="space-between" alignItems="center">
               <YStack gap="$1">
-                <Text color="white" opacity={0.8} fontWeight="600">Điểm thưởng hiện tại</Text>
-                <H3 color="white" fontWeight="900">{userPoints.toLocaleString()} Xu</H3>
+                <Text color="white" opacity={0.8} fontWeight="600">
+                  Điểm thưởng hiện tại
+                </Text>
+                <H3 color="white" fontWeight="900">
+                  {userPoints.toLocaleString()} Xu
+                </H3>
               </YStack>
-              <YStack backgroundColor="rgba(255,255,255,0.2)" padding="$3" borderRadius="$5">
+              <YStack
+                backgroundColor="rgba(255,255,255,0.2)"
+                padding="$3"
+                borderRadius="$5"
+              >
                 <Award size={32} color="white" />
               </YStack>
             </XStack>
-            <Separator marginVertical="$3" backgroundColor="rgba(255,255,255,0.1)" />
+            <Separator
+              marginVertical="$3"
+              backgroundColor="rgba(255,255,255,0.1)"
+            />
             <Text color="white" fontSize="$2" textAlign="center">
               Đọc thêm sách để tích lũy thêm nhiều Xu nhé!
             </Text>
@@ -90,22 +130,36 @@ export default function ProfileScreen(): React.ReactElement {
 
           {/* 3. Quick Stats */}
           <YStack gap="$3">
-            <Text fontSize="$5" fontWeight="700">Thành tích của bé</Text>
+            <Text fontSize="$5" fontWeight="700">
+              Thành tích của bé
+            </Text>
             <XStack gap="$3">
               <Card flex={1} padding="$4" bordered alignItems="center" gap="$2">
-                <BookOpen size={24} color="$primary" />
-                <Text fontSize="$8" fontWeight="800">{statistics.booksRead}</Text>
-                <Text fontSize="$1" color="$mutedForeground" textAlign="center">Sách đã đọc</Text>
+                <BookOpen size={24} color={COLORS.primary} />
+                <Text fontSize="$8" fontWeight="800">
+                  {statistics.booksRead}
+                </Text>
+                <Text fontSize="$1" color="$mutedForeground" textAlign="center">
+                  Sách đã đọc
+                </Text>
               </Card>
               <Card flex={1} padding="$4" bordered alignItems="center" gap="$2">
                 <Clock size={24} color={COLORS.orange} />
-                <Text fontSize="$8" fontWeight="800">{statistics.totalMinutes}</Text>
-                <Text fontSize="$1" color="$mutedForeground" textAlign="center">Phút luyện tập</Text>
+                <Text fontSize="$8" fontWeight="800">
+                  {statistics.totalMinutes}
+                </Text>
+                <Text fontSize="$1" color="$mutedForeground" textAlign="center">
+                  Phút luyện tập
+                </Text>
               </Card>
               <Card flex={1} padding="$4" bordered alignItems="center" gap="$2">
                 <Award size={24} color={COLORS.success} />
-                <Text fontSize="$8" fontWeight="800">{statistics.totalSessions}</Text>
-                <Text fontSize="$1" color="$mutedForeground" textAlign="center">Phiên học</Text>
+                <Text fontSize="$8" fontWeight="800">
+                  {statistics.totalSessions}
+                </Text>
+                <Text fontSize="$1" color="$mutedForeground" textAlign="center">
+                  Phiên học
+                </Text>
               </Card>
             </XStack>
           </YStack>
@@ -132,7 +186,6 @@ export default function ProfileScreen(): React.ReactElement {
               Đăng xuất
             </Button>
           </YStack>
-          
         </YStack>
       </ScrollView>
     </YStack>

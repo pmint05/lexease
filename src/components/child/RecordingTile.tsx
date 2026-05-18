@@ -1,6 +1,6 @@
 import { Mic, Play, Trash2 } from "lucide-react-native";
-import React, { useState } from "react";
-import { Button, Circle, Popover, Text, XStack, YStack } from "tamagui";
+import React from "react";
+import { Button, Circle, ContextMenu, Text, XStack, YStack } from "tamagui";
 
 import { Recording } from "@/src/core/types";
 import { formatDateTime, formatReadingTime } from "@/src/utils/formatters";
@@ -18,24 +18,17 @@ export const RecordingTile = ({
   onPlay,
   onDelete,
 }: RecordingTileProps): React.ReactElement => {
-  const [isOpen, setIsOpen] = useState(false);
-
   return (
-    <Popover
-      open={isOpen}
-      onOpenChange={setIsOpen}
-      placement="bottom"
-      size="$4"
-    >
-      <Popover.Trigger asChild>
+    <ContextMenu>
+      <ContextMenu.Trigger asChild>
         <XStack
           padding="$3"
           backgroundColor="$color2"
           borderRadius="$4"
           alignItems="center"
           gap="$3"
-          onLongPress={() => setIsOpen(true)}
           pressStyle={{ backgroundColor: "$color3" }}
+          onPress={() => onPlay(recording)}
         >
           {/* Icon indicator */}
           <Circle size={44} backgroundColor="$primaryForeground">
@@ -79,42 +72,39 @@ export const RecordingTile = ({
             elevate
           />
         </XStack>
-      </Popover.Trigger>
+      </ContextMenu.Trigger>
 
-      <Popover.Content
-        borderWidth={1}
-        borderColor="$border"
-        enterStyle={{ y: -10, opacity: 0 }}
-        exitStyle={{ y: -10, opacity: 0 }}
-        elevate
-        animation={[
-          "quick",
-          {
-            opacity: {
-              overshootClamping: true,
-            },
-          },
-        ]}
-        padding="$2"
-        backgroundColor="$background"
-      >
-        <YStack width={180}>
-          <Button
-            chromeless
-            justifyContent="flex-start"
-            icon={<Trash2 size={18} color="$destructive" />}
-            onPress={() => {
-              setIsOpen(false);
-              onDelete(recording.id);
-            }}
-            color="$destructive"
-            fontWeight="700"
-            fontSize="$3"
-          >
-            Xóa bản ghi này
-          </Button>
-        </YStack>
-      </Popover.Content>
-    </Popover>
+      <ContextMenu.Portal>
+        <ContextMenu.Content
+          borderWidth={1}
+          borderColor="$border"
+          enterStyle={{ y: -10, opacity: 0 }}
+          exitStyle={{ y: -10, opacity: 0 }}
+          elevate
+          animation={{
+            type: "quick",
+          }}
+          padding="$2"
+          backgroundColor="$background"
+          borderRadius={"$6"}
+        >
+          <YStack width={180}>
+            <Button
+              chromeless
+              justifyContent="flex-start"
+              icon={<Trash2 size={18} color="#FF0000" />}
+              onPress={() => {
+                onDelete(recording.id);
+              }}
+              color="$destructive"
+              fontWeight="700"
+              fontSize="$3"
+            >
+              Xóa bản ghi này
+            </Button>
+          </YStack>
+        </ContextMenu.Content>
+      </ContextMenu.Portal>
+    </ContextMenu>
   );
 };

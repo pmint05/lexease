@@ -122,7 +122,7 @@ export default function ReadingDetailScreen(): React.ReactElement {
       <XStack
         paddingTop={insets.top}
         paddingHorizontal="$4"
-        paddingVertical="$4"
+        paddingVertical="$3.5"
         alignItems="center"
         backgroundColor="$background"
       >

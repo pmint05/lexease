@@ -1,14 +1,22 @@
-export async function fetchAndComputeMetering(url: string, numberOfBars = 60): Promise<number[]> {
+export async function fetchAndComputeMetering(
+  url: string,
+  numberOfBars = 60,
+): Promise<number[]> {
   try {
     const resp = await fetch(url);
     const arrayBuffer = await resp.arrayBuffer();
 
-    const AudioCtx = (globalThis as any).AudioContext || (globalThis as any).webkitAudioContext;
+    const AudioCtx =
+      (globalThis as any).AudioContext ||
+      (globalThis as any).webkitAudioContext;
     if (!AudioCtx) return [];
 
     const ctx = new AudioCtx();
     const audioBuffer = await ctx.decodeAudioData(arrayBuffer);
-    const channelData = audioBuffer.numberOfChannels > 0 ? audioBuffer.getChannelData(0) : audioBuffer.getChannelData(0);
+    const channelData =
+      audioBuffer.numberOfChannels > 0
+        ? audioBuffer.getChannelData(0)
+        : audioBuffer.getChannelData(0);
 
     const len = channelData.length;
     const samplesPerBar = Math.max(1, Math.floor(len / numberOfBars));

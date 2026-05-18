@@ -1,3 +1,4 @@
+import { fetchAndComputeMetering } from "@/src/utils/audioProcessing";
 import { formatDuration } from "@/src/utils/textProcessing";
 import { useAudioPlayer, useAudioPlayerStatus } from "expo-audio";
 import {
@@ -9,6 +10,7 @@ import {
   X,
 } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
+import { Platform } from "react-native";
 import {
   Button,
   Separator,
@@ -18,9 +20,16 @@ import {
   XStack,
   YStack,
 } from "tamagui";
-import { AudioWaveform } from "./AudioWaveform";
-import { fetchAndComputeMetering } from "@/src/utils/audioProcessing";
-import { Platform } from "react-native";
+
+const AudioWaveform =
+  Platform.OS === "web"
+    ? require("./AudioWaveform.web").AudioWaveform
+    : require("./AudioWaveform.native").AudioWaveform;
+
+const hasUsefulMetering = (values: number[] | undefined): boolean => {
+  if (!values || values.length === 0) return false;
+  return values.some((value) => Number.isFinite(value) && value > -159);
+};
 
 interface AudioPlaybackModalProps {
   uri: string | null;
@@ -42,7 +51,9 @@ export const AudioPlaybackModal = ({
   const player = useAudioPlayer(uri);
   const status = useAudioPlayerStatus(player);
   const [speed, setSpeed] = useState(1.0);
-  const [localMetering, setLocalMetering] = useState<number[] | undefined>(undefined);
+  const [localMetering, setLocalMetering] = useState<number[] | undefined>(
+    undefined,
+  );
 
   const handleTogglePlay = () => {
     if (status.playing) {
@@ -76,7 +87,7 @@ export const AudioPlaybackModal = ({
       player.replace(uri);
 
       // If on web and no metering provided, compute from audio blob
-      if (Platform.OS === "web" && (!meteringData || meteringData.length === 0)) {
+      if (Platform.OS === "web" && !hasUsefulMetering(meteringData)) {
         (async () => {
           const computed = await fetchAndComputeMetering(uri as string, 120);
           if (computed && computed.length > 0) setLocalMetering(computed);
@@ -89,6 +100,15 @@ export const AudioPlaybackModal = ({
 
   const progress =
     status.duration > 0 ? status.currentTime / status.duration : 0;
+
+  console.log("Rendering AudioPlaybackModal with status:", status);
+  console.log(
+    "Metering data length:",
+    meteringData.length,
+    "Local metering length:",
+    localMetering?.length,
+  );
+  console.log(meteringData, localMetering);
 
   return (
     <Sheet
@@ -153,10 +173,12 @@ export const AudioPlaybackModal = ({
             justifyContent="center"
             width="100%"
           >
-            <AudioWaveform 
-              meteringData={localMetering && localMetering.length > 0 ? localMetering : meteringData}
-              progress={progress} 
-              height={80} 
+            <AudioWaveform
+              meteringData={
+                hasUsefulMetering(localMetering) ? localMetering : meteringData
+              }
+              progress={progress}
+              height={80}
             />
           </YStack>
 

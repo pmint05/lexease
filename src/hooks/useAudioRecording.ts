@@ -36,9 +36,11 @@ export const useAudioRecording = (): UseAudioRecordingReturn => {
 
   // Keep a ref to the latest metering value to use in the interval
   const latestMetering = useRef<number>(-160);
+  const hasReceivedMetering = useRef(false);
   useEffect(() => {
     if (recorderState.metering !== undefined) {
       latestMetering.current = recorderState.metering;
+      hasReceivedMetering.current = true;
     }
   }, [recorderState.metering]);
 
@@ -85,6 +87,7 @@ export const useAudioRecording = (): UseAudioRecordingReturn => {
 
     // Metering timer - collect data every 100ms from the state-driven ref
     meteringIntervalRef.current = setInterval(() => {
+      if (!hasReceivedMetering.current) return;
       setMeteringData((prev) => [...prev, latestMetering.current]);
     }, 100);
   }, [clearTimers, requestPermissions, recorder]);

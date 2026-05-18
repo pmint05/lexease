@@ -106,12 +106,14 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <TamaguiProvider
         config={tamaguiConfig}
-        defaultTheme={effectiveColorScheme === "dark" ? "dark" : "light"}
+        defaultTheme={"light"}
+        // defaultTheme={effectiveColorScheme === "dark" ? "dark" : "light"}
       >
         <QueryClientProvider client={queryClient}>
           <View
             className={
-              effectiveColorScheme === "dark" ? "dark flex-1" : "flex-1"
+              "flex-1"
+              // effectiveColorScheme === "dark" ? "dark flex-1" : "flex-1"
             }
             style={{ flex: 1 }}
           >
