@@ -3,7 +3,6 @@ import { useMemo } from "react";
 import { Button, Card, ScrollView, Text, XStack, YStack } from "tamagui";
 
 import { RecordingTile } from "@/src/components/child/RecordingTile";
-import { COLORS } from "@/src/core/constants/colors";
 import { getBookById } from "@/src/data/local/books";
 import { useAudioRecording } from "@/src/hooks/useAudioRecording";
 import { useAuthStore } from "@/src/store/useAuthStore";
@@ -54,28 +53,47 @@ export default function GuardianBookDetailScreen(): React.ReactElement {
   if (!book) {
     return (
       <YStack flex={1} justifyContent="center" alignItems="center" padding="$4">
-        <Text color={COLORS.textMuted}>Không tìm thấy sách.</Text>
+        <Text color="$muted">Không tìm thấy sách.</Text>
       </YStack>
     );
   }
 
   return (
-    <YStack flex={1} backgroundColor="$background" paddingHorizontal="$4" gap="$4">
-      <XStack justifyContent="space-between" alignItems="center" paddingTop="$4">
-        <Text fontSize="$6" fontWeight="700">Chi tiết sách của bé</Text>
-        <Button size="$3" onPress={() => router.back()} accessibilitylabel="Quay lại Guardian dashboard">
+    <YStack
+      flex={1}
+      backgroundColor="$background"
+      paddingHorizontal="$4"
+      gap="$4"
+    >
+      <XStack
+        justifyContent="space-between"
+        alignItems="center"
+        paddingTop="$4"
+      >
+        <Text fontSize="$6" fontWeight="700">
+          Chi tiết sách của bé
+        </Text>
+        <Button
+          size="$3"
+          onPress={() => router.back()}
+          accessibilityLabel="Quay lại Guardian dashboard"
+        >
           Quay lại
         </Button>
       </XStack>
 
       <Card padding="$4" borderWidth={1} borderColor="$color5">
         <YStack gap="$2">
-          <Text fontSize="$6" fontWeight="700">{book.title}</Text>
+          <Text fontSize="$6" fontWeight="700">
+            {book.title}
+          </Text>
           <Text color="$color10">{book.author}</Text>
           <Text color="$color10">
             Bé đang xem: {selectedChild?.childName ?? "Chưa chọn bé"}
           </Text>
-          <Text color="$color10">{bookSessions.length} lần học · {bookRecordings.length} bản ghi</Text>
+          <Text color="$color10">
+            {bookSessions.length} lần học · {bookRecordings.length} bản ghi
+          </Text>
         </YStack>
       </Card>
 
@@ -83,13 +101,23 @@ export default function GuardianBookDetailScreen(): React.ReactElement {
         <YStack gap="$4">
           <Card padding="$4" borderWidth={1} borderColor="$color5">
             <YStack gap="$3">
-              <Text fontSize="$5" fontWeight="700">Các lần đọc</Text>
+              <Text fontSize="$5" fontWeight="700">
+                Các lần đọc
+              </Text>
               {bookSessions.length > 0 ? (
                 bookSessions.map((session) => (
-                  <YStack key={session.id} paddingVertical="$2" borderBottomWidth={1} borderBottomColor="$color4">
-                    <Text fontWeight="700">{new Date(session.startedAt).toLocaleString("vi-VN")}</Text>
+                  <YStack
+                    key={session.id}
+                    paddingVertical="$2"
+                    borderBottomWidth={1}
+                    borderBottomColor="$color4"
+                  >
+                    <Text fontWeight="700">
+                      {new Date(session.startedAt).toLocaleString("vi-VN")}
+                    </Text>
                     <Text color="$color10">
-                      {Math.round(session.durationMs / 60000)} phút · {session.wordsRead} từ · {session.speed}x
+                      {Math.round(session.durationMs / 60000)} phút ·{" "}
+                      {session.wordsRead} từ · {session.speed}x
                     </Text>
                   </YStack>
                 ))
@@ -101,7 +129,9 @@ export default function GuardianBookDetailScreen(): React.ReactElement {
 
           <Card padding="$4" borderWidth={1} borderColor="$color5">
             <YStack gap="$3">
-              <Text fontSize="$5" fontWeight="700">Bản ghi âm ví dụ</Text>
+              <Text fontSize="$5" fontWeight="700">
+                Bản ghi âm ví dụ
+              </Text>
               {bookRecordings.length > 0 ? (
                 bookRecordings.map((recording) => (
                   <RecordingTile

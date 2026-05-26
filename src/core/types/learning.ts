@@ -1,5 +1,3 @@
-import { ReadingRate } from "./reading";
-
 export interface LearningSession {
   id: string;
   childId: string;
@@ -9,5 +7,5 @@ export interface LearningSession {
   completedAt: string;
   durationMs: number;
   wordsRead: number;
-  speed: ReadingRate;
+  speed: number;
 }

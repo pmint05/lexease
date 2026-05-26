@@ -55,8 +55,8 @@ export const ReadingContent = ({
   return (
     <ScrollView
       ref={scrollRef}
-      flex={1}
-      paddingHorizontal="$4"
+      // flex={1}
+      // paddingHorizontal="$4"
       showsVerticalScrollIndicator={false}
       onScrollBeginDrag={handleScrollBeginDrag}
       scrollEventThrottle={16}

@@ -28,6 +28,7 @@ export default function AuthLayout(): React.ReactElement {
       screenOptions={{
         headerShown: false,
         gestureEnabled: false,
+        animation: "none",
       }}
     >
       <Stack.Screen name="login" />

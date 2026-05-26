@@ -34,11 +34,9 @@ export const ReadingSettingsModal = ({
       snapPointsMode="fit"
       dismissOnSnapToBottom
       position={0}
-      animation="medium"
     >
       <Sheet.Overlay
         backgroundColor="transparent"
-        animation="lazy"
         enterStyle={{ opacity: 0 }}
         exitStyle={{ opacity: 0 }}
       />
@@ -51,7 +49,6 @@ export const ReadingSettingsModal = ({
           padding="$6"
           borderRadius="$6"
           gap="$6"
-          elevate
           shadowColor="rgba(0,0,0,0.1)"
           shadowRadius={30}
           borderWidth={1}

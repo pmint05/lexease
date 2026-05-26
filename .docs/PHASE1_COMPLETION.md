@@ -21,7 +21,7 @@ LexEase Phase 1 scaffolding is complete and production-ready. All 8 Phase 1 succ
 | Navigation flow: Login → Role Selection → Dashboard | ✅     | `app/index.tsx` redirect logic verified                                       |
 | Fonts load correctly (OpenDyslexic visible)         | ⚠️     | TODO for Phase 2 (infrastructure in place)                                    |
 | ESLint + TypeScript strict mode: 0 errors           | ✅     | `npm run lint`: 0 warnings, 0 errors                                          |
-| All screens have accessibility attributes           | ✅     | `accessibilityRole`, `accessibilitylabel` applied to all interactive elements |
+| All screens have accessibility attributes           | ✅     | `accessibilityRole`, `accessibilityLabel` applied to all interactive elements |
 | No console warnings or errors                       | ✅     | Manual testing: dev server starts cleanly                                     |
 | Device storage persists auth state across restarts  | ✅     | `useAuthStore` with AsyncStorage persistence configured                       |
 

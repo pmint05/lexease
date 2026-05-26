@@ -8,7 +8,7 @@ import {
   Settings,
 } from "lucide-react-native";
 import React from "react";
-import { Button, useTheme } from "tamagui";
+import { Button, Text, useTheme, XStack } from "tamagui";
 
 /**
  * Guardian Tabs Layout
@@ -39,6 +39,18 @@ export default function GuardianTabsLayout(): React.ReactElement {
           fontSize: 18,
           color: theme.foreground?.val || "#221F1E",
         },
+        headerLeft: () => (
+          <XStack paddingLeft="$4">
+            <Text
+              fontFamily="Lexend-Black"
+              fontSize={20}
+              color="$primary"
+              letterSpacing={-1}
+            >
+              LexEase
+            </Text>
+          </XStack>
+        ),
         headerTitleAlign: "center",
         headerShadowVisible: false,
         tabBarStyle: {

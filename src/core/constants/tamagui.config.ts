@@ -2,7 +2,7 @@ import { createAnimations } from "@tamagui/animations-react-native";
 import { defaultConfig as configV5 } from "@tamagui/config/v5";
 import { createFont, createTamagui } from "tamagui";
 
-// 1. Định nghĩa Font Lexend với đầy đủ các trọng số (weights)
+// 1. Định nghĩa Font Lexend
 const lexendFont = createFont({
   family: "Lexend-Regular",
   size: {
@@ -55,7 +55,7 @@ const lexendFont = createFont({
   },
 });
 
-// 2. Định nghĩa Font OpenDyslexic (Chuyên dụng cho trẻ em khó đọc)
+// 2. Định nghĩa Font OpenDyslexic
 const openDyslexicFont = createFont({
   family: "OpenDyslexic-Regular",
   size: {
@@ -84,27 +84,37 @@ const openDyslexicFont = createFont({
     10: 52,
     true: 21,
   },
-  weight: {
-    4: "400",
-    7: "700",
-  },
+  weight: { 4: "400", 7: "700" },
   face: {
     400: { normal: "OpenDyslexic-Regular", italic: "OpenDyslexic-Italic" },
     700: { normal: "OpenDyslexic-Bold", italic: "OpenDyslexic-BoldItalic" },
   },
 });
 
-// 3. Tạo cấu hình Tamagui
+// 3. Khởi tạo cấu hình Tamagui (Kế thừa và mở rộng chuẩn xác)
 export const tamaguiConfig = createTamagui({
   ...configV5,
-  fonts: {
-    heading: lexendFont, // Font cho tiêu đề
-    body: lexendFont, // Font cho nội dung
-    lexend: lexendFont, // Thêm key lexend để khớp với FONT_MAP
-    dyslexic: openDyslexicFont, // Font đặc biệt
-  },
   tokens: {
     ...configV5.tokens,
+    // Sửa lỗi bằng cách merge chính xác object color con bên trong token
+    color: {
+      brandLightBg: "#FFFBF7",
+      brandLightFg: "#221F1E",
+      brandDarkBg: "#1A1D1E",
+      brandDarkFg: "#F5F5F5",
+      brandPrimary: "#0066CC",
+      brandPrimaryDark: "#60A5FA",
+      brandSecondary: "#FFB83D",
+      brandSecondaryDark: "#FBBF24",
+      brandAccent: "#2E8B57",
+      brandAccentDark: "#34D399",
+      brandDestructive: "#E53935",
+      brandDestructiveDark: "#EF4444",
+      brandMuted: "#F5F0EB",
+      brandMutedDark: "#2D2D2D",
+      brandBorder: "#EFEAE6",
+    },
+    // Giữ cấu hình radius tùy chỉnh của bạn mà không lo lỗi đè kiểu dữ liệu
     radius: {
       ...configV5.tokens.radius,
       sm: 4,
@@ -112,63 +122,47 @@ export const tamaguiConfig = createTamagui({
       lg: 16,
     },
   },
+  fonts: {
+    heading: lexendFont,
+    body: lexendFont,
+    mono: lexendFont, // Bắt buộc phải bổ sung để tránh lỗi loại trừ hệ thống
+    silkscreen: lexendFont, // Bắt buộc phải bổ sung
+    lexend: lexendFont,
+    dyslexic: openDyslexicFont,
+  },
   themes: {
     light: {
       ...configV5.themes.light,
-      background: "#FFFBF7",
-      foreground: "#221F1E",
-      primary: "#0066CC",
-      primaryForeground: "#FFFFFF",
-      secondary: "#FFB83D",
-      secondaryForeground: "#221F1E",
-      accent: "#2E8B57",
-      accentForeground: "#FFFFFF",
-      destructive: "#E53935",
-      destructiveForeground: "#FFFFFF",
-      muted: "#F5F0EB",
-      mutedForeground: "#5A5A5A",
-      border: "#EFEAE6",
-      card: "#FFFFFF",
-      cardForeground: "#221F1E",
-      popover: "#FFFFFF",
-      popoverForeground: "#221F1E",
-      ring: "#0066CC",
-      borderColorFocus: "#0070f3", // Màu xanh bạn muốn hiển thị khi focus
-      outlineColorFocus: "transparent", // Ẩn viền đen thô mặc định của trình duyệt web
-      borderSizeFocus: 1, // Tăng kích thước viền khi focus để dễ nhận biết hơn
+      background: "$brandLightBg",
+      color: "$brandLightFg",
+      primary: "$brandPrimary",
+      secondary: "$brandSecondary",
+      accent: "$brandAccent",
+      destructive: "$brandDestructive",
+      borderColor: "$brandBorder",
+      borderColorFocus: "#0070f3",
+      shadowColorFocus: "transparent",
     },
     dark: {
       ...configV5.themes.dark,
-      background: "#1A1D1E",
-      foreground: "#F5F5F5",
-      primary: "#60A5FA",
-      primaryForeground: "#1A1D1E",
-      secondary: "#FBBF24",
-      secondaryForeground: "#1A1D1E",
-      accent: "#34D399",
-      accentForeground: "#1A1D1E",
-      destructive: "#EF4444",
-      destructiveForeground: "#F5F5F5",
-      muted: "#2D2D2D",
-      mutedForeground: "#9BA1A6",
-      border: "#2D2D2D",
-      card: "#242424",
-      cardForeground: "#F5F5F5",
-      popover: "#1A1D1E",
-      popoverForeground: "#F5F5F5",
-      ring: "#60A5FA",
+      background: "$brandDarkBg",
+      color: "$brandDarkFg",
+      primary: "$brandPrimaryDark",
+      secondary: "$brandSecondaryDark",
+      accent: "$brandAccentDark",
+      destructive: "$brandDestructiveDark",
+      borderColor: "$brandMutedDark",
       borderColorFocus: "#38bdf8",
-      outlineColorFocus: "transparent",
+      shadowColorFocus: "transparent",
     },
   },
 
   animations: createAnimations({
     fast: { damping: 20, mass: 1.2, stiffness: 250 },
-    quick: { damping: 20, mass: 1.2, stiffness: 250 }, // <--- Tên "quick" phải tồn tại ở đây
+    quick: { damping: 20, mass: 1.2, stiffness: 250 },
     bouncy: { damping: 10, mass: 0.9, stiffness: 100 },
   }),
 
-  // Định nghĩa các điểm dừng màn hình (Responsive)
   media: {
     xs: { maxWidth: 660 },
     sm: { maxWidth: 800 },
@@ -191,12 +185,7 @@ export const tamaguiConfig = createTamagui({
     defaultFont: "body",
     defaultTheme: "light",
   },
-  shorthands: {
-    ...configV5.shorthands,
-    br: "borderRadius",
-    bg: "backgroundColor",
-    p: "padding",
-  },
+  shorthands: configV5.shorthands,
 });
 
 export type AppConfig = typeof tamaguiConfig;

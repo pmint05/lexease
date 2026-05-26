@@ -169,10 +169,13 @@ export default function RegisterScreen() {
                 </Button>
               </YStack>
 
-              <XStack justifyContent="center" gap="$2" paddingBottom="$4">
-                <Text color="$color10" fontFamily="$lexend">
-                  Đã có tài khoản?
-                </Text>
+              <Text
+                textAlign="center"
+                color="$color10"
+                fontFamily="$lexend"
+                marginTop="$2"
+              >
+                Đã có tài khoản?{" "}
                 <Text
                   color="$primary"
                   fontWeight="bold"
@@ -181,7 +184,7 @@ export default function RegisterScreen() {
                 >
                   Đăng nhập
                 </Text>
-              </XStack>
+              </Text>
             </YStack>
           </Card>
         </YStack>

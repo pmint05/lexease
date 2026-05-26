@@ -22,7 +22,7 @@ export const Button = styled(TamaguiButton, {
       primary: {
         background: "$primary",
         color: "$primaryForeground",
-        pressStyle: { background: "$primary" },
+        pressStyle: { opacity: 0.85 },
       },
       default: {
         background: "$muted",
@@ -104,6 +104,13 @@ export const Button = styled(TamaguiButton, {
       true: {
         borderWidth: 0,
       },
+    },
+
+    // This makes the `color` prop available on the component
+    color: {
+      ':string': (color) => ({
+        color,
+      }),
     },
   } as const,
 

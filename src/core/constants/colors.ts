@@ -2,7 +2,7 @@
  * Semantic design tokens for LexEase.
  * These align with the Tailwind/NativeWind configuration in tailwind.config.js
  * and the CSS variables in app/globall.css.
- * 
+ *
  * For dyslexia-friendly design:
  * - Backgrounds are off-white/cream to reduce glare.
  * - Contrast is high but not extreme.
@@ -37,7 +37,11 @@ export const COLORS = {
   secondary: "#FFB83D", // var(--secondary) light
   success: "#2E8B57", // var(--accent) light
   error: "#E53935", // var(--destructive) light
-  
+  warning: "#FFB300", // var(--secondary) light
+  muted: "#5A5A5A", // var(--muted) light
+  border: "#E0E0E0", // var(--border) light
+  card: "#FFFFFF", // var(--card) light
+
   // Difficulty levels
   easy: "#A5D6A7",
   medium: "#FFE082",

@@ -1,14 +1,17 @@
-import React, { useState } from "react";
-import { Platform, KeyboardAvoidingView, ScrollView } from "react-native";
-import { YStack, Text, XStack, H1, Card } from "tamagui";
-import { useRouter } from "expo-router";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { ChevronLeft, MailCheck } from "lucide-react-native";
-import { ForgotPasswordInput, ForgotPasswordSchema } from "@/src/core/schemas/auth";
-import { FormField } from "@/src/components/shared/FormField";
 import { Button } from "@/src/components/shared/Button";
+import { FormField } from "@/src/components/shared/FormField";
+import {
+  ForgotPasswordInput,
+  ForgotPasswordSchema,
+} from "@/src/core/schemas/auth";
 import { useForgotPasswordMutation } from "@/src/hooks/useAuthQueries";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "expo-router";
+import { ChevronLeft, MailCheck } from "lucide-react-native";
+import React, { useState } from "react";
+import { useForm } from "react-hook-form";
+import { KeyboardAvoidingView, Platform, ScrollView } from "react-native";
+import { Card, H1, Text, XStack, YStack } from "tamagui";
 
 /**
  * Forgot Password Screen
@@ -57,7 +60,11 @@ export default function ForgotPasswordScreen() {
         <Text textAlign="center" color="$color10" fontFamily="$lexend">
           Chúng tôi đã gửi link khôi phục mật khẩu đến email của bạn.
         </Text>
-        <Button onPress={() => router.replace("/(auth)/login")} marginTop="$4" width="100%">
+        <Button
+          onPress={() => router.replace("/(auth)/login")}
+          marginTop="$4"
+          width="100%"
+        >
           Quay lại đăng nhập
         </Button>
       </YStack>
@@ -69,19 +76,15 @@ export default function ForgotPasswordScreen() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={{ flex: 1 }}
     >
-      <ScrollView
-        contentContainerStyle={{ flexGrow: 1 }}
-        backgroundColor="$background"
-        bounces={false}
-      >
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }} bounces={false}>
         <YStack flex={1}>
           {/* Header */}
-          <XStack padding="$4" alignItems="center">
+          <XStack paddingHorizontal="$4" paddingTop="$6" alignItems="center">
             <Button
               uiVariant="ghost"
               circular
               onPress={() => router.back()}
-              icon={<ChevronLeft size={24} color="$color11" />}
+              icon={<ChevronLeft size={24} />}
             />
           </XStack>
 
@@ -97,8 +100,6 @@ export default function ForgotPasswordScreen() {
 
             {/* Form Card */}
             <Card
-              bordered
-              elevate
               padding="$6"
               borderTopLeftRadius="$9"
               borderTopRightRadius="$9"

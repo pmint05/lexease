@@ -1,8 +1,7 @@
-import { useAuthStore } from "@/src/store/useAuthStore";
 import { Tabs, useRouter } from "expo-router";
 import { BookOpen, Clock, Search, User as UserIcon } from "lucide-react-native";
 import React from "react";
-import { Button, useTheme, XStack, Text } from "tamagui";
+import { Button, Text, useTheme, XStack } from "tamagui";
 
 /**
  * Child Tabs Layout
@@ -28,7 +27,6 @@ export default function ChildTabsLayout(): React.ReactElement {
         },
         headerTitleAlign: "center",
         headerShadowVisible: false,
-        tabBarTranslucent: false,
         tabBarStyle: {
           backgroundColor: theme.background?.val || "#FFFBF7",
           borderTopWidth: 1,
@@ -48,9 +46,9 @@ export default function ChildTabsLayout(): React.ReactElement {
         },
         headerLeft: () => (
           <XStack paddingLeft="$4">
-            <Text 
-              fontFamily="Lexend-Black" 
-              fontSize={20} 
+            <Text
+              fontFamily="Lexend-Black"
+              fontSize={20}
               color="$primary"
               letterSpacing={-1}
             >
@@ -72,7 +70,9 @@ export default function ChildTabsLayout(): React.ReactElement {
               <Button
                 size="$3"
                 chromeless
-                icon={<Search color={theme.primary?.val || "#0066CC"} size={22} />}
+                icon={
+                  <Search color={theme.primary?.val || "#0066CC"} size={22} />
+                }
                 onPress={() => router.push("/(child)/search")}
                 accessibilityLabel="Tìm kiếm"
               />
@@ -91,7 +91,9 @@ export default function ChildTabsLayout(): React.ReactElement {
         name="profile"
         options={{
           title: "Tài Khoản",
-          tabBarIcon: ({ color, size }) => <UserIcon color={color} size={size} />,
+          tabBarIcon: ({ color, size }) => (
+            <UserIcon color={color} size={size} />
+          ),
         }}
       />
     </Tabs>

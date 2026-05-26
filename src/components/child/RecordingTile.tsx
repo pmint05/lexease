@@ -62,14 +62,12 @@ export const RecordingTile = ({
             size="$4"
             circular
             backgroundColor="$background"
-            bordered
             borderColor="$border"
             icon={
-              <Play size={20} fill="$primary" color="$primary" marginLeft={2} />
+              <Play size={20} fill="$primary" color="$primary" />
             }
             onPress={() => onPlay(recording)}
             pressStyle={{ backgroundColor: "$color4" }}
-            elevate
           />
         </XStack>
       </ContextMenu.Trigger>
@@ -80,10 +78,6 @@ export const RecordingTile = ({
           borderColor="$border"
           enterStyle={{ y: -10, opacity: 0 }}
           exitStyle={{ y: -10, opacity: 0 }}
-          elevate
-          animation={{
-            type: "quick",
-          }}
           padding="$2"
           backgroundColor="$background"
           borderRadius={"$6"}
@@ -96,9 +90,6 @@ export const RecordingTile = ({
               onPress={() => {
                 onDelete(recording.id);
               }}
-              color="$destructive"
-              fontWeight="700"
-              fontSize="$3"
             >
               Xóa bản ghi này
             </Button>

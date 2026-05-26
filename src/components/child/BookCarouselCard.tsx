@@ -1,7 +1,8 @@
-import React from "react";
-import { Card, Image, Text, YStack, XStack, Button } from "tamagui";
 import { Book } from "@/src/core/types";
 import { Play } from "lucide-react-native";
+import React from "react";
+import { Card, Image, Text, XStack, YStack } from "tamagui";
+import { Button } from "../shared/Button";
 
 interface BookCarouselCardProps {
   book: Book;
@@ -9,20 +10,22 @@ interface BookCarouselCardProps {
   onRead: (id: string) => void;
 }
 
-export const BookCarouselCard = ({ book, onPress, onRead }: BookCarouselCardProps): React.ReactElement => {
+export const BookCarouselCard = ({
+  book,
+  onPress,
+  onRead,
+}: BookCarouselCardProps): React.ReactElement => {
   return (
     <Card
       width={280}
       height={180}
       borderRadius="$6"
       overflow="hidden"
-      bordered
       borderColor="$border"
       backgroundColor="$background"
       onPress={() => onPress(book.id)}
       pressStyle={{ scale: 0.98 }}
       marginRight="$4"
-      elevate
     >
       <XStack flex={1}>
         <Image
@@ -52,15 +55,11 @@ export const BookCarouselCard = ({ book, onPress, onRead }: BookCarouselCardProp
             >
               {book.title}
             </Text>
-            <Text
-              fontSize="$2"
-              color="$mutedForeground"
-              numberOfLines={1}
-            >
+            <Text fontSize="$2" color="$mutedForeground" numberOfLines={1}>
               {book.author}
             </Text>
           </YStack>
-          
+
           <Button
             size="$3"
             backgroundColor="$primary"
@@ -68,7 +67,6 @@ export const BookCarouselCard = ({ book, onPress, onRead }: BookCarouselCardProp
             icon={<Play size={16} fill="white" />}
             onPress={() => onRead(book.id)}
             borderRadius="$4"
-            fontWeight="700"
           >
             Đọc tiếp
           </Button>

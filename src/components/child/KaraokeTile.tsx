@@ -1,16 +1,26 @@
+import { FONT_MAP } from "@/src/core/constants/fonts";
+import { useReadingStore } from "@/src/store/useReadingStore";
 import React from "react";
 import { Text, XStack } from "tamagui";
-import { useReadingStore } from "@/src/store/useReadingStore";
-import { FONT_MAP } from "@/src/core/constants/fonts";
 
 interface KaraokeTileProps {
   word: string;
   isHighlighted: boolean;
 }
 
-export const KaraokeTile = ({ word, isHighlighted }: KaraokeTileProps): React.ReactElement => {
-  const { fontSize, fontFamily, textColor, highlightColor, letterSpacing, lineHeight } = useReadingStore();
-  
+export const KaraokeTile = ({
+  word,
+  isHighlighted,
+}: KaraokeTileProps): React.ReactElement => {
+  const {
+    fontSize,
+    fontFamily,
+    textColor,
+    highlightColor,
+    letterSpacing,
+    lineHeight,
+  } = useReadingStore();
+
   const tamaguiFontKey = FONT_MAP[fontFamily] || "body";
 
   return (
@@ -21,7 +31,7 @@ export const KaraokeTile = ({ word, isHighlighted }: KaraokeTileProps): React.Re
       backgroundColor={isHighlighted ? highlightColor : "transparent"}
       accessible
       accessibilityRole="text"
-      accessibilitylabel={isHighlighted ? `Từ đang được đọc: ${word}` : word}
+      accessibilityLabel={isHighlighted ? `Từ đang được đọc: ${word}` : word}
     >
       <Text
         fontFamily={`$${tamaguiFontKey}`}

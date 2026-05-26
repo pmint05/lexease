@@ -1,35 +1,38 @@
-import React from "react";
-import { Card, Image, Text, YStack, XStack, Circle } from "tamagui";
-import { Book } from "@/src/core/types";
 import { COLORS } from "@/src/core/constants/colors";
+import { Book } from "@/src/core/types";
+import React from "react";
+import { Card, Circle, Image, Text, XStack, YStack } from "tamagui";
 
 interface BookGridCardProps {
   book: Book;
   onPress: (id: string) => void;
 }
 
-export const BookGridCard = ({ book, onPress }: BookGridCardProps): React.ReactElement => {
-  const difficultyColor = 
-    book.difficulty === "easy" ? COLORS.success : 
-    book.difficulty === "medium" ? COLORS.warning : 
-    COLORS.error;
+export const BookGridCard = ({
+  book,
+  onPress,
+}: BookGridCardProps): React.ReactElement => {
+  const difficultyColor =
+    book.difficulty === "easy"
+      ? COLORS.success
+      : book.difficulty === "medium"
+        ? COLORS.warning
+        : COLORS.error;
 
   return (
     <Card
       width="48.5%"
       borderRadius="$4"
       overflow="hidden"
-      bordered
       borderColor="$border"
       backgroundColor="$background"
       onPress={() => onPress(book.id)}
       pressStyle={{ scale: 0.97 }}
-      elevate
       marginBottom="$3"
     >
       <Image
         source={{ uri: book.coverUrl, width: 200, height: 300 }}
-        aspectRatio={2/3}
+        aspectRatio={2 / 3}
         width="100%"
         backgroundColor="$color4"
       />

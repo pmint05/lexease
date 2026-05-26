@@ -1,21 +1,20 @@
 import { Mic, Pause, Play, SkipBack } from "lucide-react-native";
 import React from "react";
-import { Button, Text, XStack, YStack } from "tamagui";
-
-import { ReadingRate } from "@/src/core/types";
+import { Text, XStack, YStack } from "tamagui";
+import { Button } from "../shared/Button";
 
 interface ReadingControlsProps {
   isPlaying: boolean;
   isRecording: boolean;
-  speed: ReadingRate;
+  speed: number;
   onPlay: () => void;
   onPause: () => void;
   onRecord: () => void;
   onReset: () => void;
-  onSpeedSelect: (speed: ReadingRate) => void;
+  onSpeedSelect: (speed: number) => void;
 }
 
-const SPEED_OPTIONS: ReadingRate[] = [0.5, 0.75, 1, 1.25, 1.5];
+const SPEED_OPTIONS: number[] = [0.5, 0.75, 1, 1.25, 1.5];
 
 export const ReadingControls = ({
   isPlaying,
@@ -36,7 +35,7 @@ export const ReadingControls = ({
           icon={<SkipBack color="$foreground" size={20} />}
           accessible
           accessibilityRole="button"
-          accessibilitylabel="Quay về đầu bài"
+          accessibilityLabel="Quay về đầu bài"
         >
           Đầu
         </Button>
@@ -55,7 +54,7 @@ export const ReadingControls = ({
           color="$accentForeground"
           accessible
           accessibilityRole="button"
-          accessibilitylabel={isPlaying ? "Tạm dừng đọc" : "Bắt đầu đọc"}
+          accessibilityLabel={isPlaying ? "Tạm dừng đọc" : "Bắt đầu đọc"}
         >
           {isPlaying ? "Dừng" : "Đọc"}
         </Button>
@@ -77,7 +76,7 @@ export const ReadingControls = ({
           }
           accessible
           accessibilityRole="button"
-          accessibilitylabel={isRecording ? "Đang ghi âm" : "Bắt đầu ghi âm"}
+          accessibilityLabel={isRecording ? "Đang ghi âm" : "Bắt đầu ghi âm"}
         >
           {isRecording ? "Dừng" : "Ghi"}
         </Button>
@@ -98,8 +97,8 @@ export const ReadingControls = ({
               borderColor={speed === option ? "$primary" : "$border"}
               accessible
               accessibilityRole="button"
-              accessibilitylabel={`Đặt tốc độ ${option}`}
-              accessibilitystate={{ selected: speed === option }}
+              accessibilityLabel={`Đặt tốc độ ${option}`}
+              accessibilityState={{ selected: speed === option }}
             >
               <Text
                 color={speed === option ? "$primaryForeground" : "$foreground"}

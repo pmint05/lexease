@@ -7,8 +7,7 @@ import React, { useEffect } from "react";
 import { Platform, useColorScheme, View } from "react-native";
 import "react-native-reanimated";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import { TamaguiProvider } from "tamagui";
-import { useAuthGuard } from "../src/hooks/useAuthGuard";
+import { PortalProvider, TamaguiProvider } from "tamagui";
 import { useAuthStore } from "../src/store/useAuthStore";
 import "./globall.css";
 
@@ -23,8 +22,6 @@ SplashScreen.preventAutoHideAsync();
  * and to keep RootLayout clean.
  */
 function RootLayoutContent() {
-  useAuthGuard();
-
   return (
     <Stack
       screenOptions={{
@@ -110,15 +107,17 @@ export default function RootLayout() {
         // defaultTheme={effectiveColorScheme === "dark" ? "dark" : "light"}
       >
         <QueryClientProvider client={queryClient}>
-          <View
-            className={
-              "flex-1"
-              // effectiveColorScheme === "dark" ? "dark flex-1" : "flex-1"
-            }
-            style={{ flex: 1 }}
-          >
-            <RootLayoutContent />
-          </View>
+          <PortalProvider>
+            <View
+              className={
+                "flex-1"
+                // effectiveColorScheme === "dark" ? "dark flex-1" : "flex-1"
+              }
+              style={{ flex: 1 }}
+            >
+              <RootLayoutContent />
+            </View>
+          </PortalProvider>
         </QueryClientProvider>
       </TamaguiProvider>
     </SafeAreaProvider>

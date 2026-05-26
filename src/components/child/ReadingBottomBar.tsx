@@ -78,7 +78,6 @@ export const ReadingBottomBar = ({
             }
             onPress={isFinished ? onRepeat : onTogglePlay}
             scale={1.2}
-            elevate
             pressStyle={{ scale: 1.1 }}
             shadowColor="$primary"
             shadowRadius={15}
@@ -106,7 +105,6 @@ export const ReadingBottomBar = ({
                 position="absolute"
                 top={-2}
                 right={-2}
-                animation="lazy"
                 borderWidth={2}
                 borderColor="white"
               />

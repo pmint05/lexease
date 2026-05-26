@@ -1,13 +1,13 @@
-import React from "react";
-import { Platform, KeyboardAvoidingView, ScrollView } from "react-native";
-import { YStack, Text, XStack, H1, Card } from "tamagui";
-import { useRouter } from "expo-router";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { LoginInput, LoginSchema } from "@/src/core/schemas/auth";
+// import { Button } from "@/src/components/shared/Button";
 import { FormField } from "@/src/components/shared/FormField";
-import { Button } from "@/src/components/shared/Button";
+import { LoginInput, LoginSchema } from "@/src/core/schemas/auth";
 import { useLoginMutation } from "@/src/hooks/useAuthQueries";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "expo-router";
+import React from "react";
+import { useForm } from "react-hook-form";
+import { KeyboardAvoidingView, Platform, ScrollView } from "react-native";
+import { Button, Card, H1, Text, XStack, YStack } from "tamagui";
 
 /**
  * Login Screen
@@ -44,14 +44,15 @@ export default function LoginScreen() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={{ flex: 1 }}
     >
-      <ScrollView
-        contentContainerStyle={{ flexGrow: 1 }}
-        backgroundColor="$background"
-        bounces={false}
-      >
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }} bounces={false}>
         <YStack flex={1} justifyContent="space-between">
           {/* Top Section: Branding / Illustration */}
-          <YStack flex={1} justifyContent="center" alignItems="center" padding="$6">
+          <YStack
+            flex={1}
+            justifyContent="center"
+            alignItems="center"
+            padding="$6"
+          >
             <H1
               fontSize="$12"
               fontWeight="bold"
@@ -74,15 +75,12 @@ export default function LoginScreen() {
 
           {/* Bottom Section: Form Card */}
           <Card
-            bordered
-            elevate
             padding="$6"
             borderTopLeftRadius="$9"
             borderTopRightRadius="$9"
             borderBottomLeftRadius={0}
             borderBottomRightRadius={0}
             backgroundColor="$background"
-            animation="lazy"
           >
             <YStack gap="$5">
               <YStack gap="$1">
@@ -138,19 +136,21 @@ export default function LoginScreen() {
                 </Button>
               </YStack>
 
-              <XStack justifyContent="center" gap="$2" marginTop="$2">
-                <Text color="$color10" fontFamily="$lexend">
-                  Chưa có tài khoản?
-                </Text>
+              <Text
+                textAlign="center"
+                color="$color10"
+                fontFamily="$lexend"
+                marginTop="$2"
+              >
+                Chưa có tài khoản?{" "}
                 <Text
                   color="$primary"
                   fontWeight="bold"
-                  fontFamily="$lexend"
                   onPress={() => router.push("/(auth)/register")}
                 >
                   Đăng ký ngay
                 </Text>
-              </XStack>
+              </Text>
             </YStack>
           </Card>
         </YStack>

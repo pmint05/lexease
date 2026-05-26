@@ -118,11 +118,9 @@ export const AudioPlaybackModal = ({
       dismissOnSnapToBottom
       position={0}
       modal
-      animation="medium"
     >
       <Sheet.Overlay
         backgroundColor="rgba(0,0,0,0.5)"
-        animation="lazy"
         enterStyle={{ opacity: 0 }}
         exitStyle={{ opacity: 0 }}
       />
@@ -135,7 +133,6 @@ export const AudioPlaybackModal = ({
           padding="$6"
           borderRadius="$6"
           gap="$6"
-          elevate
           shadowColor="rgba(0,0,0,0.1)"
           shadowRadius={30}
           maxWidth={450} // Kích thước tối ưu cho mobile
@@ -196,7 +193,6 @@ export const AudioPlaybackModal = ({
               <Slider.Thumb
                 index={0}
                 circular
-                elevate
                 backgroundColor="white"
                 size="$1"
                 borderWidth={1}
@@ -231,11 +227,10 @@ export const AudioPlaybackModal = ({
                 status.playing ? (
                   <Pause size={32} fill="white" color="white" />
                 ) : (
-                  <Play size={32} fill="white" color="white" marginLeft={4} />
+                  <Play size={32} fill="white" color="white" />
                 )
               }
               onPress={handleTogglePlay}
-              elevate
               shadowColor="$primary"
               shadowRadius={15}
               shadowOpacity={0.3}
@@ -256,7 +251,7 @@ export const AudioPlaybackModal = ({
           <XStack justifyContent="space-between" alignItems="center">
             <Button
               size="$3"
-              variant="outline"
+              variant="outlined"
               borderRadius="$10"
               onPress={handleToggleSpeed}
               minWidth={100}
@@ -273,8 +268,6 @@ export const AudioPlaybackModal = ({
                   onOpenChange(false);
                   onDelete();
                 }}
-                color="$destructive"
-                fontWeight="600"
               >
                 Xóa
               </Button>

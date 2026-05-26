@@ -539,7 +539,7 @@ export function LoginScreen() {
       <Input
         placeholder="Email"
         size="$4"
-        accessibilitylabel="Email input field"
+        accessibilityLabel="Email input field"
       />
       <Button>Login</Button>
     </YStack>
@@ -655,8 +655,8 @@ export function ControlPanel() {
 ### Accessibility Attributes (WCAG 2.1 A)
 
 - **accessibilityRole**: Semantic role (button, tab, image, list, etc.)
-- **accessibilitylabel**: Short description of component
-- **accessibilityhint**: Additional context (optional)
+- **accessibilityLabel**: Short description of component
+- **accessibilityHint**: Additional context (optional)
 - **accessible**: Set to `true` on interactive elements
 
 **Pattern:**
@@ -670,8 +670,8 @@ export function BookTile({ book, onPress }) {
       onPress={onPress}
       accessible
       accessibilityRole="button"
-      accessibilitylabel={`Read "${book.title}" by ${book.author}`}
-      accessibilityhint="Double-tap to start reading with Karaoke mode"
+      accessibilityLabel={`Read "${book.title}" by ${book.author}`}
+      accessibilityHint="Double-tap to start reading with Karaoke mode"
     >
       <YStack>{/* content */}</YStack>
     </Pressable>

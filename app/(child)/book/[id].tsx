@@ -150,8 +150,6 @@ export default function ReadingDetailScreen(): React.ReactElement {
               height={180}
               borderRadius="$4"
               overflow="hidden"
-              elevate
-              bordered
               borderColor="$border"
             >
               <Image
@@ -209,7 +207,6 @@ export default function ReadingDetailScreen(): React.ReactElement {
             <Card
               flex={1}
               padding="$3"
-              bordered
               alignItems="center"
               gap="$1"
               backgroundColor="$color2"
@@ -225,7 +222,6 @@ export default function ReadingDetailScreen(): React.ReactElement {
             <Card
               flex={1}
               padding="$3"
-              bordered
               alignItems="center"
               gap="$1"
               backgroundColor="$color2"
@@ -241,7 +237,6 @@ export default function ReadingDetailScreen(): React.ReactElement {
             <Card
               flex={1}
               padding="$3"
-              bordered
               alignItems="center"
               gap="$1"
               backgroundColor="$color2"

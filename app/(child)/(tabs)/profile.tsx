@@ -19,7 +19,7 @@ import {
   Separator,
   Text,
   XStack,
-  YStack
+  YStack,
 } from "tamagui";
 
 /**
@@ -68,7 +68,7 @@ export default function ProfileScreen(): React.ReactElement {
         >
           {/* 1. Profile Header */}
           <XStack alignItems="center" gap="$4">
-            <Avatar circular size="$8" bordered borderColor="$border">
+            <Avatar circular size="$8" borderColor="$border">
               <Avatar.Image
                 source={{
                   uri:
@@ -101,7 +101,7 @@ export default function ProfileScreen(): React.ReactElement {
           </XStack>
 
           {/* 2. Points Section */}
-          <Card padding="$4" bordered elevate backgroundColor="$primary">
+          <Card padding="$4" backgroundColor="$primary">
             <XStack justifyContent="space-between" alignItems="center">
               <YStack gap="$1">
                 <Text color="white" opacity={0.8} fontWeight="600">
@@ -134,7 +134,7 @@ export default function ProfileScreen(): React.ReactElement {
               Thành tích của bé
             </Text>
             <XStack gap="$3">
-              <Card flex={1} padding="$4" bordered alignItems="center" gap="$2">
+              <Card flex={1} padding="$4" alignItems="center" gap="$2">
                 <BookOpen size={24} color={COLORS.primary} />
                 <Text fontSize="$8" fontWeight="800">
                   {statistics.booksRead}
@@ -143,8 +143,8 @@ export default function ProfileScreen(): React.ReactElement {
                   Sách đã đọc
                 </Text>
               </Card>
-              <Card flex={1} padding="$4" bordered alignItems="center" gap="$2">
-                <Clock size={24} color={COLORS.orange} />
+              <Card flex={1} padding="$4" alignItems="center" gap="$2">
+                <Clock size={24} color={COLORS.primary} />
                 <Text fontSize="$8" fontWeight="800">
                   {statistics.totalMinutes}
                 </Text>
@@ -152,7 +152,7 @@ export default function ProfileScreen(): React.ReactElement {
                   Phút luyện tập
                 </Text>
               </Card>
-              <Card flex={1} padding="$4" bordered alignItems="center" gap="$2">
+              <Card flex={1} padding="$4" alignItems="center" gap="$2">
                 <Award size={24} color={COLORS.success} />
                 <Text fontSize="$8" fontWeight="800">
                   {statistics.totalSessions}
@@ -168,8 +168,7 @@ export default function ProfileScreen(): React.ReactElement {
           <YStack gap="$2" marginTop="$4">
             <Button
               size="$5"
-              theme="active"
-              variant="outline"
+              variant="outlined"
               icon={<UserIcon size={20} />}
               justifyContent="flex-start"
             >
@@ -178,7 +177,7 @@ export default function ProfileScreen(): React.ReactElement {
             <Separator marginVertical="$2" />
             <Button
               size="$5"
-              theme="destructive"
+              variant="outlined"
               icon={<LogOut size={20} />}
               onPress={handleLogout}
               justifyContent="flex-start"

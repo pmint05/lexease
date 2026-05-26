@@ -1,14 +1,14 @@
+import { useFocusEffect } from "@react-navigation/native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { BackHandler } from "react-native";
 import { YStack } from "tamagui";
-import { useFocusEffect } from "@react-navigation/native";
 
-import { ReadingHeader } from "@/src/components/child/ReadingHeader";
-import { ReadingContent } from "@/src/components/child/ReadingContent";
 import { ReadingBottomBar } from "@/src/components/child/ReadingBottomBar";
-import { ReadingSettingsModal } from "@/src/components/child/ReadingSettingsModal";
+import { ReadingContent } from "@/src/components/child/ReadingContent";
 import { ReadingExitModal } from "@/src/components/child/ReadingExitModal";
+import { ReadingHeader } from "@/src/components/child/ReadingHeader";
+import { ReadingSettingsModal } from "@/src/components/child/ReadingSettingsModal";
 
 import { getBookById } from "@/src/data/local/books";
 import { useAudioRecording } from "@/src/hooks/useAudioRecording";
@@ -26,34 +26,40 @@ export default function ReadingScreen(): React.ReactElement {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const book = useMemo(() => getBookById(id), [id]);
-  
-  const { 
-    currentIndex, 
-    speed, 
-    isPlaying, 
+
+  const {
+    currentIndex,
+    speed,
+    isPlaying,
     isTtsEnabled,
     backgroundColor,
-    setIsPlaying, 
-    setIndex, 
+    setIsPlaying,
+    setIndex,
     setIsTtsEnabled,
-    resetSession 
+    resetSession,
   } = useReadingStore();
-  
+
   const { user } = useAuthStore();
   const { addRecording } = useRecordingStore();
   const { addSession } = useLearningStore();
-  
-  const { isRecording, startRecording, stopRecording, recordingDuration, meteringData } = useAudioRecording();
-  
+
+  const {
+    isRecording,
+    startRecording,
+    stopRecording,
+    recordingDuration,
+    meteringData,
+  } = useAudioRecording();
+
   // UI State
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isExitModalOpen, setIsExitModalOpen] = useState(false);
-  
+
   const sessionStartRef = useRef(0);
   const sessionLoggedRef = useRef(false);
-  
+
   const words = useMemo(() => book?.words || [], [book]);
-  
+
   // Progress calculation
   const readingProgress = useMemo(() => {
     if (!words || words.length <= 1) return 0;
@@ -70,7 +76,7 @@ export default function ReadingScreen(): React.ReactElement {
     },
     onFinish: () => {
       setIsPlaying(false);
-    }
+    },
   });
 
   const finalizeSession = useCallback((): void => {
@@ -167,9 +173,12 @@ export default function ReadingScreen(): React.ReactElement {
         return true;
       };
 
-      BackHandler.addEventListener("hardwareBackPress", onBackPress);
-      return () => BackHandler.removeEventListener("hardwareBackPress", onBackPress);
-    }, [])
+      const backHandler = BackHandler.addEventListener(
+        "hardwareBackPress",
+        onBackPress,
+      );
+      return () => backHandler.remove();
+    }, []),
   );
 
   // Lifecycle
@@ -183,18 +192,18 @@ export default function ReadingScreen(): React.ReactElement {
     return words.length > 0 && currentIndex >= words.length - 1;
   }, [currentIndex, words.length]);
 
-  if (!book) return null;
+  if (!book) return <></>;
 
   return (
     <YStack flex={1} backgroundColor={backgroundColor}>
-      <ReadingHeader 
+      <ReadingHeader
         title={book.title}
         progress={readingProgress}
         onBack={() => setIsExitModalOpen(true)}
         onOpenSettings={() => setIsSettingsOpen(true)}
       />
 
-      <ReadingContent 
+      <ReadingContent
         words={words}
         currentIndex={currentIndex}
         isPlaying={isPlaying}
@@ -202,7 +211,7 @@ export default function ReadingScreen(): React.ReactElement {
         onManualScroll={handleManualScroll}
       />
 
-      <ReadingBottomBar 
+      <ReadingBottomBar
         isPlaying={isPlaying}
         isRecording={isRecording}
         isTtsEnabled={isTtsEnabled}
@@ -222,13 +231,13 @@ export default function ReadingScreen(): React.ReactElement {
       />
 
       {/* Modals */}
-      <ReadingSettingsModal 
-        open={isSettingsOpen} 
-        onOpenChange={setIsSettingsOpen} 
+      <ReadingSettingsModal
+        open={isSettingsOpen}
+        onOpenChange={setIsSettingsOpen}
       />
-      
-      <ReadingExitModal 
-        open={isExitModalOpen} 
+
+      <ReadingExitModal
+        open={isExitModalOpen}
         onOpenChange={setIsExitModalOpen}
         onConfirm={handleConfirmExit}
       />

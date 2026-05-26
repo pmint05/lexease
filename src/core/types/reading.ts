@@ -1,5 +1,3 @@
-export type ReadingRate = 0.5 | 0.75 | 1 | 1.25 | 1.5;
-
 export type BookDifficulty = "easy" | "medium" | "hard";
 
 export interface Book {
@@ -24,7 +22,7 @@ export interface ReadingSession {
   completedAt?: string;
   wordsRead: number;
   accuracy?: number;
-  speed: ReadingRate;
+  speed: number;
   recordingPath?: string;
   comprehensionScore?: number;
 }

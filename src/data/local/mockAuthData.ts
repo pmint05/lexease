@@ -1,9 +1,9 @@
-import { Account } from "@/src/store/useAuthStore";
-
 /**
  * Mock Auth Data
  * Centralized store for mock user accounts
  */
+
+import { Account } from "@/src/core/types";
 
 export const mockAccounts: Account[] = [
   {
@@ -29,5 +29,21 @@ export const mockAccounts: Account[] = [
     password: "12345",
     role: "child",
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 6).toISOString(),
+  },
+  {
+    id: "child-3",
+    email: "child3@gmail.com",
+    name: "Bé Thứ Ba",
+    password: "12345",
+    role: "child",
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 4).toISOString(),
+  },
+  {
+    id: "child-4",
+    email: "child4@gmail.com",
+    name: "Bé Thứ Tư",
+    password: "12345",
+    role: "child",
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
   },
 ];

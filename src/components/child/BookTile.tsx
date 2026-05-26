@@ -1,9 +1,10 @@
 import { BookOpen, ChevronRight, Clock3, Volume2 } from "lucide-react-native";
 import React from "react";
-import { Button, Card, Text, XStack, YStack } from "tamagui";
+import { Card, Text, XStack, YStack } from "tamagui";
 
 import { COLORS } from "@/src/core/constants/colors";
 import { Book } from "@/src/core/types";
+import { Button } from "../shared/Button";
 
 interface BookTileProps {
   book: Book;
@@ -30,8 +31,8 @@ export const BookTile = ({
       backgroundColor="$background"
       accessible
       accessibilityRole="summary"
-      accessibilitylabel={`Sách ${book.title} của ${book.author}. Độ khó ${book.difficulty}`}
-      accessibilityhint="Dùng nút Xem hoặc Đọc ở bên phải"
+      accessibilityLabel={`Sách ${book.title} của ${book.author}. Độ khó ${book.difficulty}`}
+      accessibilityHint="Dùng nút Xem hoặc Đọc ở bên phải"
     >
       <XStack gap="$3" alignItems="center">
         <YStack
@@ -74,7 +75,7 @@ export const BookTile = ({
             onPress={() => onPress(book.id)}
             icon={<ChevronRight color="$foreground" size={16} />}
             accessibilityRole="button"
-            accessibilitylabel={`Xem chi tiết ${book.title}`}
+            accessibilityLabel={`Xem chi tiết ${book.title}`}
           >
             Xem
           </Button>
@@ -85,7 +86,7 @@ export const BookTile = ({
             backgroundColor="$accent"
             color="$primaryForeground"
             accessibilityRole="button"
-            accessibilitylabel={`Đọc ngay ${book.title}`}
+            accessibilityLabel={`Đọc ngay ${book.title}`}
           >
             Đọc
           </Button>
