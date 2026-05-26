@@ -7,7 +7,7 @@ import React, { useEffect } from "react";
 import { Platform, useColorScheme, View } from "react-native";
 import "react-native-reanimated";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import { PortalProvider, TamaguiProvider } from "tamagui";
+import { TamaguiProvider } from "tamagui";
 import { useAuthStore } from "../src/store/useAuthStore";
 import "./globall.css";
 
@@ -26,6 +26,7 @@ function RootLayoutContent() {
     <Stack
       screenOptions={{
         headerShown: false,
+        animation: "none",
       }}
     >
       <Stack.Screen name="index" options={{}} />
@@ -107,17 +108,15 @@ export default function RootLayout() {
         // defaultTheme={effectiveColorScheme === "dark" ? "dark" : "light"}
       >
         <QueryClientProvider client={queryClient}>
-          <PortalProvider>
-            <View
-              className={
-                "flex-1"
-                // effectiveColorScheme === "dark" ? "dark flex-1" : "flex-1"
-              }
-              style={{ flex: 1 }}
-            >
-              <RootLayoutContent />
-            </View>
-          </PortalProvider>
+          <View
+            className={
+              "flex-1"
+              // effectiveColorScheme === "dark" ? "dark flex-1" : "flex-1"
+            }
+            style={{ flex: 1 }}
+          >
+            <RootLayoutContent />
+          </View>
         </QueryClientProvider>
       </TamaguiProvider>
     </SafeAreaProvider>

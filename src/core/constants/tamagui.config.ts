@@ -1,8 +1,45 @@
 import { createAnimations } from "@tamagui/animations-react-native";
 import { defaultConfig as configV5 } from "@tamagui/config/v5";
-import { createFont, createTamagui } from "tamagui";
+import { createFont, createTamagui, createTokens } from "tamagui";
 
-// 1. Định nghĩa Font Lexend
+// 1. Khởi tạo danh sách màu sắc thô (Raw Colors) cho Tokens
+const brandColors = {
+  brandLightBg: "#FFFBF7",
+  brandLightFg: "#221F1E",
+  brandSurface: "#FFFFFF",
+  brandDarkBg: "#1A1D1E",
+  brandDarkFg: "#F5F5F5",
+  brandSurfaceDark: "#242424",
+  brandPrimary: "#0066CC",
+  brandPrimaryDark: "#60A5FA",
+  brandSecondary: "#FFB83D",
+  brandSecondaryDark: "#FBBF24",
+  brandAccent: "#2E8B57",
+  brandAccentDark: "#34D399",
+  brandAccentLight: "#E8F5E9",
+  brandDestructive: "#E53935",
+  brandDestructiveDark: "#EF4444",
+  brandMuted: "#F5F0EB",
+  brandMutedDark: "#2D2D2D",
+  brandBorder: "#EFEAE6",
+};
+
+// 2. Khởi tạo Tokens hoàn chỉnh
+const tokens = createTokens({
+  ...configV5.tokens,
+  color: {
+    ...configV5.tokens.color,
+    ...brandColors,
+  },
+  radius: {
+    ...configV5.tokens.radius,
+    sm: 4,
+    md: 8,
+    lg: 16,
+  },
+});
+
+// 3. Định nghĩa Font Lexend (Đã sửa lỗi scale font size của v5)
 const lexendFont = createFont({
   family: "Lexend-Regular",
   size: {
@@ -16,7 +53,11 @@ const lexendFont = createFont({
     8: 24,
     9: 32,
     10: 44,
+    // Bổ sung ánh xạ chuỗi để triệt tiêu lỗi "No font size found..." từ các component v5 mặc định
     true: 14,
+    small: 12,
+    medium: 14,
+    large: 18,
   },
   lineHeight: {
     1: 15,
@@ -30,6 +71,9 @@ const lexendFont = createFont({
     9: 40,
     10: 52,
     true: 21,
+    small: 17,
+    medium: 21,
+    large: 25,
   },
   weight: {
     1: "100",
@@ -55,7 +99,7 @@ const lexendFont = createFont({
   },
 });
 
-// 2. Định nghĩa Font OpenDyslexic
+// 4. Định nghĩa Font OpenDyslexic
 const openDyslexicFont = createFont({
   family: "OpenDyslexic-Regular",
   size: {
@@ -70,6 +114,9 @@ const openDyslexicFont = createFont({
     9: 32,
     10: 44,
     true: 14,
+    small: 12,
+    medium: 14,
+    large: 18,
   },
   lineHeight: {
     1: 15,
@@ -83,6 +130,9 @@ const openDyslexicFont = createFont({
     9: 40,
     10: 52,
     true: 21,
+    small: 17,
+    medium: 21,
+    large: 25,
   },
   weight: { 4: "400", 7: "700" },
   face: {
@@ -91,42 +141,15 @@ const openDyslexicFont = createFont({
   },
 });
 
-// 3. Khởi tạo cấu hình Tamagui (Kế thừa và mở rộng chuẩn xác)
+// 5. Khởi tạo cấu hình Tamagui
 export const tamaguiConfig = createTamagui({
   ...configV5,
-  tokens: {
-    ...configV5.tokens,
-    // Sửa lỗi bằng cách merge chính xác object color con bên trong token
-    color: {
-      brandLightBg: "#FFFBF7",
-      brandLightFg: "#221F1E",
-      brandDarkBg: "#1A1D1E",
-      brandDarkFg: "#F5F5F5",
-      brandPrimary: "#0066CC",
-      brandPrimaryDark: "#60A5FA",
-      brandSecondary: "#FFB83D",
-      brandSecondaryDark: "#FBBF24",
-      brandAccent: "#2E8B57",
-      brandAccentDark: "#34D399",
-      brandDestructive: "#E53935",
-      brandDestructiveDark: "#EF4444",
-      brandMuted: "#F5F0EB",
-      brandMutedDark: "#2D2D2D",
-      brandBorder: "#EFEAE6",
-    },
-    // Giữ cấu hình radius tùy chỉnh của bạn mà không lo lỗi đè kiểu dữ liệu
-    radius: {
-      ...configV5.tokens.radius,
-      sm: 4,
-      md: 8,
-      lg: 16,
-    },
-  },
+  tokens, // Nạp toàn bộ hệ thống tokens mới đã cấu trúc lại
   fonts: {
     heading: lexendFont,
     body: lexendFont,
-    mono: lexendFont, // Bắt buộc phải bổ sung để tránh lỗi loại trừ hệ thống
-    silkscreen: lexendFont, // Bắt buộc phải bổ sung
+    mono: lexendFont,
+    silkscreen: lexendFont,
     lexend: lexendFont,
     dyslexic: openDyslexicFont,
   },
@@ -134,26 +157,42 @@ export const tamaguiConfig = createTamagui({
     light: {
       ...configV5.themes.light,
       background: "$brandLightBg",
+      backgroundStrong: "$brandSurface",
       color: "$brandLightFg",
+      foreground: "$brandLightFg",
+      surface: "$brandSurface",
+      card: "$brandSurface",
       primary: "$brandPrimary",
+      primaryForeground: "white",
       secondary: "$brandSecondary",
+      secondaryForeground: "$brandLightFg",
       accent: "$brandAccent",
+      accentForeground: "white",
       destructive: "$brandDestructive",
+      destructiveForeground: "white",
+      muted: "$brandMuted",
+      mutedForeground: "#5A5A5A",
       borderColor: "$brandBorder",
-      borderColorFocus: "#0070f3",
-      shadowColorFocus: "transparent",
     },
     dark: {
       ...configV5.themes.dark,
       background: "$brandDarkBg",
+      backgroundStrong: "$brandSurfaceDark",
       color: "$brandDarkFg",
+      foreground: "$brandDarkFg",
+      surface: "$brandSurfaceDark",
+      card: "$brandSurfaceDark",
       primary: "$brandPrimaryDark",
+      primaryForeground: "$brandDarkBg",
       secondary: "$brandSecondaryDark",
+      secondaryForeground: "$brandDarkBg",
       accent: "$brandAccentDark",
+      accentForeground: "$brandDarkBg",
       destructive: "$brandDestructiveDark",
+      destructiveForeground: "white",
+      muted: "$brandMutedDark",
+      mutedForeground: "#2D2D2D",
       borderColor: "$brandMutedDark",
-      borderColorFocus: "#38bdf8",
-      shadowColorFocus: "transparent",
     },
   },
 
@@ -163,21 +202,9 @@ export const tamaguiConfig = createTamagui({
     bouncy: { damping: 10, mass: 0.9, stiffness: 100 },
   }),
 
-  media: {
-    xs: { maxWidth: 660 },
-    sm: { maxWidth: 800 },
-    md: { maxWidth: 1020 },
-    lg: { maxWidth: 1280 },
-    xl: { maxWidth: 1420 },
-    gtXs: { minWidth: 660 + 1 },
-    gtSm: { minWidth: 800 + 1 },
-    gtMd: { minWidth: 1020 + 1 },
-    gtLg: { minWidth: 1280 + 1 },
-    short: { maxHeight: 820 },
-    tall: { minHeight: 820 },
-    hoverNone: { hover: "none" },
-    pointerCoarse: { pointer: "coarse" },
-  },
+  media: configV5.media,
+  shorthands: configV5.shorthands,
+
   settings: {
     autocompleteSpecificTokens: true,
     disableStandardStyles: false,
@@ -185,7 +212,6 @@ export const tamaguiConfig = createTamagui({
     defaultFont: "body",
     defaultTheme: "light",
   },
-  shorthands: configV5.shorthands,
 });
 
 export type AppConfig = typeof tamaguiConfig;

@@ -1,25 +1,25 @@
 import * as FileSystem from "expo-file-system";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import {
-  BarChart,
-  ChevronLeft,
-  Clock,
-  FileText,
-  Headphones,
-  Play,
+    BarChart,
+    ChevronLeft,
+    Clock,
+    FileText,
+    Headphones,
+    Play,
 } from "lucide-react-native";
 import { useMemo, useState } from "react";
 import { Alert } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
-  Card,
-  H3,
-  Image,
-  ScrollView,
-  Text,
-  View,
-  XStack,
-  YStack,
+    Card,
+    H3,
+    Image,
+    ScrollView,
+    Text,
+    View,
+    XStack,
+    YStack,
 } from "tamagui";
 
 import { AudioPlaybackModal } from "@/src/components/child/AudioPlaybackModal";
@@ -57,6 +57,16 @@ export default function ReadingDetailScreen(): React.ReactElement {
     number[] | undefined
   >([]);
   const [isPlaybackOpen, setIsPlaybackOpen] = useState(false);
+
+  const handlePlaybackOpenChange = (nextOpen: boolean) => {
+    setIsPlaybackOpen(nextOpen);
+
+    if (!nextOpen) {
+      setPlaybackUri(null);
+      setSelectedRecordingId(null);
+      setPlaybackMeteringData([]);
+    }
+  };
 
   const bookRecordings = useMemo(
     () => recordings.filter((recording) => recording.bookId === id),
@@ -305,16 +315,18 @@ export default function ReadingDetailScreen(): React.ReactElement {
         </YStack>
       </ScrollView>
 
-      <AudioPlaybackModal
-        uri={playbackUri}
-        title={book.title}
-        meteringData={playbackMeteringData}
-        open={isPlaybackOpen}
-        onOpenChange={setIsPlaybackOpen}
-        onDelete={() =>
-          selectedRecordingId && removeRecording(selectedRecordingId)
-        }
-      />
+      {(isPlaybackOpen || playbackUri) && (
+        <AudioPlaybackModal
+          uri={playbackUri}
+          title={book.title}
+          meteringData={playbackMeteringData}
+          open={isPlaybackOpen}
+          onOpenChange={handlePlaybackOpenChange}
+          onDelete={() =>
+            selectedRecordingId && removeRecording(selectedRecordingId)
+          }
+        />
+      )}
     </YStack>
   );
 }

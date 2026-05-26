@@ -29,6 +29,17 @@ export default function HistoryScreen(): React.ReactElement {
   >([]);
   const [isPlaybackOpen, setIsPlaybackOpen] = useState(false);
 
+  const handlePlaybackOpenChange = (nextOpen: boolean) => {
+    setIsPlaybackOpen(nextOpen);
+
+    if (!nextOpen) {
+      setPlaybackUri(null);
+      setPlaybackTitle("");
+      setSelectedRecordingId(null);
+      setPlaybackMeteringData([]);
+    }
+  };
+
   const sortedRecordings = useMemo<Recording[]>(() => {
     return recordings
       .filter((recording) => recording.childId === user?.id)
@@ -139,16 +150,18 @@ export default function HistoryScreen(): React.ReactElement {
         showsVerticalScrollIndicator={false}
       />
 
-      <AudioPlaybackModal
-        uri={playbackUri}
-        title={playbackTitle}
-        meteringData={playbackMeteringData}
-        open={isPlaybackOpen}
-        onOpenChange={setIsPlaybackOpen}
-        onDelete={() =>
-          selectedRecordingId && removeRecording(selectedRecordingId)
-        }
-      />
+      {(isPlaybackOpen || playbackUri) && (
+        <AudioPlaybackModal
+          uri={playbackUri}
+          title={playbackTitle}
+          meteringData={playbackMeteringData}
+          open={isPlaybackOpen}
+          onOpenChange={handlePlaybackOpenChange}
+          onDelete={() =>
+            selectedRecordingId && removeRecording(selectedRecordingId)
+          }
+        />
+      )}
     </YStack>
   );
 }

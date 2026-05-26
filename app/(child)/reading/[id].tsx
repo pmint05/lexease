@@ -1,12 +1,11 @@
 import { useFocusEffect } from "@react-navigation/native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { BackHandler } from "react-native";
+import { Alert, BackHandler } from "react-native";
 import { YStack } from "tamagui";
 
 import { ReadingBottomBar } from "@/src/components/child/ReadingBottomBar";
 import { ReadingContent } from "@/src/components/child/ReadingContent";
-import { ReadingExitModal } from "@/src/components/child/ReadingExitModal";
 import { ReadingHeader } from "@/src/components/child/ReadingHeader";
 import { ReadingSettingsModal } from "@/src/components/child/ReadingSettingsModal";
 
@@ -53,7 +52,6 @@ export default function ReadingScreen(): React.ReactElement {
 
   // UI State
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [isExitModalOpen, setIsExitModalOpen] = useState(false);
 
   const sessionStartRef = useRef(0);
   const sessionLoggedRef = useRef(false);
@@ -158,18 +156,31 @@ export default function ReadingScreen(): React.ReactElement {
     }
   };
 
-  const handleConfirmExit = () => {
-    finalizeSession();
-    resetSession();
-    stop();
-    router.replace("/(child)/(tabs)/library");
-  };
+  const triggerExitAlert = useCallback(() => {
+    Alert.alert(
+      "Thoát bài đọc?",
+      "Tiến độ đọc và bản ghi âm của bé sẽ bị mất nếu bé thoát bây giờ. Bé có chắc chắn muốn quay lại thư viện không?",
+      [
+        { text: "Quay lại đọc tiếp", style: "cancel" },
+        {
+          text: "Thoát ra",
+          style: "destructive",
+          onPress: () => {
+            finalizeSession();
+            resetSession();
+            stop();
+            router.replace("/(child)/(tabs)/library");
+          },
+        },
+      ],
+    );
+  }, [finalizeSession, resetSession, stop, router]);
 
   // Handle hardware back button
   useFocusEffect(
     useCallback(() => {
       const onBackPress = () => {
-        setIsExitModalOpen(true);
+        triggerExitAlert();
         return true;
       };
 
@@ -178,7 +189,7 @@ export default function ReadingScreen(): React.ReactElement {
         onBackPress,
       );
       return () => backHandler.remove();
-    }, []),
+    }, [triggerExitAlert]),
   );
 
   // Lifecycle
@@ -199,7 +210,7 @@ export default function ReadingScreen(): React.ReactElement {
       <ReadingHeader
         title={book.title}
         progress={readingProgress}
-        onBack={() => setIsExitModalOpen(true)}
+        onBack={triggerExitAlert}
         onOpenSettings={() => setIsSettingsOpen(true)}
       />
 
@@ -231,16 +242,12 @@ export default function ReadingScreen(): React.ReactElement {
       />
 
       {/* Modals */}
-      <ReadingSettingsModal
-        open={isSettingsOpen}
-        onOpenChange={setIsSettingsOpen}
-      />
-
-      <ReadingExitModal
-        open={isExitModalOpen}
-        onOpenChange={setIsExitModalOpen}
-        onConfirm={handleConfirmExit}
-      />
+      {isSettingsOpen && (
+        <ReadingSettingsModal
+          open={isSettingsOpen}
+          onOpenChange={setIsSettingsOpen}
+        />
+      )}
     </YStack>
   );
 }

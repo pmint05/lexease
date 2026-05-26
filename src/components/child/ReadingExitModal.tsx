@@ -14,6 +14,10 @@ export const ReadingExitModal = ({
   onOpenChange,
   onConfirm,
 }: ReadingExitModalProps): React.ReactElement => {
+  if (!open) {
+    return <></>;
+  }
+
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialog.Portal>

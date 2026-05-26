@@ -2,23 +2,23 @@ import { fetchAndComputeMetering } from "@/src/utils/audioProcessing";
 import { formatDuration } from "@/src/utils/textProcessing";
 import { useAudioPlayer, useAudioPlayerStatus } from "expo-audio";
 import {
-  Pause,
-  Play,
-  SkipBack,
-  SkipForward,
-  Trash2,
-  X,
+    Pause,
+    Play,
+    SkipBack,
+    SkipForward,
+    Trash2,
+    X,
 } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
 import { Platform } from "react-native";
 import {
-  Button,
-  Separator,
-  Sheet,
-  Slider,
-  Text,
-  XStack,
-  YStack,
+    Button,
+    Separator,
+    Sheet,
+    Slider,
+    Text,
+    XStack,
+    YStack,
 } from "tamagui";
 
 const AudioWaveform =
@@ -109,6 +109,10 @@ export const AudioPlaybackModal = ({
     localMetering?.length,
   );
   console.log(meteringData, localMetering);
+
+  if (!open && !uri) {
+    return <></>;
+  }
 
   return (
     <Sheet

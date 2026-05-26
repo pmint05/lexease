@@ -62,11 +62,12 @@ export default function RegisterScreen() {
           {/* Form Card */}
           <Card
             padding="$6"
-            borderTopLeftRadius="$9"
-            borderTopRightRadius="$9"
+            borderTopLeftRadius="$12"
+            borderTopRightRadius="$12"
             borderBottomLeftRadius={0}
             borderBottomRightRadius={0}
-            backgroundColor="$background"
+            backgroundColor="$surface"
+            elevation="$2"
           >
             <YStack gap="$5">
               <YStack gap="$4">
@@ -207,21 +208,33 @@ const RoleButton = ({ icon, label, isSelected, onPress }: RoleButtonProps) => (
       borderWidth={2}
       borderRadius="$4"
       borderColor={
-        isSelected ? (label === "Bé" ? "$green5" : "$blue5") : "$color3"
+        isSelected
+          ? label === "Bé"
+            ? "$brandAccent"
+            : "$brandPrimary"
+          : "transparent"
       }
       backgroundColor={
-        isSelected ? (label === "Bé" ? "$green2" : "$blue2") : "$background"
+        isSelected
+          ? label === "Bé"
+            ? "$brandAccentLight"
+            : "#E3F2FD"
+          : "$brandMuted"
       }
+      opacity={isSelected ? 1 : 0.6}
       alignItems="center"
       gap="$2"
-      scale={isSelected ? 1.02 : 1}
     >
       {icon}
       <Text
         fontWeight="bold"
         fontFamily="$lexend"
         color={
-          isSelected ? (label === "Bé" ? "$green10" : "$blue10") : "$color11"
+          isSelected
+            ? label === "Bé"
+              ? "$brandAccent"
+              : "$brandPrimary"
+            : "$color10"
         }
       >
         {label}

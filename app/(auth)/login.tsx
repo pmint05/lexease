@@ -1,4 +1,5 @@
 // import { Button } from "@/src/components/shared/Button";
+import { Button } from "@/src/components/shared/Button";
 import { FormField } from "@/src/components/shared/FormField";
 import { LoginInput, LoginSchema } from "@/src/core/schemas/auth";
 import { useLoginMutation } from "@/src/hooks/useAuthQueries";
@@ -7,7 +8,7 @@ import { useRouter } from "expo-router";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { KeyboardAvoidingView, Platform, ScrollView } from "react-native";
-import { Button, Card, H1, Text, XStack, YStack } from "tamagui";
+import { Card, H1, Text, XStack, YStack } from "tamagui";
 
 /**
  * Login Screen
@@ -76,11 +77,12 @@ export default function LoginScreen() {
           {/* Bottom Section: Form Card */}
           <Card
             padding="$6"
-            borderTopLeftRadius="$9"
-            borderTopRightRadius="$9"
+            borderTopLeftRadius="$12"
+            borderTopRightRadius="$12"
             borderBottomLeftRadius={0}
             borderBottomRightRadius={0}
-            backgroundColor="$background"
+            backgroundColor="$surface"
+            elevation="$2"
           >
             <YStack gap="$5">
               <YStack gap="$1">

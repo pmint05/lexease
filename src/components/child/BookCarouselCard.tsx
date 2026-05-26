@@ -29,7 +29,7 @@ export const BookCarouselCard = ({
     >
       <XStack flex={1}>
         <Image
-          source={{ uri: book.coverUrl, width: 120, height: 180 }}
+          src={book.coverUrl}
           width={120}
           height="100%"
           backgroundColor="$color4"
@@ -62,8 +62,6 @@ export const BookCarouselCard = ({
 
           <Button
             size="$3"
-            backgroundColor="$primary"
-            color="white"
             icon={<Play size={16} fill="white" />}
             onPress={() => onRead(book.id)}
             borderRadius="$4"

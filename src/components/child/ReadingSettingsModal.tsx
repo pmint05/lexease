@@ -15,6 +15,10 @@ export const ReadingSettingsModal = ({
 }: ReadingSettingsModalProps): React.ReactElement => {
   const { speed, setSpeed } = useReadingStore();
 
+  if (!open) {
+    return <></>;
+  }
+
   const handleIncrement = () => {
     if (speed < 2.0) {
       setSpeed(Math.round((speed + 0.1) * 10) / 10);

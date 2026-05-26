@@ -21,6 +21,7 @@ export default function ChildLayout(): React.ReactElement {
     <Stack
       screenOptions={{
         headerShown: false,
+        animation: "none",
       }}
     >
       <Stack.Screen name="(tabs)" />
@@ -28,4 +29,5 @@ export default function ChildLayout(): React.ReactElement {
       <Stack.Screen name="book/[id]" />
     </Stack>
   );
-}
+  }
+

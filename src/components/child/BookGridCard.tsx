@@ -25,13 +25,12 @@ export const BookGridCard = ({
       borderRadius="$4"
       overflow="hidden"
       borderColor="$border"
-      backgroundColor="$background"
+      backgroundColor="transparent"
       onPress={() => onPress(book.id)}
-      pressStyle={{ scale: 0.97 }}
       marginBottom="$3"
     >
       <Image
-        source={{ uri: book.coverUrl, width: 200, height: 300 }}
+        src={book.coverUrl}
         aspectRatio={2 / 3}
         width="100%"
         backgroundColor="$color4"

@@ -21,6 +21,7 @@ export default function GuardianLayout(): React.ReactElement {
     <Stack
       screenOptions={{
         headerShown: false,
+        animation: "none",
       }}
     >
       <Stack.Screen name="(tabs)" />

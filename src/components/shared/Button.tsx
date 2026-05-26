@@ -8,7 +8,7 @@ import { GetProps, styled, Button as TamaguiButton } from "tamagui";
  */
 export const Button = styled(TamaguiButton, {
   name: "Button",
-  background: "$primary",
+  backgroundColor: "$primary",
   borderRadius: "$lg",
   minHeight: 48,
   paddingHorizontal: "$4",
@@ -20,53 +20,53 @@ export const Button = styled(TamaguiButton, {
   variants: {
     uiVariant: {
       primary: {
-        background: "$primary",
+        backgroundColor: "$primary",
         color: "$primaryForeground",
-        pressStyle: { opacity: 0.85 },
+        pressStyle: { backgroundColor: "$primary", opacity: 0.8 },
       },
       default: {
-        background: "$muted",
+        backgroundColor: "$muted",
         color: "$foreground",
-        pressStyle: { opacity: 0.8 },
+        pressStyle: { backgroundColor: "$muted", opacity: 0.8 },
       },
       secondary: {
-        background: "transparent",
+        backgroundColor: "transparent",
         borderWidth: 2,
         borderColor: "$secondary",
         color: "$secondary",
-        pressStyle: { background: "$secondary", color: "$secondaryForeground" },
+        pressStyle: { backgroundColor: "$secondary", color: "$secondaryForeground", opacity: 0.9 },
       },
       success: {
-        background: "$accent",
+        backgroundColor: "$accent",
         color: "$accentForeground",
-        pressStyle: { opacity: 0.8 },
+        pressStyle: { backgroundColor: "$accent", opacity: 0.8 },
       },
       danger: {
-        background: "$destructive",
+        backgroundColor: "$destructive",
         color: "$destructiveForeground",
-        pressStyle: { opacity: 0.8 },
+        pressStyle: { backgroundColor: "$destructive", opacity: 0.8 },
       },
       warning: {
-        background: "$secondary",
+        backgroundColor: "$secondary",
         color: "$secondaryForeground",
-        pressStyle: { opacity: 0.8 },
+        pressStyle: { backgroundColor: "$secondary", opacity: 0.8 },
       },
       highlight: {
-        background: "$secondary",
+        backgroundColor: "$secondary",
         color: "$secondaryForeground",
-        pressStyle: { opacity: 0.8 },
+        pressStyle: { backgroundColor: "$secondary", opacity: 0.8 },
       },
       ghost: {
-        background: "transparent",
+        backgroundColor: "transparent",
         color: "$primary",
-        pressStyle: { background: "$muted" },
+        pressStyle: { backgroundColor: "$muted", opacity: 0.8 },
       },
       outline: {
-        background: "transparent",
+        backgroundColor: "transparent",
         borderWidth: 2,
         borderColor: "$border",
         color: "$foreground",
-        pressStyle: { background: "$muted" },
+        pressStyle: { backgroundColor: "$muted", opacity: 0.8 },
       },
     },
 
@@ -104,13 +104,6 @@ export const Button = styled(TamaguiButton, {
       true: {
         borderWidth: 0,
       },
-    },
-
-    // This makes the `color` prop available on the component
-    color: {
-      ':string': (color) => ({
-        color,
-      }),
     },
   } as const,
 
