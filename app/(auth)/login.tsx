@@ -16,7 +16,7 @@ import { Card, H1, Text, XStack, YStack } from "tamagui";
  */
 export default function LoginScreen() {
   const router = useRouter();
-  const { mutate: login, isPending } = useLoginMutation();
+  const { mutate: login, isPending, data: loginResult } = useLoginMutation();
 
   const {
     control,
@@ -136,6 +136,11 @@ export default function LoginScreen() {
                 >
                   {isPending ? "Đang xử lý..." : "Đăng nhập"}
                 </Button>
+                {loginResult?.success === false && loginResult.error ? (
+                  <Text color="$red10" fontSize="$3" textAlign="center">
+                    {loginResult.error}
+                  </Text>
+                ) : null}
               </YStack>
 
               <Text

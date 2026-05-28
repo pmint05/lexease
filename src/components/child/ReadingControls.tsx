@@ -50,8 +50,7 @@ export const ReadingControls = ({
               <Play color="$accentForeground" size={20} />
             )
           }
-          backgroundColor="$accent"
-          color="$accentForeground"
+          uiVariant="success"
           accessible
           accessibilityRole="button"
           accessibilityLabel={isPlaying ? "Tạm dừng đọc" : "Bắt đầu đọc"}
@@ -70,10 +69,7 @@ export const ReadingControls = ({
               size={20}
             />
           }
-          backgroundColor={isRecording ? "$destructive" : "$secondary"}
-          color={
-            isRecording ? "$destructiveForeground" : "$secondaryForeground"
-          }
+          uiVariant={isRecording ? "danger" : "warning"}
           accessible
           accessibilityRole="button"
           accessibilityLabel={isRecording ? "Đang ghi âm" : "Bắt đầu ghi âm"}

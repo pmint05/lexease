@@ -1,3 +1,6 @@
+import { WordTiming } from "@/src/core/types";
+import { resolveApiUrl } from "@/src/data/api/apiClient";
+import { useAudioPlayer } from "expo-audio";
 import * as Speech from "expo-speech";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
@@ -6,18 +9,11 @@ import {
   tokenizeText,
 } from "@/src/utils/textProcessing";
 
-const SPEED_MAP: Record<number, number> = {
-  0.5: 0.5,
-  0.75: 0.75,
-  1.0: 1,
-  1.25: 1.25,
-  1.5: 1.5,
-  2.0: 2.0,
-};
-
 interface UseTextToSpeechProps {
   text: string;
   speed: number;
+  audioUrl?: string | null;
+  wordTimings?: WordTiming[];
   onWordBoundary?: (wordIndex: number) => void;
   onFinish?: () => void;
 }
@@ -33,17 +29,20 @@ interface UseTextToSpeechReturn {
 export const useTextToSpeech = ({
   text,
   speed,
+  audioUrl,
+  wordTimings,
   onWordBoundary,
   onFinish,
 }: UseTextToSpeechProps): UseTextToSpeechReturn => {
   const [isPlaying, setIsPlaying] = useState(false);
   const words = useMemo(() => tokenizeText(text), [text]);
+  const player = useAudioPlayer(null, { updateInterval: 100 });
 
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const finishTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const startTimeRef = useRef(0);
   const currentWordTimestamps = useRef<number[]>([]);
-  const currentStartIndex = useRef(0);
+  const activeAudioUrlRef = useRef<string | null>(null);
 
   const onWordBoundaryRef = useRef(onWordBoundary);
   const onFinishRef = useRef(onFinish);
@@ -67,11 +66,55 @@ export const useTextToSpeech = ({
     }
   }, []);
 
+  const startBackendTracking = useCallback(
+    (startIndex: number): void => {
+      clearTimer();
+
+      timerRef.current = setInterval(() => {
+        if (!wordTimings || wordTimings.length === 0) return;
+
+        const positionMs = player.currentTime * 1000;
+        let nextIndex = startIndex;
+
+        for (let index = 0; index < wordTimings.length; index += 1) {
+          const timing = wordTimings[index];
+          const nextTiming = wordTimings[index + 1];
+          const nextStart = nextTiming?.startMs ?? Number.POSITIVE_INFINITY;
+
+          if (positionMs >= timing.startMs && positionMs < nextStart) {
+            nextIndex = timing.wordIndex;
+            break;
+          }
+
+          if (positionMs >= timing.startMs) {
+            nextIndex = timing.wordIndex;
+          }
+        }
+
+        onWordBoundaryRef.current?.(nextIndex);
+
+        const lastTiming = wordTimings[wordTimings.length - 1];
+        if (
+          lastTiming &&
+          positionMs >= lastTiming.endMs &&
+          !finishTimeoutRef.current
+        ) {
+          finishTimeoutRef.current = setTimeout(() => {
+            clearTimer();
+            player.pause();
+            setIsPlaying(false);
+            onFinishRef.current?.();
+          }, 300);
+        }
+      }, 50);
+    },
+    [clearTimer, player, wordTimings],
+  );
+
   const startTracking = useCallback(
     (startIndex: number): void => {
       clearTimer();
       startTimeRef.current = Date.now();
-      currentStartIndex.current = startIndex;
 
       timerRef.current = setInterval(() => {
         const elapsed = Date.now() - startTimeRef.current;
@@ -110,8 +153,10 @@ export const useTextToSpeech = ({
   const stop = useCallback((): void => {
     clearTimer();
     Speech.stop();
+    player.pause();
+    player.seekTo(0).catch(() => undefined);
     setIsPlaying(false);
-  }, [clearTimer]);
+  }, [clearTimer, player]);
 
   const pause = useCallback((): void => {
     stop();
@@ -123,11 +168,40 @@ export const useTextToSpeech = ({
 
       clearTimer();
       Speech.stop();
+      player.pause();
 
       const wordsToSpeak = words.slice(startIndex);
       if (wordsToSpeak.length === 0) {
         onFinishRef.current?.();
         return;
+      }
+
+      const resolvedAudioUrl = resolveApiUrl(audioUrl);
+      if (
+        resolvedAudioUrl &&
+        wordTimings &&
+        wordTimings.length > 0 &&
+        !skipSpeak
+      ) {
+        const startTiming = wordTimings.find(
+          (timing) => timing.wordIndex >= startIndex,
+        );
+        const startMs = startTiming?.startMs ?? 0;
+
+        try {
+          if (activeAudioUrlRef.current !== resolvedAudioUrl) {
+            player.replace({ uri: resolvedAudioUrl });
+            activeAudioUrlRef.current = resolvedAudioUrl;
+          }
+          player.setPlaybackRate(speed);
+          player.seekTo(startMs / 1000).catch(() => undefined);
+          player.play();
+          setIsPlaying(true);
+          startBackendTracking(startIndex);
+          return;
+        } catch (error) {
+          console.error("Backend TTS playback error:", error);
+        }
       }
 
       currentWordTimestamps.current = estimateWordTimestamps(
@@ -150,24 +224,26 @@ export const useTextToSpeech = ({
         });
       }
     },
-    [clearTimer, speed, startTracking, text, words],
+    [
+      audioUrl,
+      clearTimer,
+      player,
+      speed,
+      startBackendTracking,
+      startTracking,
+      text,
+      wordTimings,
+      words,
+    ],
   );
-
-  // Handle live speed changes
-  useEffect(() => {
-    if (isPlaying) {
-      // Re-calculate timestamps and restart tracking from current estimated position
-      // For simplicity, we restart play from the last word boundary we reached
-      // This makes the transition slightly jumpy but consistent
-    }
-  }, [speed]);
 
   useEffect(() => {
     return () => {
       clearTimer();
       Speech.stop();
+      player.pause();
     };
-  }, [clearTimer]);
+  }, [clearTimer, player]);
 
   return {
     isPlaying,

@@ -83,8 +83,7 @@ export const BookTile = ({
             size="$3"
             onPress={() => onRead(book.id)}
             icon={<Volume2 color="$primaryForeground" size={16} />}
-            backgroundColor="$accent"
-            color="$primaryForeground"
+            uiVariant="success"
             accessibilityRole="button"
             accessibilityLabel={`Đọc ngay ${book.title}`}
           >

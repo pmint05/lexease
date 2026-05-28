@@ -16,6 +16,8 @@ import { createJSONStorage, persist } from "zustand/middleware";
 export interface AuthStoreState {
   // State
   token: string | null;
+  refreshToken: string | null;
+  expiresIn: number | null;
   user: User | null;
   role: UserRole | null;
   isLoading: boolean;
@@ -23,8 +25,14 @@ export interface AuthStoreState {
   _hasHydrated: boolean;
 
   // Actions
-  setAuth: (payload: { token: string; user: User }) => void;
+  setAuth: (payload: {
+    token: string;
+    user: User;
+    refreshToken?: string | null;
+    expiresIn?: number | null;
+  }) => void;
   setToken: (token: string | null) => void;
+  setRefreshToken: (refreshToken: string | null) => void;
   setUser: (user: User | null) => void;
   setRole: (role: UserRole | null) => void;
   setIsLoading: (loading: boolean) => void;
@@ -38,6 +46,8 @@ export const useAuthStore = create<AuthStoreState>()(
     (set) => ({
       // Initial state
       token: null,
+      refreshToken: null,
+      expiresIn: null,
       user: null,
       role: null,
       isLoading: false,
@@ -45,14 +55,17 @@ export const useAuthStore = create<AuthStoreState>()(
       _hasHydrated: false,
 
       // Actions
-      setAuth: ({ token, user }) =>
+      setAuth: ({ token, user, refreshToken, expiresIn }) =>
         set({
           token,
+          refreshToken: refreshToken ?? null,
+          expiresIn: expiresIn ?? null,
           user,
           role: user.role,
           error: null,
         }),
       setToken: (token) => set({ token }),
+      setRefreshToken: (refreshToken) => set({ refreshToken }),
       setUser: (user) => set({ user, role: user?.role ?? null }),
       setRole: (role) => set({ role }),
       setIsLoading: (loading) => set({ isLoading: loading }),
@@ -61,6 +74,8 @@ export const useAuthStore = create<AuthStoreState>()(
       logout: () =>
         set({
           token: null,
+          refreshToken: null,
+          expiresIn: null,
           user: null,
           role: null,
           error: null,

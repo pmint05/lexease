@@ -9,13 +9,20 @@ import { ReadingContent } from "@/src/components/child/ReadingContent";
 import { ReadingHeader } from "@/src/components/child/ReadingHeader";
 import { ReadingSettingsModal } from "@/src/components/child/ReadingSettingsModal";
 
-import { getBookById } from "@/src/data/local/books";
+import { BackendReadingSession } from "@/src/core/types";
+import { useDisplaySettingsQuery } from "@/src/hooks/useDisplaySettingsQueries";
+import {
+  useCompleteReadingSessionMutation,
+  useStartReadingSessionMutation,
+  useUpdateReadingProgressMutation,
+} from "@/src/hooks/useReadingSessionQueries";
 import { useAudioRecording } from "@/src/hooks/useAudioRecording";
 import { useTextToSpeech } from "@/src/hooks/useTextToSpeech";
 import { useAuthStore } from "@/src/store/useAuthStore";
 import { useLearningStore } from "@/src/store/useLearningStore";
 import { useReadingStore } from "@/src/store/useReadingStore";
 import { useRecordingStore } from "@/src/store/useRecordingStore";
+import { tokenizeText } from "@/src/utils/textProcessing";
 
 /**
  * Modern Reading Space Screen
@@ -24,7 +31,8 @@ import { useRecordingStore } from "@/src/store/useRecordingStore";
 export default function ReadingScreen(): React.ReactElement {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const book = useMemo(() => getBookById(id), [id]);
+  const [activeSession, setActiveSession] =
+    useState<BackendReadingSession | null>(null);
 
   const {
     currentIndex,
@@ -39,8 +47,13 @@ export default function ReadingScreen(): React.ReactElement {
   } = useReadingStore();
 
   const { user } = useAuthStore();
+  useDisplaySettingsQuery(user?.role === "child" ? user.id : undefined);
   const { addRecording } = useRecordingStore();
   const { addSession } = useLearningStore();
+  const startSessionMutation = useStartReadingSessionMutation();
+  const { mutateAsync: startReadingSession } = startSessionMutation;
+  const updateProgressMutation = useUpdateReadingProgressMutation();
+  const completeSessionMutation = useCompleteReadingSessionMutation();
 
   const {
     isRecording,
@@ -55,6 +68,19 @@ export default function ReadingScreen(): React.ReactElement {
 
   const sessionStartRef = useRef(0);
   const sessionLoggedRef = useRef(false);
+  const lastProgressSyncRef = useRef(0);
+  const completedBackendRef = useRef(false);
+
+  const book = useMemo(() => {
+    if (!activeSession) return null;
+    const words = tokenizeText(activeSession.story.content);
+    return {
+      id: activeSession.story.id,
+      title: activeSession.story.title,
+      content: activeSession.story.content,
+      words,
+    };
+  }, [activeSession]);
 
   const words = useMemo(() => book?.words || [], [book]);
 
@@ -69,6 +95,12 @@ export default function ReadingScreen(): React.ReactElement {
   const { play, pause, stop } = useTextToSpeech({
     text: words.join(" "),
     speed: speed,
+    audioUrl:
+      activeSession?.tts.status === "READY" ? activeSession.tts.audioUrl : null,
+    wordTimings:
+      activeSession?.tts.status === "READY"
+        ? activeSession.tts.wordTimings
+        : [],
     onWordBoundary: (newIndex) => {
       setIndex(newIndex);
     },
@@ -95,6 +127,37 @@ export default function ReadingScreen(): React.ReactElement {
     });
     sessionLoggedRef.current = true;
   }, [addSession, book, user?.id, currentIndex, speed]);
+
+  const syncProgress = useCallback(
+    (force = false): void => {
+      if (!activeSession || activeSession.status !== "IN_PROGRESS") return;
+
+      const now = Date.now();
+      if (!force && now - lastProgressSyncRef.current < 1500) return;
+
+      lastProgressSyncRef.current = now;
+      updateProgressMutation.mutate({
+        sessionId: activeSession.sessionId,
+        request: {
+          currentWordIndex: Math.max(0, currentIndex),
+          elapsedMs: sessionStartRef.current
+            ? Math.max(0, now - sessionStartRef.current)
+            : activeSession.elapsedMs,
+          events: [
+            {
+              type: "WORD_SHOWN",
+              word: words[currentIndex],
+              wordIndex: currentIndex,
+              timestampMs: sessionStartRef.current
+                ? Math.max(0, now - sessionStartRef.current)
+                : activeSession.elapsedMs,
+            },
+          ],
+        },
+      });
+    },
+    [activeSession, currentIndex, updateProgressMutation, words],
+  );
 
   // Handlers
   const handleTogglePlay = () => {
@@ -166,6 +229,7 @@ export default function ReadingScreen(): React.ReactElement {
           text: "Thoát ra",
           style: "destructive",
           onPress: () => {
+            syncProgress(true);
             finalizeSession();
             resetSession();
             stop();
@@ -174,7 +238,7 @@ export default function ReadingScreen(): React.ReactElement {
         },
       ],
     );
-  }, [finalizeSession, resetSession, stop, router]);
+  }, [finalizeSession, resetSession, stop, router, syncProgress]);
 
   // Handle hardware back button
   useFocusEffect(
@@ -197,13 +261,68 @@ export default function ReadingScreen(): React.ReactElement {
     return () => {
       stop();
     };
-  }, []);
+  }, [stop]);
+
+  useEffect(() => {
+    if (!id) return;
+    let isCancelled = false;
+
+    startReadingSession({
+      storyId: id,
+      voice: "Binh",
+      mode: "RESUME_OR_START",
+    })
+      .then((session) => {
+        if (isCancelled) return;
+        setActiveSession(session);
+        setIndex(session.resumePosition.wordIndex);
+        sessionStartRef.current = Date.now() - session.elapsedMs;
+      })
+      .catch((error) => {
+        console.error("Unable to start reading session:", error);
+      });
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [id, setIndex, startReadingSession]);
+
+  useEffect(() => {
+    if (!activeSession || currentIndex <= 0) return;
+    syncProgress(false);
+  }, [activeSession, currentIndex, syncProgress]);
 
   const isFinished = useMemo(() => {
     return words.length > 0 && currentIndex >= words.length - 1;
   }, [currentIndex, words.length]);
 
-  if (!book) return <></>;
+  useEffect(() => {
+    if (!activeSession || !isFinished || completedBackendRef.current) return;
+
+    completedBackendRef.current = true;
+    syncProgress(true);
+    completeSessionMutation.mutate(activeSession.sessionId);
+    finalizeSession();
+  }, [
+    activeSession,
+    completeSessionMutation,
+    finalizeSession,
+    isFinished,
+    syncProgress,
+  ]);
+
+  if (!book) {
+    return (
+      <YStack flex={1} justifyContent="center" alignItems="center">
+        <ReadingHeader
+          title="Đang tải bài đọc"
+          progress={0}
+          onBack={() => router.replace("/(child)/(tabs)/library")}
+          onOpenSettings={() => setIsSettingsOpen(true)}
+        />
+      </YStack>
+    );
+  }
 
   return (
     <YStack flex={1} backgroundColor={backgroundColor}>

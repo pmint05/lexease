@@ -1,4 +1,4 @@
-import tamaguiConfig from "@/src/core/constants/tamagui.config";
+import appTamaguiConfig from "@/src/core/constants/tamagui.config";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
@@ -8,6 +8,7 @@ import { Platform, useColorScheme, View } from "react-native";
 import "react-native-reanimated";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { TamaguiProvider } from "tamagui";
+import { useMeQuery } from "../src/hooks/useAuthQueries";
 import { useAuthStore } from "../src/store/useAuthStore";
 import "./globall.css";
 
@@ -22,6 +23,8 @@ SplashScreen.preventAutoHideAsync();
  * and to keep RootLayout clean.
  */
 function RootLayoutContent() {
+  useMeQuery();
+
   return (
     <Stack
       screenOptions={{
@@ -103,7 +106,7 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <TamaguiProvider
-        config={tamaguiConfig}
+        config={appTamaguiConfig}
         defaultTheme={"light"}
         // defaultTheme={effectiveColorScheme === "dark" ? "dark" : "light"}
       >

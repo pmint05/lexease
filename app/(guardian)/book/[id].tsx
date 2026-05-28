@@ -3,8 +3,14 @@ import { useMemo } from "react";
 import { Button, Card, ScrollView, Text, XStack, YStack } from "tamagui";
 
 import { RecordingTile } from "@/src/components/child/RecordingTile";
-import { getBookById } from "@/src/data/local/books";
+import { storyDetailToBook } from "@/src/core/types";
 import { useAudioRecording } from "@/src/hooks/useAudioRecording";
+import { useGuardianChildLinksQuery } from "@/src/hooks/useFamilyQueries";
+import {
+  useBlockStoryMutation,
+  useStoryQuery,
+  useUnblockStoryMutation,
+} from "@/src/hooks/useStoryQueries";
 import { useAuthStore } from "@/src/store/useAuthStore";
 import { useFamilyStore } from "@/src/store/useFamilyStore";
 import { useLearningStore } from "@/src/store/useLearningStore";
@@ -18,11 +24,26 @@ export default function GuardianBookDetailScreen(): React.ReactElement {
   const { sessions } = useLearningStore();
   const { recordings, removeRecording } = useRecordingStore();
   const { playbackRecording } = useAudioRecording();
-  const children = useFamilyStore((state) =>
-    guardianId ? state.getChildrenForGuardian(guardianId) : [],
-  );
   const selectedChildId = useFamilyStore((state) =>
     guardianId ? state.getSelectedChildId(guardianId) : null,
+  );
+  const linksQuery = useGuardianChildLinksQuery();
+  const storyQuery = useStoryQuery(id, selectedChildId ?? undefined);
+  const blockStoryMutation = useBlockStoryMutation();
+  const unblockStoryMutation = useUnblockStoryMutation();
+
+  const children = useMemo(
+    () =>
+      (linksQuery.data ?? [])
+        .filter(
+          (link) =>
+            link.guardianId === guardianId && link.status === "ACCEPTED",
+        )
+        .map((link) => ({
+          childId: link.childId,
+          childName: `Bé ${link.childId.slice(0, 8)}`,
+        })),
+    [guardianId, linksQuery.data],
   );
 
   const selectedChild = useMemo(
@@ -30,7 +51,10 @@ export default function GuardianBookDetailScreen(): React.ReactElement {
     [children, selectedChildId],
   );
 
-  const book = useMemo(() => getBookById(id), [id]);
+  const book = useMemo(
+    () => (storyQuery.data ? storyDetailToBook(storyQuery.data) : null),
+    [storyQuery.data],
+  );
   const bookSessions = useMemo(
     () =>
       sessions.filter(
@@ -49,6 +73,14 @@ export default function GuardianBookDetailScreen(): React.ReactElement {
       ),
     [id, recordings, selectedChildId],
   );
+
+  if (storyQuery.isLoading) {
+    return (
+      <YStack flex={1} justifyContent="center" alignItems="center" padding="$4">
+        <Text color="$muted">Đang tải sách...</Text>
+      </YStack>
+    );
+  }
 
   if (!book) {
     return (
@@ -94,6 +126,36 @@ export default function GuardianBookDetailScreen(): React.ReactElement {
           <Text color="$color10">
             {bookSessions.length} lần học · {bookRecordings.length} bản ghi
           </Text>
+          <XStack gap="$2" marginTop="$2">
+            <Button
+              size="$3"
+              disabled={!selectedChildId || blockStoryMutation.isPending}
+              onPress={() =>
+                selectedChildId &&
+                blockStoryMutation.mutate({
+                  childId: selectedChildId,
+                  storyId: book.id,
+                  reason: "Guardian blocked from frontend",
+                })
+              }
+            >
+              Chặn sách
+            </Button>
+            <Button
+              size="$3"
+              variant="outlined"
+              disabled={!selectedChildId || unblockStoryMutation.isPending}
+              onPress={() =>
+                selectedChildId &&
+                unblockStoryMutation.mutate({
+                  childId: selectedChildId,
+                  storyId: book.id,
+                })
+              }
+            >
+              Bỏ chặn
+            </Button>
+          </XStack>
         </YStack>
       </Card>
 

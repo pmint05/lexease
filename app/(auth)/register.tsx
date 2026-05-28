@@ -21,7 +21,8 @@ import { Card, H1, Text, XStack, YStack } from "tamagui";
  */
 export default function RegisterScreen() {
   const router = useRouter();
-  const { mutate: register, isPending } = useRegisterMutation();
+  const { mutate: register, isPending, data: registerResult } =
+    useRegisterMutation();
 
   const {
     control,
@@ -168,6 +169,11 @@ export default function RegisterScreen() {
                 >
                   {isPending ? "Đang đăng ký..." : "Đăng ký"}
                 </Button>
+                {registerResult?.success === false && registerResult.error ? (
+                  <Text color="$red10" fontSize="$3" textAlign="center">
+                    {registerResult.error}
+                  </Text>
+                ) : null}
               </YStack>
 
               <Text

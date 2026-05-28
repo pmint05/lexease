@@ -26,11 +26,8 @@ import { AudioPlaybackModal } from "@/src/components/child/AudioPlaybackModal";
 import { RecordingTile } from "@/src/components/child/RecordingTile";
 import { Button } from "@/src/components/shared/Button";
 import { COLORS } from "@/src/core/constants/colors";
-import { Recording } from "@/src/core/types";
-import { getBookById } from "@/src/data/local/books";
-import { useAudioRecording } from "@/src/hooks/useAudioRecording";
-import { useLearningStore } from "@/src/store/useLearningStore";
-import { useReadingStore } from "@/src/store/useReadingStore";
+import { Recording, storyDetailToBook } from "@/src/core/types";
+import { useStoryQuery } from "@/src/hooks/useStoryQueries";
 import { useRecordingStore } from "@/src/store/useRecordingStore";
 
 /**
@@ -41,12 +38,13 @@ export default function ReadingDetailScreen(): React.ReactElement {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const book = useMemo(() => getBookById(id), [id]);
+  const storyQuery = useStoryQuery(id);
+  const book = useMemo(
+    () => (storyQuery.data ? storyDetailToBook(storyQuery.data) : null),
+    [storyQuery.data],
+  );
 
-  const { sessions } = useLearningStore();
   const { recordings, removeRecording } = useRecordingStore();
-  const { playbackRecording } = useAudioRecording();
-  const { backgroundColor } = useReadingStore();
 
   // Playback Modal State
   const [playbackUri, setPlaybackUri] = useState<string | null>(null);
@@ -102,6 +100,19 @@ export default function ReadingDetailScreen(): React.ReactElement {
       Alert.alert("Lỗi", "Không thể kiểm tra tập tin âm thanh.");
     }
   };
+
+  if (storyQuery.isLoading) {
+    return (
+      <YStack
+        flex={1}
+        justifyContent="center"
+        alignItems="center"
+        backgroundColor="$background"
+      >
+        <Text color="$mutedForeground">Đang tải bài đọc...</Text>
+      </YStack>
+    );
+  }
 
   if (!book) {
     return (

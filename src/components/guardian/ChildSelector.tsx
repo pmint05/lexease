@@ -8,6 +8,7 @@ import {
     TouchableWithoutFeedback,
     View,
 } from "react-native";
+import { useGuardianChildLinksQuery } from "@/src/hooks/useFamilyQueries";
 import { useAuthStore } from "../../store/useAuthStore";
 import { useFamilyStore } from "../../store/useFamilyStore";
 
@@ -25,10 +26,28 @@ export default function ChildSelector({ onChange }: Props) {
   );
   const getSelectedChildId = useFamilyStore((s) => s.getSelectedChildId);
   const setSelectedChild = useFamilyStore((s) => s.setSelectedChild);
+  const linksQuery = useGuardianChildLinksQuery();
 
   if (!guardianId) return null;
 
-  const children = getChildrenForGuardian(guardianId);
+  const backendLinks = (linksQuery.data ?? []).filter(
+    (link) => link.guardianId === guardianId,
+  );
+  const acceptedLinks = backendLinks.filter(
+    (link) => link.status === "ACCEPTED",
+  );
+  const children =
+    backendLinks.length > 0
+      ? acceptedLinks.map((link) => ({
+          childId: link.childId,
+          childName: `Bé ${link.childId.slice(0, 8)}`,
+          childEmail: `${link.status.toLowerCase()} · ${link.childId.slice(0, 8)}`,
+          status: link.status,
+        }))
+      : getChildrenForGuardian(guardianId).map((child) => ({
+          ...child,
+          status: "ACCEPTED" as const,
+        }));
   const selectedChildId = getSelectedChildId(guardianId);
   const selectedChild =
     children.find((child) => child.childId === selectedChildId) ??
@@ -61,7 +80,11 @@ export default function ChildSelector({ onChange }: Props) {
           }}
         >
           <Text style={{ fontSize: 14, color: "#999" }}>
-            Chưa có bé được liên kết.
+            {linksQuery.isLoading
+              ? "Đang tải danh sách bé..."
+              : backendLinks.length > 0
+                ? "Chưa có liên kết nào được chấp nhận."
+                : "Chưa có bé được liên kết."}
           </Text>
         </View>
       ) : (
@@ -136,9 +159,12 @@ export default function ChildSelector({ onChange }: Props) {
                       keyExtractor={(item) => item.childId}
                       renderItem={({ item }) => {
                         const isActive = item.childId === selectedChildId;
+                        const isAccepted = item.status === "ACCEPTED";
                         return (
                           <Pressable
-                            onPress={() => handleSelect(item.childId)}
+                            onPress={() =>
+                              isAccepted ? handleSelect(item.childId) : null
+                            }
                             style={{
                               paddingVertical: 12,
                               paddingHorizontal: 10,
@@ -147,6 +173,7 @@ export default function ChildSelector({ onChange }: Props) {
                               borderWidth: 1,
                               borderColor: isActive ? "#CFE6FF" : "#F0F0F0",
                               marginBottom: 8,
+                              opacity: isAccepted ? 1 : 0.55,
                             }}
                             accessibilityRole="button"
                             accessibilityState={{ selected: isActive }}
