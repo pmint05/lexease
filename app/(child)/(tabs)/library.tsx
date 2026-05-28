@@ -42,7 +42,10 @@ export default function LibraryScreen(): React.ReactElement {
   };
 
   const handleReadPress = (id: string) => {
-    router.push({ pathname: "/(child)/reading/[id]", params: { id } });
+    router.push({
+      pathname: "/(child)/reading/[id]",
+      params: { id, mode: "resume" },
+    });
   };
 
   return (

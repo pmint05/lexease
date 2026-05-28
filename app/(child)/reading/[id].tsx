@@ -22,7 +22,10 @@ import { useAuthStore } from "@/src/store/useAuthStore";
 import { useLearningStore } from "@/src/store/useLearningStore";
 import { useReadingStore } from "@/src/store/useReadingStore";
 import { useRecordingStore } from "@/src/store/useRecordingStore";
-import { tokenizeText } from "@/src/utils/textProcessing";
+import {
+  buildReadingTextTokens,
+  tokenizeText,
+} from "@/src/utils/textProcessing";
 
 /**
  * Modern Reading Space Screen
@@ -30,7 +33,7 @@ import { tokenizeText } from "@/src/utils/textProcessing";
  */
 export default function ReadingScreen(): React.ReactElement {
   const router = useRouter();
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, mode } = useLocalSearchParams<{ id: string; mode?: string }>();
   const [activeSession, setActiveSession] =
     useState<BackendReadingSession | null>(null);
 
@@ -53,6 +56,7 @@ export default function ReadingScreen(): React.ReactElement {
   const startSessionMutation = useStartReadingSessionMutation();
   const { mutateAsync: startReadingSession } = startSessionMutation;
   const updateProgressMutation = useUpdateReadingProgressMutation();
+  const { mutate: updateReadingProgress } = updateProgressMutation;
   const completeSessionMutation = useCompleteReadingSessionMutation();
 
   const {
@@ -70,19 +74,29 @@ export default function ReadingScreen(): React.ReactElement {
   const sessionLoggedRef = useRef(false);
   const lastProgressSyncRef = useRef(0);
   const completedBackendRef = useRef(false);
+  const startReadingSessionRef = useRef(startReadingSession);
+  const updateReadingProgressRef = useRef(updateReadingProgress);
+  const resetSessionRef = useRef(resetSession);
+  const stopRef = useRef<() => void>(() => undefined);
+  const setIndexRef = useRef(setIndex);
+
+  const shouldStartFromBeginning = mode === "start";
 
   const book = useMemo(() => {
     if (!activeSession) return null;
     const words = tokenizeText(activeSession.story.content);
+    const tokens = buildReadingTextTokens(activeSession.story.content);
     return {
       id: activeSession.story.id,
       title: activeSession.story.title,
       content: activeSession.story.content,
       words,
+      tokens,
     };
   }, [activeSession]);
 
   const words = useMemo(() => book?.words || [], [book]);
+  const tokens = useMemo(() => book?.tokens || [], [book]);
 
   // Progress calculation
   const readingProgress = useMemo(() => {
@@ -108,6 +122,26 @@ export default function ReadingScreen(): React.ReactElement {
       setIsPlaying(false);
     },
   });
+
+  useEffect(() => {
+    startReadingSessionRef.current = startReadingSession;
+  }, [startReadingSession]);
+
+  useEffect(() => {
+    updateReadingProgressRef.current = updateReadingProgress;
+  }, [updateReadingProgress]);
+
+  useEffect(() => {
+    resetSessionRef.current = resetSession;
+  }, [resetSession]);
+
+  useEffect(() => {
+    stopRef.current = stop;
+  }, [stop]);
+
+  useEffect(() => {
+    setIndexRef.current = setIndex;
+  }, [setIndex]);
 
   const finalizeSession = useCallback((): void => {
     if (!book || sessionLoggedRef.current || !sessionStartRef.current) return;
@@ -136,7 +170,7 @@ export default function ReadingScreen(): React.ReactElement {
       if (!force && now - lastProgressSyncRef.current < 1500) return;
 
       lastProgressSyncRef.current = now;
-      updateProgressMutation.mutate({
+      updateReadingProgress({
         sessionId: activeSession.sessionId,
         request: {
           currentWordIndex: Math.max(0, currentIndex),
@@ -156,7 +190,7 @@ export default function ReadingScreen(): React.ReactElement {
         },
       });
     },
-    [activeSession, currentIndex, updateProgressMutation, words],
+    [activeSession, currentIndex, updateReadingProgress, words],
   );
 
   // Handlers
@@ -168,25 +202,45 @@ export default function ReadingScreen(): React.ReactElement {
       if (!sessionStartRef.current) {
         sessionStartRef.current = Date.now();
       }
-      play(currentIndex, !isTtsEnabled);
+      void play(currentIndex, !isTtsEnabled);
       setIsPlaying(true);
     }
   };
 
-  const handleRepeat = () => {
+  const handleRepeat = async () => {
     stop();
     setIndex(0);
-    setTimeout(() => {
-      play(0, !isTtsEnabled);
-      setIsPlaying(true);
-    }, 100);
+    completedBackendRef.current = false;
+    sessionLoggedRef.current = false;
+    lastProgressSyncRef.current = 0;
+    sessionStartRef.current = Date.now();
+
+    if (id) {
+      try {
+        const session = await startReadingSession({
+          storyId: id,
+          voice: "Binh",
+          mode: "START_FROM_BEGINNING",
+        });
+        setActiveSession(session);
+        setIndex(0);
+        sessionStartRef.current = Date.now();
+      } catch (error) {
+        console.error("Unable to restart reading session:", error);
+      }
+    }
+
+    void play(0, !isTtsEnabled);
+    setIsPlaying(true);
   };
 
   const handleWordPress = (index: number) => {
     stop();
     setIndex(index);
     if (isPlaying) {
-      setTimeout(() => play(index, !isTtsEnabled), 50);
+      setTimeout(() => {
+        void play(index, !isTtsEnabled);
+      }, 50);
     }
   };
 
@@ -267,16 +321,47 @@ export default function ReadingScreen(): React.ReactElement {
     if (!id) return;
     let isCancelled = false;
 
-    startReadingSession({
+    stopRef.current();
+    resetSessionRef.current();
+    completedBackendRef.current = false;
+    sessionLoggedRef.current = false;
+    lastProgressSyncRef.current = 0;
+    sessionStartRef.current = 0;
+
+    startReadingSessionRef.current({
       storyId: id,
       voice: "Binh",
-      mode: "RESUME_OR_START",
+      mode: shouldStartFromBeginning ? "START_FROM_BEGINNING" : "RESUME_OR_START",
     })
       .then((session) => {
         if (isCancelled) return;
+        const resumeIndex = shouldStartFromBeginning
+          ? 0
+          : session.resumePosition.wordIndex;
+
         setActiveSession(session);
-        setIndex(session.resumePosition.wordIndex);
-        sessionStartRef.current = Date.now() - session.elapsedMs;
+        setIndexRef.current(resumeIndex);
+        sessionStartRef.current = shouldStartFromBeginning
+          ? 0
+          : Date.now() - session.elapsedMs;
+
+        if (shouldStartFromBeginning && session.status === "IN_PROGRESS") {
+          updateReadingProgressRef.current({
+            sessionId: session.sessionId,
+            request: {
+              currentWordIndex: 0,
+              elapsedMs: 0,
+              events: [
+                {
+                  type: "START",
+                  wordIndex: 0,
+                  timestampMs: 0,
+                  metadata: { mode: "START_FROM_BEGINNING" },
+                },
+              ],
+            },
+          });
+        }
       })
       .catch((error) => {
         console.error("Unable to start reading session:", error);
@@ -285,7 +370,7 @@ export default function ReadingScreen(): React.ReactElement {
     return () => {
       isCancelled = true;
     };
-  }, [id, setIndex, startReadingSession]);
+  }, [id, shouldStartFromBeginning]);
 
   useEffect(() => {
     if (!activeSession || currentIndex <= 0) return;
@@ -334,7 +419,7 @@ export default function ReadingScreen(): React.ReactElement {
       />
 
       <ReadingContent
-        words={words}
+        tokens={tokens}
         currentIndex={currentIndex}
         isPlaying={isPlaying}
         onWordPress={handleWordPress}
@@ -350,7 +435,9 @@ export default function ReadingScreen(): React.ReactElement {
         onToggleTts={() => {
           if (isPlaying) {
             stop();
-            setTimeout(() => play(currentIndex, isTtsEnabled), 100);
+            setTimeout(() => {
+              void play(currentIndex, isTtsEnabled);
+            }, 100);
           } else if (isTtsEnabled) {
             stop();
           }

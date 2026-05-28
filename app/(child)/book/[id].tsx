@@ -284,7 +284,7 @@ export default function ReadingDetailScreen(): React.ReactElement {
               onPress={() =>
                 router.push({
                   pathname: "/(child)/reading/[id]",
-                  params: { id: book.id },
+                  params: { id: book.id, mode: "start" },
                 })
               }
               uiVariant="primary"
