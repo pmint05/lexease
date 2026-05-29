@@ -23,7 +23,9 @@ import {
 
 const AudioWaveform =
   Platform.OS === "web"
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     ? require("./AudioWaveform.web").AudioWaveform
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     : require("./AudioWaveform.native").AudioWaveform;
 
 const hasUsefulMetering = (values: number[] | undefined): boolean => {

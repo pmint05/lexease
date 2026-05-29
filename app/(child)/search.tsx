@@ -1,6 +1,6 @@
 import { BookGridCard } from "@/src/components/child/BookGridCard";
-import { BookDifficulty } from "@/src/core/types";
-import { sampleBooks } from "@/src/data/local/books";
+import { storySummaryToBook } from "@/src/core/types";
+import { useGenresQuery, useStoriesQuery } from "@/src/hooks/useStoryQueries";
 import { useRouter } from "expo-router";
 import { ChevronLeft, Search as SearchIcon, X } from "lucide-react-native";
 import React, { useEffect, useMemo, useRef, useState } from "react";
@@ -12,8 +12,14 @@ export default function SearchScreen(): React.ReactElement {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const [query, setQuery] = useState("");
-  const [difficulty, setDifficulty] = useState<BookDifficulty | "all">("all");
+  const [genreId, setGenreId] = useState<string>("all");
   const inputRef = useRef<any>(null);
+  const storiesQuery = useStoriesQuery({
+    keyword: query.trim() || undefined,
+    genreId: genreId === "all" ? undefined : genreId,
+    size: 100,
+  });
+  const genresQuery = useGenresQuery();
 
   useEffect(() => {
     // Auto focus the search input
@@ -21,20 +27,12 @@ export default function SearchScreen(): React.ReactElement {
   }, []);
 
   const results = useMemo(() => {
-    const trimmedQuery = query.trim().toLowerCase();
-    return sampleBooks.filter((book) => {
-      const matchesSearch =
-        trimmedQuery.length === 0 ||
-        book.title.toLowerCase().includes(trimmedQuery) ||
-        book.author.toLowerCase().includes(trimmedQuery) ||
-        book.category.toLowerCase().includes(trimmedQuery);
+    return (storiesQuery.data?.items ?? []).map(storySummaryToBook);
+  }, [storiesQuery.data?.items]);
 
-      const matchesDifficulty =
-        difficulty === "all" || book.difficulty === difficulty;
-
-      return matchesSearch && matchesDifficulty;
-    });
-  }, [query, difficulty]);
+  const genres = useMemo(() => {
+    return [{ id: "all", name: "Tất cả" }, ...(genresQuery.data ?? [])];
+  }, [genresQuery.data]);
 
   return (
     <YStack flex={1} backgroundColor="$background">
@@ -99,22 +97,20 @@ export default function SearchScreen(): React.ReactElement {
 
       {/* Filters */}
       <XStack padding="$4" gap="$2" flexWrap="wrap">
-        {(["all", "easy", "medium", "hard"] as const).map((item) => (
+        {genres.map((item) => (
           <Button
-            key={item}
+            key={item.id}
             size="$3"
             borderRadius="$10"
-            backgroundColor={difficulty === item ? "$primary" : "$color3"}
+            backgroundColor={genreId === item.id ? "$primary" : "$color3"}
             borderWidth={1}
-            borderColor={difficulty === item ? "$primary" : "$border"}
-            onPress={() => setDifficulty(item)}
+            borderColor={genreId === item.id ? "$primary" : "$border"}
+            onPress={() => setGenreId(item.id)}
           >
             <Text
-              color={difficulty === item ? "$primaryForeground" : "$foreground"}
+              color={genreId === item.id ? "$primaryForeground" : "$foreground"}
             >
-              {item === "all"
-                ? "Tất cả"
-                : item.charAt(0).toUpperCase() + item.slice(1)}
+              {item.name}
             </Text>
           </Button>
         ))}

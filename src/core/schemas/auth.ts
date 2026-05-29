@@ -5,7 +5,7 @@ import { z } from "zod";
  * Defined using Zod for validation across the app
  */
 
-const AUTH_ROLS = ["child", "guardian"];
+const AUTH_ROLS = ["child", "guardian"] as const;
 const authRolesEnum = z.enum(AUTH_ROLS, {
   error: "Vui lòng chọn vai trò",
 });
@@ -15,7 +15,7 @@ export const LoginSchema = z.object({
   password: z
     .string()
     .min(1, "Mật khẩu không được để trống")
-    .min(5, "Mật khẩu phải có ít nhất 5 ký tự"),
+    .min(8, "Mật khẩu phải có ít nhất 8 ký tự"),
 });
 
 export const RegisterSchema = z
@@ -25,7 +25,7 @@ export const RegisterSchema = z
     password: z
       .string()
       .min(1, "Mật khẩu không được để trống")
-      .min(5, "Mật khẩu phải có ít nhất 5 ký tự"),
+      .min(8, "Mật khẩu phải có ít nhất 8 ký tự"),
     confirmPassword: z.string().min(1, "Vui lòng xác nhận mật khẩu"),
     role: authRolesEnum,
   })

@@ -1,6 +1,4 @@
 import { useAuthStore } from "@/src/store/useAuthStore";
-import { useReadingStore } from "@/src/store/useReadingStore";
-import { MOCK_SERVER_CONFIG } from "@/src/data/local/mockConfigData";
 import { useRootNavigationState, useRouter, useSegments } from "expo-router";
 import { useEffect } from "react";
 
@@ -14,23 +12,7 @@ export const useAuthGuard = () => {
   const router = useRouter();
   const navigationState = useRootNavigationState();
 
-  const { token, role, user, _hasHydrated } = useAuthStore();
-  const { syncFromServer } = useReadingStore();
-
-  useEffect(() => {
-    // 1. Sync configuration automatically when Child role is active
-    if (token && role === "child" && user) {
-      // Simulation for now:
-      syncFromServer(MOCK_SERVER_CONFIG);
-      
-      // Update mock points if not exist
-      if (user && user.points === undefined) {
-        useAuthStore.getState().setUser({ ...user, points: 1250 });
-      }
-      
-      console.log("[Auto-Sync] Child config and points updated");
-    }
-  }, [token, role, user?.id, syncFromServer]);
+  const { token, role, _hasHydrated } = useAuthStore();
 
   useEffect(() => {
     // Wait for navigation state to be ready
@@ -64,5 +46,5 @@ export const useAuthGuard = () => {
         router.replace("/(guardian)/(tabs)/dashboard");
       }
     }
-  }, [token, role, segments, _hasHydrated, navigationState?.key]);
+  }, [token, role, segments, _hasHydrated, navigationState?.key, router]);
 };

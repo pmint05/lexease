@@ -1,5 +1,6 @@
 import React from "react";
 import { ScrollView, Text, View } from "react-native";
+import { useGuardianChildLinksQuery } from "@/src/hooks/useFamilyQueries";
 import { useAuthStore } from "../../store/useAuthStore";
 import { useFamilyStore } from "../../store/useFamilyStore";
 import { useLearningStore } from "../../store/useLearningStore";
@@ -12,14 +13,9 @@ export default function GuardianDashboard() {
   const user = useAuthStore((s) => s.user);
   const guardianId = user?.id ?? null;
 
-  const getChildrenForGuardian = useFamilyStore(
-    (s) => s.getChildrenForGuardian,
-  );
   const getSelectedChildId = useFamilyStore((s) => s.getSelectedChildId);
   const setSelectedChild = useFamilyStore((s) => s.setSelectedChild);
-  const ensureDemoChildrenForGuardian = useFamilyStore(
-    (s) => s.ensureDemoChildrenForGuardian,
-  );
+  const linksQuery = useGuardianChildLinksQuery();
 
   const getSessionsForChild = useLearningStore((s) => s.getSessionsForChild);
   const getStatsForChild = useLearningStore((s) => s.getStatsForChild);
@@ -28,7 +24,18 @@ export default function GuardianDashboard() {
   );
   const ensureMockSeeded = useLearningStore((s) => s.ensureMockSeeded);
 
-  const children = guardianId ? getChildrenForGuardian(guardianId) : [];
+  const children = React.useMemo(() => {
+    if (!guardianId) return [];
+
+    return (linksQuery.data ?? [])
+      .filter(
+        (link) => link.guardianId === guardianId && link.status === "ACCEPTED",
+      )
+      .map((link) => ({
+        childId: link.childId,
+        childName: `Bé ${link.childId.slice(0, 8)}`,
+      }));
+  }, [guardianId, linksQuery.data]);
   const selectedChildId = guardianId ? getSelectedChildId(guardianId) : null;
 
   const selectedChild =
@@ -44,12 +51,6 @@ export default function GuardianDashboard() {
   React.useEffect(() => {
     ensureMockSeeded();
   }, [ensureMockSeeded]);
-
-  React.useEffect(() => {
-    if (guardianId) {
-      ensureDemoChildrenForGuardian(guardianId);
-    }
-  }, [guardianId, ensureDemoChildrenForGuardian]);
 
   const sessionsForChild = selectedChild
     ? getSessionsForChild(selectedChild.childId)

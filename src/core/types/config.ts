@@ -10,3 +10,25 @@ export interface ReadingConfig {
   highlightColor: string;
   wordsPerHighlight: 1 | 2 | 3;
 }
+
+export interface DisplaySettingsResponse {
+  childId: string;
+  fontFamily: string;
+  fontSize: number;
+  lineHeight: number;
+  letterSpacing: number;
+  backgroundColor: string;
+  textColor: string;
+  themeName: string | null;
+  settingsVersion: number;
+}
+
+export interface SaveDisplaySettingsRequest {
+  fontFamily: string;
+  fontSize: number;
+  lineHeight: number;
+  letterSpacing: number;
+  backgroundColor: string;
+  textColor: string;
+  themeName?: string | null;
+}

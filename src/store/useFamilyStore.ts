@@ -100,9 +100,10 @@ const SAMPLE_CHILD_LINKS: ChildLink[] = [
   },
 ];
 
-const DEMO_CHILD_TEMPLATES: Array<
-  Omit<ChildLink, "id" | "guardianId" | "linkedAt">
-> = [
+const DEMO_CHILD_TEMPLATES: Omit<
+  ChildLink,
+  "id" | "guardianId" | "linkedAt"
+>[] = [
   {
     childId: "child-1",
     childEmail: "child1@gmail.com",

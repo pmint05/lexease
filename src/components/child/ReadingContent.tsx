@@ -1,11 +1,12 @@
 import { FONT_MAP } from "@/src/core/constants/fonts";
 import { useReadingStore } from "@/src/store/useReadingStore";
+import type { ReadingTextToken } from "@/src/utils/textProcessing";
 import React, { useEffect, useRef } from "react";
 import { ScrollView } from "react-native";
 import { Text, XStack, YStack } from "tamagui";
 
 interface ReadingContentProps {
-  words: string[];
+  tokens: ReadingTextToken[];
   currentIndex: number;
   isPlaying: boolean;
   onWordPress: (index: number) => void;
@@ -13,7 +14,7 @@ interface ReadingContentProps {
 }
 
 export const ReadingContent = ({
-  words,
+  tokens,
   currentIndex,
   isPlaying,
   onWordPress,
@@ -62,23 +63,43 @@ export const ReadingContent = ({
       scrollEventThrottle={16}
       contentContainerStyle={{ paddingBottom: 100 }} // Extra space for centering
     >
-      <XStack flexWrap="wrap" gap="$1" alignItems="center" padding="$4">
-        {words.map((word, idx) => {
-          const isHighlighted = idx === currentIndex;
+      <XStack flexWrap="wrap" alignItems="center" padding="$4">
+        {tokens.map((token, idx) => {
+          const wordIndex = token.wordIndex;
+          const isHighlighted = wordIndex === currentIndex;
+
+          if (wordIndex === null) {
+            return (
+              <Text
+                key={`${token.text}-${idx}`}
+                fontFamily={`$${tamaguiFontKey}`}
+                fontSize={fontSize}
+                fontWeight="400"
+                color={textColor}
+                letterSpacing={letterSpacing}
+                lineHeight={fontSize * lineHeight}
+                marginRight={token.spaceAfter ? "$1.5" : 0}
+                opacity={0.3}
+              >
+                {token.text}
+              </Text>
+            );
+          }
 
           return (
             <YStack
-              key={`${word}-${idx}`}
+              key={`${token.text}-${idx}`}
               onLayout={(event) => {
-                wordLayouts.current[idx] = event.nativeEvent.layout.y;
+                wordLayouts.current[wordIndex] = event.nativeEvent.layout.y;
               }}
               paddingHorizontal="$1.5"
               paddingVertical="$1"
               borderRadius="$3"
               backgroundColor={isHighlighted ? highlightColor : "transparent"}
               opacity={isHighlighted ? 1 : 0.3} // Spotlight metaphor: fade out others
-              onPress={() => onWordPress(idx)}
+              onPress={() => onWordPress(wordIndex)}
               pressStyle={{ scale: 0.95 }}
+              marginRight={token.spaceAfter ? "$1.5" : 0}
             >
               <Text
                 fontFamily={`$${tamaguiFontKey}`}
@@ -88,7 +109,7 @@ export const ReadingContent = ({
                 letterSpacing={letterSpacing}
                 lineHeight={fontSize * lineHeight}
               >
-                {word}
+                {token.text}
               </Text>
             </YStack>
           );

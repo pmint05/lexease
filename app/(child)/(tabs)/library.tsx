@@ -1,9 +1,9 @@
 import { BookCarouselCard } from "@/src/components/child/BookCarouselCard";
 import { BookGridCard } from "@/src/components/child/BookGridCard";
 import { Button } from "@/src/components/shared/Button";
-import { sampleBooks } from "@/src/data/local/books";
+import { storySummaryToBook } from "@/src/core/types";
+import { useGenresQuery, useStoriesQuery } from "@/src/hooks/useStoryQueries";
 import { useAuthStore } from "@/src/store/useAuthStore";
-import { useLearningStore } from "@/src/store/useLearningStore";
 import { useRouter } from "expo-router";
 import React, { useMemo, useState } from "react";
 import { ScrollView } from "react-native";
@@ -20,41 +20,32 @@ import { H4, Text, XStack, YStack } from "tamagui";
 export default function LibraryScreen(): React.ReactElement {
   const router = useRouter();
   const { user } = useAuthStore();
-  const { sessions } = useLearningStore();
-  const [selectedCategory, setSelectedCategory] = useState<string>("Tất cả");
+  const [selectedGenreId, setSelectedGenreId] = useState<string>("all");
+  const storiesQuery = useStoriesQuery({
+    genreId: selectedGenreId === "all" ? undefined : selectedGenreId,
+    size: 100,
+  });
+  const genresQuery = useGenresQuery();
 
-  // Get categories from sample books
   const categories = useMemo(() => {
-    const cats = new Set(sampleBooks.map((b) => b.category));
-    return ["Tất cả", ...Array.from(cats)];
-  }, []);
+    return [{ id: "all", name: "Tất cả" }, ...(genresQuery.data ?? [])];
+  }, [genresQuery.data]);
 
-  // Books to show in Carousel (Recently read or Newest)
-  const carouselBooks = useMemo(() => {
-    const recentBookIds = Array.from(new Set(sessions.map((s) => s.bookId)));
-    const recentBooks = recentBookIds
-      .map((id) => sampleBooks.find((b) => b.id === id))
-      .filter((b): b is any => !!b)
-      .slice(0, 5);
+  const books = useMemo(() => {
+    return (storiesQuery.data?.items ?? []).map(storySummaryToBook);
+  }, [storiesQuery.data?.items]);
 
-    // If no recent books, show the latest additions
-    return recentBooks.length > 0
-      ? recentBooks
-      : sampleBooks.slice(-5).reverse();
-  }, [sessions]);
-
-  // Filtered books for the grid
-  const filteredBooks = useMemo(() => {
-    if (selectedCategory === "Tất cả") return sampleBooks;
-    return sampleBooks.filter((b) => b.category === selectedCategory);
-  }, [selectedCategory]);
+  const carouselBooks = useMemo(() => books.slice(0, 5), [books]);
 
   const handleBookPress = (id: string) => {
     router.push({ pathname: "/(child)/book/[id]", params: { id } });
   };
 
   const handleReadPress = (id: string) => {
-    router.push({ pathname: "/(child)/reading/[id]", params: { id } });
+    router.push({
+      pathname: "/(child)/reading/[id]",
+      params: { id, mode: "resume" },
+    });
   };
 
   return (
@@ -79,7 +70,7 @@ export default function LibraryScreen(): React.ReactElement {
               alignItems="center"
             >
               <Text fontSize="$5" fontWeight="700">
-                {sessions.length > 0 ? "Tiếp tục khám phá" : "Sách mới cho bé"}
+                Sách mới cho bé
               </Text>
             </XStack>
             <ScrollView
@@ -111,13 +102,15 @@ export default function LibraryScreen(): React.ReactElement {
               <XStack gap="$2">
                 {categories.map((cat) => (
                   <Button
-                    key={cat}
+                    key={cat.id}
                     size="small"
                     borderRadius="$10"
-                    uiVariant={selectedCategory === cat ? "primary" : "outline"}
-                    onPress={() => setSelectedCategory(cat)}
+                    uiVariant={
+                      selectedGenreId === cat.id ? "primary" : "outline"
+                    }
+                    onPress={() => setSelectedGenreId(cat.id)}
                   >
-                    {cat}
+                    {cat.name}
                   </Button>
                 ))}
               </XStack>
@@ -128,7 +121,7 @@ export default function LibraryScreen(): React.ReactElement {
           <YStack paddingHorizontal="$4" gap="$4">
             {/* Grid display using flexWrap */}
             <XStack flexWrap="wrap" justifyContent="space-between">
-              {filteredBooks.map((book) => (
+              {books.map((book) => (
                 <BookGridCard
                   key={book.id}
                   book={book}
@@ -137,7 +130,21 @@ export default function LibraryScreen(): React.ReactElement {
               ))}
             </XStack>
 
-            {filteredBooks.length === 0 && (
+            {storiesQuery.isLoading && (
+              <YStack paddingVertical="$8" alignItems="center">
+                <Text color="$mutedForeground">Đang tải thư viện...</Text>
+              </YStack>
+            )}
+
+            {storiesQuery.isError && (
+              <YStack paddingVertical="$8" alignItems="center">
+                <Text color="$mutedForeground">
+                  Không thể tải thư viện từ máy chủ.
+                </Text>
+              </YStack>
+            )}
+
+            {!storiesQuery.isLoading && !storiesQuery.isError && books.length === 0 && (
               <YStack paddingVertical="$8" alignItems="center">
                 <Text color="$mutedForeground">
                   Hiện chưa có sách trong thể loại này.

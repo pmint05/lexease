@@ -1,4 +1,5 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { authService } from "@/src/data/api/authService";
 import { useAuthStore } from "@/src/store/useAuthStore";
 import { LoginInput, RegisterInput } from "@/src/core/schemas/auth";
@@ -19,6 +20,8 @@ export const useLoginMutation = () => {
         setAuth({
           token: result.token,
           user: result.user,
+          refreshToken: result.refreshToken,
+          expiresIn: result.expiresIn,
         });
       }
     },
@@ -35,6 +38,8 @@ export const useRegisterMutation = () => {
         setAuth({
           token: result.token,
           user: result.user,
+          refreshToken: result.refreshToken,
+          expiresIn: result.expiresIn,
         });
       }
     },
@@ -43,6 +48,40 @@ export const useRegisterMutation = () => {
 
 export const useForgotPasswordMutation = () => {
   return useMutation({
-    mutationFn: (email: string) => authService.forgotPassword(email),
+    mutationFn: (_email: string) => authService.forgotPassword(),
+  });
+};
+
+export const useMeQuery = () => {
+  const token = useAuthStore((s) => s.token);
+  const setUser = useAuthStore((s) => s.setUser);
+
+  const query = useQuery({
+    queryKey: ["me"],
+    queryFn: authService.me,
+    enabled: Boolean(token),
+    staleTime: 1000 * 60 * 5,
+  });
+
+  useEffect(() => {
+    if (query.data) {
+      setUser(query.data);
+    }
+  }, [query.data, setUser]);
+
+  return query;
+};
+
+export const useLogoutMutation = () => {
+  const queryClient = useQueryClient();
+  const refreshToken = useAuthStore((s) => s.refreshToken);
+  const logout = useAuthStore((s) => s.logout);
+
+  return useMutation({
+    mutationFn: () => authService.logout(refreshToken),
+    onSettled: () => {
+      logout();
+      queryClient.clear();
+    },
   });
 };

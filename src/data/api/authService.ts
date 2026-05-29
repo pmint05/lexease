@@ -1,56 +1,68 @@
+import { LoginInput, RegisterInput } from "@/src/core/schemas/auth";
 import {
-  Account,
   AuthResult,
+  BackendAuthResponse,
+  BackendUser,
   User,
   UserRole,
 } from "@/src/core/types/user";
-import { mockAccounts } from "@/src/data/local/mockAuthData";
-import { LoginInput, RegisterInput } from "@/src/core/schemas/auth";
+import { apiClient, getApiErrorMessage } from "@/src/data/api/apiClient";
 
-/**
- * Auth Service
- * Simulated API service for authentication
- * Ready to be replaced with Axios calls
- */
+const toBackendRole = (role: UserRole): "CHILD" | "GUARDIAN" => {
+  return role === "child" ? "CHILD" : "GUARDIAN";
+};
+const toFrontendRole = (role: BackendUser["role"]): UserRole | null => {
+  if (role === "CHILD") return "child";
+  if (role === "GUARDIAN") return "guardian";
+  return null;
+};
 
-const DELAY = 1000;
+export const toFrontendUser = (backendUser: BackendUser): User | null => {
+  const role = toFrontendRole(backendUser.role);
+  if (!role) return null;
 
-// Internal state for mock data persistence in current session
-let localAccounts = [...mockAccounts];
+  return {
+    id: backendUser.id,
+    email: backendUser.email,
+    name: backendUser.displayName,
+    role,
+    status: backendUser.status,
+  };
+};
 
-const normalizeEmail = (value: string): string => value.trim().toLowerCase();
+const toAuthResult = (response: BackendAuthResponse): AuthResult => {
+  const user = toFrontendUser(response.user);
+
+  if (!user) {
+    return {
+      success: false,
+      error: "Tài khoản admin chưa được hỗ trợ trong ứng dụng này",
+    };
+  }
+
+  return {
+    success: true,
+    user,
+    token: response.accessToken,
+    refreshToken: response.refreshToken,
+    expiresIn: response.expiresIn,
+  };
+};
 
 export const authService = {
   login: async ({ email, password }: LoginInput): Promise<AuthResult> => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const normalizedEmail = normalizeEmail(email);
-        const account = localAccounts.find(
-          (item) =>
-            item.email === normalizedEmail && item.password === password,
-        );
-
-        if (!account) {
-          return resolve({
-            success: false,
-            error: "Email hoặc mật khẩu không đúng",
-          });
-        }
-
-        const user: User = {
-          id: account.id,
-          email: account.email,
-          name: account.name,
-          role: account.role,
-        };
-
-        resolve({
-          success: true,
-          user,
-          token: `mock-token-${Date.now()}`,
-        });
-      }, DELAY);
-    });
+    try {
+      const response = await apiClient.post<BackendAuthResponse>("/auth/login", {
+        email,
+        password,
+      });
+      return toAuthResult(response.data);
+    } catch (error) {
+      return {
+        success: false,
+        error: getApiErrorMessage(error),
+      };
+    }
   },
 
   register: async ({
@@ -59,68 +71,60 @@ export const authService = {
     password,
     role,
   }: RegisterInput): Promise<AuthResult> => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const normalizedEmail = normalizeEmail(email);
-        const existing = localAccounts.find(
-          (account) => account.email === normalizedEmail,
-        );
-
-        if (existing) {
-          return resolve({
-            success: false,
-            error: "Email này đã được đăng ký",
-          });
-        }
-
-        const now = new Date().toISOString();
-        const userId = `user-${Date.now()}`;
-        const account: Account = {
-          id: userId,
-          name: name.trim(),
-          email: normalizedEmail,
+    try {
+      const response = await apiClient.post<BackendAuthResponse>(
+        "/auth/register",
+        {
+          email,
           password,
-          role: role as UserRole,
-          createdAt: now,
-        };
-
-        localAccounts.push(account);
-
-        const user: User = {
-          id: account.id,
-          name: account.name,
-          email: account.email,
-          role: account.role,
-        };
-
-        resolve({
-          success: true,
-          user,
-          token: `mock-token-${Date.now()}`,
-        });
-      }, DELAY);
-    });
+          displayName: name,
+          role: toBackendRole(role),
+        },
+      );
+      return toAuthResult(response.data);
+    } catch (error) {
+      return {
+        success: false,
+        error: getApiErrorMessage(error),
+      };
+    }
   },
 
-  forgotPassword: async (email: string): Promise<AuthResult> => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const normalizedEmail = normalizeEmail(email);
-        const exists = localAccounts.some(
-          (account) => account.email === normalizedEmail,
-        );
+  refresh: async (refreshToken: string): Promise<AuthResult> => {
+    try {
+      const response = await apiClient.post<BackendAuthResponse>(
+        "/auth/refresh",
+        { refreshToken },
+      );
+      return toAuthResult(response.data);
+    } catch (error) {
+      return {
+        success: false,
+        error: getApiErrorMessage(error),
+      };
+    }
+  },
 
-        if (!exists) {
-          return resolve({
-            success: false,
-            error: "Email không tồn tại trong hệ thống",
-          });
-        }
+  logout: async (refreshToken: string | null): Promise<void> => {
+    if (!refreshToken) return;
+    await apiClient.post("/auth/logout", { refreshToken });
+  },
 
-        resolve({
-          success: true,
-        });
-      }, DELAY);
-    });
+  me: async (): Promise<User> => {
+    const response = await apiClient.get<BackendUser>("/me");
+    const user = toFrontendUser(response.data);
+
+    if (!user) {
+      throw new Error("Tài khoản admin chưa được hỗ trợ trong ứng dụng này");
+    }
+
+    return user;
+  },
+
+  forgotPassword: async (): Promise<AuthResult> => {
+    return {
+      success: false,
+      error: "Tính năng quên mật khẩu chưa có endpoint backend",
+    };
   },
 };

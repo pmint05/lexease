@@ -1,6 +1,4 @@
 import { Button } from "@/src/components/shared/Button";
-import { useAuthStore } from "@/src/store/useAuthStore";
-import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import { Card, Input, Label, ScrollView, Text, XStack, YStack } from "tamagui";
 
@@ -13,8 +11,6 @@ import { Card, Input, Label, ScrollView, Text, XStack, YStack } from "tamagui";
  * - Track adherence
  */
 export default function SchedulerScreen(): React.ReactElement {
-  const router = useRouter();
-  const { logout } = useAuthStore();
   const [schedule, setSchedule] = useState({
     monday: true,
     tuesday: true,
@@ -102,7 +98,6 @@ export default function SchedulerScreen(): React.ReactElement {
               </Label>
               <YStack gap="$2">
                 {days.map((day, idx) => {
-                  const key = day.toLowerCase().replace(" ", ""); // simplified key
                   // Original keys are english, mapping them:
                   const englishDays = [
                     "monday",
@@ -136,7 +131,6 @@ export default function SchedulerScreen(): React.ReactElement {
                         backgroundColor={
                           isSelected ? "$primary" : "$background"
                         }
-                        color={isSelected ? "white" : "$foreground"}
                         borderWidth={1}
                         borderColor="$border"
                         accessible

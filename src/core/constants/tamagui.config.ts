@@ -25,10 +25,14 @@ const brandColors = {
 };
 
 // 2. Khởi tạo Tokens hoàn chỉnh
+const baseTokens = configV5.tokens as typeof configV5.tokens & {
+  color?: Record<string, string>;
+};
+
 const tokens = createTokens({
-  ...configV5.tokens,
+  ...baseTokens,
   color: {
-    ...configV5.tokens.color,
+    ...(baseTokens.color ?? {}),
     ...brandColors,
   },
   radius: {
@@ -217,6 +221,7 @@ export const tamaguiConfig = createTamagui({
 export type AppConfig = typeof tamaguiConfig;
 
 declare module "tamagui" {
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   interface TamaguiCustomConfig extends AppConfig {}
 }
 
