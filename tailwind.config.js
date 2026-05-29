@@ -1,11 +1,9 @@
+const { hairlineWidth } = require("nativewind/theme");
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   darkMode: "class",
-  content: [
-    "./app/**/*.{js,jsx,ts,tsx}",
-    "./src/components/**/*.{js,jsx,ts,tsx}",
-    "./src/shared/**/*.{js,jsx,ts,tsx}",
-  ],
+  content: ["./app/**/*.{ts,tsx}", "./src/components/**/*.{ts,tsx}"],
   presets: [require("nativewind/preset")],
   theme: {
     extend: {
@@ -49,30 +47,27 @@ module.exports = {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
-      fontFamily: {
-        lexend: ["Lexend-Regular", "sans-serif"],
-        "lexend-bold": ["Lexend-Bold", "sans-serif"],
-        "lexend-black": ["Lexend-Black", "sans-serif"],
-        "lexend-light": ["Lexend-Light", "sans-serif"],
-        "lexend-thin": ["Lexend-Thin", "sans-serif"],
-        "lexend-medium": ["Lexend-Medium", "sans-serif"],
-        "lexend-semi-bold": ["Lexend-SemiBold", "sans-serif"],
-        "lexend-extra-bold": ["Lexend-ExtraBold", "sans-serif"],
-        "lexend-extra-light": ["Lexend-ExtraLight", "sans-serif"],
-        "open-dyslexic": ["OpenDyslexic-Regular", "sans-serif"],
-        "open-dyslexic-bold": ["OpenDyslexic-Bold", "sans-serif"],
-        "open-dyslexic-italic": ["OpenDyslexic-Italic", "sans-serif"],
-        "open-dyslexic-bold-italic": ["OpenDyslexic-BoldItalic", "sans-serif"],
+      borderWidth: {
+        hairline: hairlineWidth(),
       },
-      lineHeight: {
-        dyslexic: "1.625",
-        "dyslexic-loose": "2.0",
+      keyframes: {
+        "accordion-down": {
+          from: { height: "0" },
+          to: { height: "var(--radix-accordion-content-height)" },
+        },
+        "accordion-up": {
+          from: { height: "var(--radix-accordion-content-height)" },
+          to: { height: "0" },
+        },
       },
-      letterSpacing: {
-        dyslexic: "0.05em",
-        "dyslexic-wide": "0.1em",
+      animation: {
+        "accordion-down": "accordion-down 0.2s ease-out",
+        "accordion-up": "accordion-up 0.2s ease-out",
       },
     },
   },
-  plugins: [],
+  future: {
+    hoverOnlyWhenSupported: true,
+  },
+  plugins: [require("tailwindcss-animate")],
 };

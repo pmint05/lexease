@@ -1,4 +1,5 @@
 import appTamaguiConfig from "@/src/core/constants/tamagui.config";
+import { PortalHost } from "@rn-primitives/portal";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
@@ -10,7 +11,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { TamaguiProvider } from "tamagui";
 import { useMeQuery } from "../src/hooks/useAuthQueries";
 import { useAuthStore } from "../src/store/useAuthStore";
-import "./globall.css";
+import "./global.css";
 
 // Initialize providers outside component to persist across navigation
 const queryClient = new QueryClient();
@@ -119,6 +120,7 @@ export default function RootLayout() {
             style={{ flex: 1 }}
           >
             <RootLayoutContent />
+            <PortalHost />
           </View>
         </QueryClientProvider>
       </TamaguiProvider>

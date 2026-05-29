@@ -1,6 +1,7 @@
 // import { Button } from "@/src/components/shared/Button";
-import { Button } from "@/src/components/shared/Button";
+// import { Button } from "@/src/components/shared/Button";
 import { FormField } from "@/src/components/shared/FormField";
+import { Button } from "@/src/components/ui/button";
 import { LoginInput, LoginSchema } from "@/src/core/schemas/auth";
 import { useLoginMutation } from "@/src/hooks/useAuthQueries";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -131,10 +132,11 @@ export default function LoginScreen() {
                 <Button
                   onPress={handleSubmit(onLogin)}
                   disabled={isPending}
-                  size="large"
-                  marginTop="$2"
+                  className="bg-primary"
+                  size={"lg"}
+                  variant="destructive"
                 >
-                  {isPending ? "Đang xử lý..." : "Đăng nhập"}
+                  <Text>{isPending ? "Đang xử lý..." : "Đăng nhập"}</Text>
                 </Button>
                 {loginResult?.success === false && loginResult.error ? (
                   <Text color="$red10" fontSize="$3" textAlign="center">

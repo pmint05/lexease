@@ -1,7 +1,7 @@
 /**
  * Semantic design tokens for LexEase.
  * These align with the Tailwind/NativeWind configuration in tailwind.config.js
- * and the CSS variables in app/globall.css.
+ * and the CSS variables in app/global.css.
  *
  * For dyslexia-friendly design:
  * - Backgrounds are off-white/cream to reduce glare.

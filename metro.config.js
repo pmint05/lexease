@@ -10,4 +10,7 @@ config.resolver.assetExts.push("wasm");
 config.resolver.sourceExts.push("mjs", "cjs");
 config.resolver.unstable_enablePackageExports = true;
 
-module.exports = withNativeWind(config, { input: "./app/global.css" });
+module.exports = withNativeWind(config, {
+  input: "./app/global.css",
+  inlineRem: 16,
+});
