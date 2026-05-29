@@ -1,14 +1,14 @@
+import { COLORS } from "@/src/core/constants/colors";
 import { Tabs, useRouter } from "expo-router";
 import { BookOpen, Clock, Search, User as UserIcon } from "lucide-react-native";
 import React from "react";
-import { Button, Text, useTheme, XStack } from "tamagui";
+import { Button, Text, XStack } from "tamagui";
 
 /**
  * Child Tabs Layout
  * Manages library, history, and profile tabs with a modern bottom navigation
  */
 export default function ChildTabsLayout(): React.ReactElement {
-  const theme = useTheme();
   const router = useRouter();
 
   return (
@@ -16,21 +16,21 @@ export default function ChildTabsLayout(): React.ReactElement {
       screenOptions={{
         headerShown: true,
         headerStyle: {
-          backgroundColor: theme.background?.val || "#FFFBF7",
+          backgroundColor: COLORS.cream,
           borderBottomWidth: 1,
-          borderBottomColor: theme.border?.val || "#EFEAE6",
+          borderBottomColor: COLORS.border,
         },
         headerTitleStyle: {
           fontFamily: "Lexend-Bold",
           fontSize: 18,
-          color: theme.foreground?.val || "#221F1E",
+          color: COLORS.textDark,
         },
         headerTitleAlign: "center",
         headerShadowVisible: false,
         tabBarStyle: {
-          backgroundColor: theme.background?.val || "#FFFBF7",
+          backgroundColor: COLORS.cream,
           borderTopWidth: 1,
-          borderTopColor: theme.border?.val || "#EFEAE6",
+          borderTopColor: COLORS.border,
           height: 70,
           elevation: 0,
           shadowOpacity: 0,
@@ -38,8 +38,8 @@ export default function ChildTabsLayout(): React.ReactElement {
         tabBarItemStyle: {
           paddingVertical: 8,
         },
-        tabBarActiveTintColor: theme.primary?.val || "#0066CC",
-        tabBarInactiveTintColor: theme.mutedForeground?.val || "#5A5A5A",
+        tabBarActiveTintColor: COLORS.primary,
+        tabBarInactiveTintColor: COLORS.muted,
         tabBarLabelStyle: {
           fontFamily: "Lexend-Medium",
           fontSize: 12,
@@ -71,7 +71,7 @@ export default function ChildTabsLayout(): React.ReactElement {
                 size="$3"
                 chromeless
                 icon={
-                  <Search color={theme.primary?.val || "#0066CC"} size={22} />
+                  <Search color={COLORS.primary} size={22} />
                 }
                 onPress={() => router.push("/(child)/search")}
                 accessibilityLabel="Tìm kiếm"

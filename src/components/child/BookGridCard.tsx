@@ -32,6 +32,7 @@ export const BookGridCard = ({
       <Image
         src={book.coverUrl}
         aspectRatio={2 / 3}
+        borderRadius="$6"
         width="100%"
         backgroundColor="$color4"
       />

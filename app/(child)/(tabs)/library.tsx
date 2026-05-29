@@ -126,10 +126,6 @@ export default function LibraryScreen(): React.ReactElement {
 
           {/* 4. Main Grid Section */}
           <YStack paddingHorizontal="$4" gap="$4">
-            <Text fontSize="$5" fontWeight="700">
-              Tất cả sách
-            </Text>
-
             {/* Grid display using flexWrap */}
             <XStack flexWrap="wrap" justifyContent="space-between">
               {filteredBooks.map((book) => (

@@ -22,9 +22,8 @@ export const BookCarouselCard = ({
       borderRadius="$6"
       overflow="hidden"
       borderColor="$border"
-      backgroundColor="$background"
+      backgroundColor="$brandSurface"
       onPress={() => onPress(book.id)}
-      pressStyle={{ scale: 0.98 }}
       marginRight="$4"
     >
       <XStack flex={1}>
@@ -32,6 +31,7 @@ export const BookCarouselCard = ({
           src={book.coverUrl}
           width={120}
           height="100%"
+          borderRadius="$6"
           backgroundColor="$color4"
         />
         <YStack flex={1} padding="$3" justifyContent="space-between">

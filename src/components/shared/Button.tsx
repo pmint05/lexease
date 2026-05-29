@@ -64,7 +64,7 @@ export const Button = styled(TamaguiButton, {
       outline: {
         backgroundColor: "transparent",
         borderWidth: 2,
-        borderColor: "$border",
+        borderColor: "$borderColor",
         color: "$foreground",
         pressStyle: { backgroundColor: "$muted", opacity: 0.8 },
       },

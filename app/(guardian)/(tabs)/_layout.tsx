@@ -1,3 +1,4 @@
+import { COLORS } from "@/src/core/constants/colors";
 import { useAuthStore } from "@/src/store/useAuthStore";
 import { Tabs, useRouter } from "expo-router";
 import {
@@ -8,14 +9,13 @@ import {
   Settings,
 } from "lucide-react-native";
 import React from "react";
-import { Button, Text, useTheme, XStack } from "tamagui";
+import { Button, Text, XStack } from "tamagui";
 
 /**
  * Guardian Tabs Layout
  * Manages dashboard, reports, scheduler, and settings tabs
  */
 export default function GuardianTabsLayout(): React.ReactElement {
-  const theme = useTheme();
   const { logout } = useAuthStore();
   const router = useRouter();
 
@@ -30,14 +30,14 @@ export default function GuardianTabsLayout(): React.ReactElement {
       screenOptions={{
         headerShown: true,
         headerStyle: {
-          backgroundColor: theme.background?.val || "#FFFBF7",
+          backgroundColor: COLORS.cream,
           borderBottomWidth: 1,
-          borderBottomColor: theme.border?.val || "#EFEAE6",
+          borderBottomColor: COLORS.border,
         },
         headerTitleStyle: {
           fontFamily: "Lexend-Bold",
           fontSize: 18,
-          color: theme.foreground?.val || "#221F1E",
+          color: COLORS.textDark,
         },
         headerLeft: () => (
           <XStack paddingLeft="$4">
@@ -54,9 +54,9 @@ export default function GuardianTabsLayout(): React.ReactElement {
         headerTitleAlign: "center",
         headerShadowVisible: false,
         tabBarStyle: {
-          backgroundColor: theme.background?.val || "#FFFBF7",
+          backgroundColor: COLORS.cream,
           borderTopWidth: 1,
-          borderTopColor: theme.border?.val || "#EFEAE6",
+          borderTopColor: COLORS.border,
           height: 72,
           elevation: 0,
           shadowOpacity: 0,
@@ -64,8 +64,8 @@ export default function GuardianTabsLayout(): React.ReactElement {
         tabBarItemStyle: {
           paddingVertical: 8,
         },
-        tabBarActiveTintColor: theme.primary?.val || "#0066CC",
-        tabBarInactiveTintColor: theme.mutedForeground?.val || "#5A5A5A",
+        tabBarActiveTintColor: COLORS.primary,
+        tabBarInactiveTintColor: COLORS.muted,
         tabBarLabelStyle: {
           fontFamily: "Lexend-Medium",
           fontSize: 11,
@@ -75,7 +75,7 @@ export default function GuardianTabsLayout(): React.ReactElement {
             size="$3"
             chromeless
             icon={
-              <LogOut color={theme.destructive?.val || "#E53935"} size={20} />
+              <LogOut color={COLORS.error} size={20} />
             }
             onPress={handleLogout}
             marginRight="$2"
