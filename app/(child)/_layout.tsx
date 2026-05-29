@@ -29,5 +29,4 @@ export default function ChildLayout(): React.ReactElement {
       <Stack.Screen name="book/[id]" />
     </Stack>
   );
-  }
-
+}

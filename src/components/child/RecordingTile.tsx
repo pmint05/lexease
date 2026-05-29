@@ -1,6 +1,14 @@
-import { Mic, Play, Trash2 } from "lucide-react-native";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/src/components/ui/dropdown-menu";
+import { Text } from "@/src/components/ui/text";
+import { Mic, Play } from "lucide-react-native";
 import React from "react";
-import { Button, Circle, ContextMenu, Text, XStack, YStack } from "tamagui";
+import { Pressable, View } from "react-native";
+import { Button } from "../shared/Button";
 
 import { Recording } from "@/src/core/types";
 import { formatDateTime, formatReadingTime } from "@/src/utils/formatters";
@@ -19,83 +27,65 @@ export const RecordingTile = ({
   onDelete,
 }: RecordingTileProps): React.ReactElement => {
   return (
-    <ContextMenu>
-      <ContextMenu.Trigger asChild>
-        <XStack
-          padding="$3"
-          backgroundColor="$color2"
-          borderRadius="$4"
-          alignItems="center"
-          gap="$3"
-          pressStyle={{ backgroundColor: "$color3" }}
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Pressable
           onPress={() => onPlay(recording)}
+          style={{
+            padding: 12,
+            backgroundColor: "#F8FAFC",
+            borderRadius: 8,
+            flexDirection: "row",
+            alignItems: "center",
+            gap: 12,
+          }}
         >
-          {/* Icon indicator */}
-          <Circle size={44} backgroundColor="$primaryForeground">
-            <Mic size={22} />
-          </Circle>
+          <View
+            style={{
+              width: 44,
+              height: 44,
+              borderRadius: 22,
+              backgroundColor: "#0EA5E9",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Mic size={22} color="white" />
+          </View>
 
-          <YStack flex={1} gap="$0.5">
+          <View style={{ flex: 1 }}>
             {showTitle && (
-              <Text
-                fontSize="$4"
-                fontWeight="700"
-                color="$foreground"
-                numberOfLines={1}
-              >
+              <Text className="font-bold text-base" numberOfLines={1}>
                 {recording.bookTitle}
               </Text>
             )}
             <Text
-              fontSize="$3"
-              fontWeight={showTitle ? "500" : "700"}
-              color={showTitle ? "$mutedForeground" : "$foreground"}
+              className={
+                showTitle ? "text-sm text-muted-foreground" : "text-base"
+              }
             >
               Bản ghi: {formatDateTime(recording.createdAt)}
             </Text>
-            <Text fontSize="$2" color="$mutedForeground">
+            <Text className="text-sm text-muted-foreground">
               Thời lượng: {formatReadingTime(recording.durationMs)}
             </Text>
-          </YStack>
+          </View>
 
           <Button
-            size="$4"
+            size="sm"
             circular
-            backgroundColor="$background"
-            borderColor="$border"
-            icon={
-              <Play size={20} fill="$primary" color="$primary" />
-            }
+            uiVariant="ghost"
+            icon={<Play size={20} color="#0EA5E9" />}
             onPress={() => onPlay(recording)}
-            pressStyle={{ backgroundColor: "$color4" }}
           />
-        </XStack>
-      </ContextMenu.Trigger>
+        </Pressable>
+      </DropdownMenuTrigger>
 
-      <ContextMenu.Portal>
-        <ContextMenu.Content
-          borderWidth={1}
-          borderColor="$border"
-          enterStyle={{ y: -10, opacity: 0 }}
-          exitStyle={{ y: -10, opacity: 0 }}
-          padding="$2"
-          backgroundColor="$background"
-          borderRadius={"$6"}
-        >
-          <YStack width={180}>
-            <Button
-              chromeless
-              justifyContent="flex-start"
-              icon={<Trash2 size={18} color="#FF0000" />}
-              onPress={() => {
-                onDelete(recording.id);
-              }}
-            >
-              Xóa bản ghi này
-            </Button>
-          </YStack>
-        </ContextMenu.Content>
-      </ContextMenu.Portal>
-    </ContextMenu>
+      <DropdownMenuContent>
+        <DropdownMenuItem onPress={() => onDelete(recording.id)}>
+          <Text className="text-destructive">Xóa bản ghi này</Text>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };

@@ -1,7 +1,8 @@
-import { FONT_MAP } from "@/src/core/constants/fonts";
+import { Text } from "@/src/components/ui/text";
+import { FONTS } from "@/src/core/constants/fonts";
 import { useReadingStore } from "@/src/store/useReadingStore";
 import React from "react";
-import { Text, XStack } from "tamagui";
+import { View } from "react-native";
 
 interface KaraokeTileProps {
   word: string;
@@ -21,28 +22,38 @@ export const KaraokeTile = ({
     lineHeight,
   } = useReadingStore();
 
-  const tamaguiFontKey = FONT_MAP[fontFamily] || "body";
+  // Map configured family names to actual font family strings if available
+  const mappedFamily =
+    fontFamily === "Lexend"
+      ? FONTS.lexend
+      : fontFamily === "OpenDyslexic"
+        ? FONTS.openDyslexic
+        : undefined;
 
   return (
-    <XStack
-      paddingHorizontal="$2"
-      paddingVertical="$1"
-      borderRadius="$3"
-      backgroundColor={isHighlighted ? highlightColor : "transparent"}
+    <View
+      style={{
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 6,
+        backgroundColor: isHighlighted ? highlightColor : "transparent",
+      }}
       accessible
       accessibilityRole="text"
       accessibilityLabel={isHighlighted ? `Từ đang được đọc: ${word}` : word}
     >
       <Text
-        fontFamily={`$${tamaguiFontKey}`}
-        fontSize={fontSize}
-        fontWeight={isHighlighted ? "700" : "400"}
-        color={textColor}
-        letterSpacing={letterSpacing}
-        lineHeight={fontSize * lineHeight}
+        style={{
+          fontFamily: mappedFamily,
+          fontSize,
+          fontWeight: isHighlighted ? "700" : "400",
+          color: textColor,
+          letterSpacing,
+          lineHeight: fontSize * lineHeight,
+        }}
       >
         {word}
       </Text>
-    </XStack>
+    </View>
   );
 };

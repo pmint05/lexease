@@ -1,5 +1,9 @@
+import { Button } from "@/src/components/shared/Button";
+import { Text } from "@/src/components/ui/text";
 import { COLORS } from "@/src/core/constants/colors";
+import { THEME } from "@/src/lib/theme";
 import { useAuthStore } from "@/src/store/useAuthStore";
+import { useThemeStore } from "@/src/store/useThemeStore";
 import { Tabs, useRouter } from "expo-router";
 import {
   BarChart3,
@@ -9,7 +13,7 @@ import {
   Settings,
 } from "lucide-react-native";
 import React from "react";
-import { Button, Text, XStack } from "tamagui";
+import { Platform, useColorScheme, View } from "react-native";
 
 /**
  * Guardian Tabs Layout
@@ -18,6 +22,21 @@ import { Button, Text, XStack } from "tamagui";
 export default function GuardianTabsLayout(): React.ReactElement {
   const { logout } = useAuthStore();
   const router = useRouter();
+  const colorScheme = useColorScheme();
+  const preferredTheme = useThemeStore((s) => s.theme);
+
+  const systemPreference =
+    Platform.OS === "web" &&
+    typeof window !== "undefined" &&
+    typeof window.matchMedia === "function"
+      ? window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light"
+      : colorScheme;
+
+  const effectiveColorScheme =
+    preferredTheme === "system" ? systemPreference : preferredTheme;
+  const theme = effectiveColorScheme === "dark" ? THEME.dark : THEME.light;
 
   const handleLogout = async () => {
     logout();
@@ -30,33 +49,30 @@ export default function GuardianTabsLayout(): React.ReactElement {
       screenOptions={{
         headerShown: true,
         headerStyle: {
-          backgroundColor: COLORS.cream,
+          backgroundColor: theme.card,
           borderBottomWidth: 1,
-          borderBottomColor: COLORS.border,
+          borderBottomColor: theme.border,
         },
         headerTitleStyle: {
-          fontFamily: "Lexend-Bold",
           fontSize: 18,
-          color: COLORS.textDark,
+          color: theme.foreground,
         },
         headerLeft: () => (
-          <XStack paddingLeft="$4">
+          <View style={{ paddingLeft: 16 }}>
             <Text
-              fontFamily="Lexend-Black"
-              fontSize={20}
-              color="$primary"
-              letterSpacing={-1}
+              className="text-primary"
+              style={{ fontSize: 20, letterSpacing: -1 }}
             >
               LexEase
             </Text>
-          </XStack>
+          </View>
         ),
         headerTitleAlign: "center",
         headerShadowVisible: false,
         tabBarStyle: {
-          backgroundColor: COLORS.cream,
+          backgroundColor: theme.card,
           borderTopWidth: 1,
-          borderTopColor: COLORS.border,
+          borderTopColor: theme.border,
           height: 72,
           elevation: 0,
           shadowOpacity: 0,
@@ -64,23 +80,22 @@ export default function GuardianTabsLayout(): React.ReactElement {
         tabBarItemStyle: {
           paddingVertical: 8,
         },
-        tabBarActiveTintColor: COLORS.primary,
-        tabBarInactiveTintColor: COLORS.muted,
+        tabBarActiveTintColor: theme.primary,
+        tabBarInactiveTintColor: theme.mutedForeground,
         tabBarLabelStyle: {
           fontFamily: "Lexend-Medium",
           fontSize: 11,
         },
         headerRight: () => (
-          <Button
-            size="$3"
-            chromeless
-            icon={
-              <LogOut color={COLORS.error} size={20} />
-            }
-            onPress={handleLogout}
-            marginRight="$2"
-            accessibilityLabel="Đăng xuất"
-          />
+          <View style={{ marginRight: 8 }}>
+            <Button
+              uiVariant="ghost"
+              circular
+              icon={<LogOut color={COLORS.error} size={20} />}
+              onPress={handleLogout}
+              accessibilityLabel="Đăng xuất"
+            />
+          </View>
         ),
       }}
     >

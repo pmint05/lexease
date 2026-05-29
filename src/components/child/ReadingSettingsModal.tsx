@@ -1,7 +1,9 @@
+import { Dialog, DialogContent } from "@/src/components/ui/dialog";
+import { Text } from "@/src/components/ui/text";
 import { useReadingStore } from "@/src/store/useReadingStore";
 import { Minus, Plus } from "lucide-react-native";
 import React from "react";
-import { Label, Sheet, Text, XStack, YStack } from "tamagui";
+import { View } from "react-native";
 import { Button } from "../shared/Button";
 
 interface ReadingSettingsModalProps {
@@ -12,12 +14,10 @@ interface ReadingSettingsModalProps {
 export const ReadingSettingsModal = ({
   open,
   onOpenChange,
-}: ReadingSettingsModalProps): React.ReactElement => {
+}: ReadingSettingsModalProps): React.ReactElement | null => {
   const { speed, setSpeed } = useReadingStore();
 
-  if (!open) {
-    return <></>;
-  }
+  if (!open) return null;
 
   const handleIncrement = () => {
     if (speed < 2.0) {
@@ -32,97 +32,65 @@ export const ReadingSettingsModal = ({
   };
 
   return (
-    <Sheet
-      open={open}
-      onOpenChange={onOpenChange}
-      snapPointsMode="fit"
-      dismissOnSnapToBottom
-      position={0}
-    >
-      <Sheet.Overlay
-        backgroundColor="transparent"
-        enterStyle={{ opacity: 0 }}
-        exitStyle={{ opacity: 0 }}
-      />
-
-      <Sheet.Frame backgroundColor="transparent">
-        <Sheet.Handle />
-
-        <YStack
-          backgroundColor="$background"
-          padding="$6"
-          borderRadius="$6"
-          gap="$6"
-          shadowColor="rgba(0,0,0,0.1)"
-          shadowRadius={30}
-          borderWidth={1}
-          borderColor="$border"
-        >
-          <YStack gap="$1">
-            <Text fontSize="$6" fontWeight="900" color="$foreground">
-              Cài đặt
-            </Text>
-            <Text fontSize="$3" color="$mutedForeground">
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent>
+        <View className="bg-background p-6 rounded-md shadow-md border border-border">
+          <View className="gap-1">
+            <Text className="text-xl font-black text-foreground">Cài đặt</Text>
+            <Text className="text-sm text-muted-foreground">
               Điều chỉnh nhịp độ phù hợp với bé
             </Text>
-          </YStack>
+          </View>
 
-          <YStack gap="$4">
-            <Label fontWeight="700" fontSize="$4">
-              Tốc độ Spotlight
-            </Label>
+          <View className="gap-4 mt-4">
+            <Text className="font-bold uppercase">Tốc độ Spotlight</Text>
 
-            <XStack alignItems="center" justifyContent="center" gap="$6">
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 24,
+              }}
+            >
               <Button
                 uiVariant="outline"
                 circular
-                size="$5"
-                backgroundColor="$color3"
+                size="large"
                 icon={<Minus size={24} />}
                 onPress={handleDecrement}
                 disabled={speed <= 0.5}
-                opacity={speed <= 0.5 ? 0.3 : 1}
               />
 
-              <YStack alignItems="center" width={100}>
-                <Text fontSize="$8" fontWeight="900" color="$primary">
+              <View style={{ alignItems: "center", width: 100 }}>
+                <Text className="text-2xl font-black text-primary">
                   {speed.toFixed(1)}x
                 </Text>
-                <XStack gap="$1" marginTop="$1" alignItems="center">
-                  <Text
-                    fontSize="$1"
-                    fontWeight="700"
-                    color="$mutedForeground"
-                    textTransform="uppercase"
-                  >
+                <View style={{ flexDirection: "row", gap: 4, marginTop: 4 }}>
+                  <Text className="text-xs font-bold text-muted-foreground">
                     {speed <= 0.8 ? "Chậm" : speed >= 1.5 ? "Nhanh" : "Vừa"}
                   </Text>
-                </XStack>
-              </YStack>
+                </View>
+              </View>
 
               <Button
                 uiVariant="outline"
                 circular
-                size="$5"
-                backgroundColor="$color3"
+                size="large"
                 icon={<Plus size={24} />}
                 onPress={handleIncrement}
                 disabled={speed >= 2.0}
-                opacity={speed >= 2.0 ? 0.3 : 1}
               />
-            </XStack>
-          </YStack>
+            </View>
+          </View>
 
-          <Button
-            size="$5"
-            onPress={() => onOpenChange(false)}
-            marginTop="$2"
-            borderRadius="$4"
-          >
-            Hoàn tất
-          </Button>
-        </YStack>
-      </Sheet.Frame>
-    </Sheet>
+          <View style={{ marginTop: 16 }}>
+            <Button size="large" onPress={() => onOpenChange(false)}>
+              Hoàn tất
+            </Button>
+          </View>
+        </View>
+      </DialogContent>
+    </Dialog>
   );
 };

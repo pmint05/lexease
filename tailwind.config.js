@@ -7,6 +7,16 @@ module.exports = {
   presets: [require("nativewind/preset")],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ["Lexend-Regular"],
+        lexend: ["Lexend-Regular"],
+        lexendBold: ["Lexend-Bold"],
+        lexendMedium: ["Lexend-Medium"],
+        lexendSemibold: ["Lexend-SemiBold"],
+        opendyslexic: ["OpenDyslexic-Regular"],
+        openDyslexic: ["OpenDyslexic-Regular"],
+        admin: ["var(--font-admin)"],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -43,9 +53,10 @@ module.exports = {
         },
       },
       borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        xl: "var(--radius)",
+        lg: "calc(var(--radius) - 2px)",
+        md: "calc(var(--radius) - 4px)",
+        sm: "calc(var(--radius) - 6px)",
       },
       borderWidth: {
         hairline: hairlineWidth(),

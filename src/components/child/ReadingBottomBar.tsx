@@ -1,8 +1,8 @@
+import { Button } from "@/src/components/shared/Button";
 import { BlurView } from "expo-blur";
 import { Mic, Pause, Play, RotateCcw, Volume2 } from "lucide-react-native";
 import React from "react";
-import { Platform } from "react-native";
-import { Button, Circle, View, XStack, YStack } from "tamagui";
+import { Platform, View } from "react-native";
 
 interface ReadingBottomBarProps {
   isPlaying: boolean;
@@ -28,90 +28,85 @@ export const ReadingBottomBar = ({
   const Container = Platform.OS === "ios" ? BlurView : View;
 
   return (
-    <YStack position="absolute" bottom={0} left={0} right={0}>
+    <View style={{ position: "absolute", bottom: 0, left: 0, right: 0 }}>
       <Container
         {...(Platform.OS === "ios"
           ? { intensity: 80, tint: "light" }
           : {
-              backgroundColor: "rgba(255, 255, 255, 0.8)",
+              style: { backgroundColor: "rgba(255,255,255,0.8)" },
             })}
         style={{
           borderTopLeftRadius: 32,
           borderTopRightRadius: 32,
           overflow: "hidden",
           borderTopWidth: 1,
-          backdropFilter: "blur(4px)",
-          borderTopColor: "rgba(255, 255, 255, 0.5)",
+          borderTopColor: "rgba(255,255,255,0.5)",
         }}
       >
-        <XStack
-          paddingHorizontal="$8"
-          justifyContent="space-around"
-          alignItems="center"
-          height={90}
+        <View
+          style={{
+            paddingHorizontal: 32,
+            justifyContent: "space-around",
+            alignItems: "center",
+            height: 90,
+            flexDirection: "row",
+          }}
         >
           {/* TTS Toggle */}
           <Button
+            uiVariant={isTtsEnabled ? "primary" : "ghost"}
             circular
-            size="$4"
-            backgroundColor={isTtsEnabled ? "$primary" : "rgba(0,0,0,0.05)"}
+            size="sm"
             icon={<Volume2 color={isTtsEnabled ? "white" : "#666"} size={22} />}
             onPress={onToggleTts}
-            pressStyle={{ scale: 0.9 }}
-            borderWidth={0}
-            elevation={2}
+            className=""
           />
 
           {/* Central Button: Play / Pause / Repeat */}
           <Button
             circular
-            size="$5"
-            backgroundColor="$primary"
+            size="lg"
+            uiVariant="primary"
             icon={
               isFinished ? (
                 <RotateCcw size={24} color="white" />
               ) : isPlaying ? (
-                <Pause size={24} fill="white" color="white" />
+                <Pause size={24} color="white" />
               ) : (
-                <Play size={24} fill="white" color="white" />
+                <Play size={24} color="white" />
               )
             }
             onPress={isFinished ? onRepeat : onTogglePlay}
-            scale={1.2}
-            pressStyle={{ scale: 1.1 }}
-            shadowColor="$primary"
-            shadowRadius={15}
-            shadowOpacity={0.3}
+            className=""
           />
 
           {/* Record Button */}
-          <YStack alignItems="center" position="relative">
+          <View style={{ alignItems: "center", position: "relative" }}>
             <Button
               circular
-              size="$4"
-              backgroundColor={
-                isRecording ? "$destructive" : "rgba(0,0,0,0.05)"
-              }
+              size="sm"
+              uiVariant={isRecording ? "danger" : "ghost"}
               icon={<Mic color={isRecording ? "white" : "#666"} size={22} />}
               onPress={onToggleRecording}
-              pressStyle={{ scale: 0.9 }}
-              borderWidth={0}
-              elevation={2}
             />
             {isRecording && (
-              <Circle
-                size={12}
-                backgroundColor="$destructive"
-                position="absolute"
-                top={-2}
-                right={-2}
-                borderWidth={2}
-                borderColor="white"
+              <View
+                style={{
+                  width: 12,
+                  height: 12,
+                  borderRadius: 6,
+                  backgroundColor: "#D32F2F",
+                  position: "absolute",
+                  top: -2,
+                  right: -2,
+                  borderWidth: 2,
+                  borderColor: "white",
+                }}
               />
             )}
-          </YStack>
-        </XStack>
+          </View>
+        </View>
       </Container>
-    </YStack>
+    </View>
   );
 };

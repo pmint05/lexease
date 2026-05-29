@@ -1,5 +1,7 @@
 import { Button } from "@/src/components/shared/Button";
 import { FormField } from "@/src/components/shared/FormField";
+import { Card } from "@/src/components/ui/card";
+import { Text } from "@/src/components/ui/text";
 import { RegisterInput, RegisterSchema } from "@/src/core/schemas/auth";
 import { useRegisterMutation } from "@/src/hooks/useAuthQueries";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -12,8 +14,8 @@ import {
   Platform,
   Pressable,
   ScrollView,
+  View,
 } from "react-native";
-import { Card, H1, Text, XStack, YStack } from "tamagui";
 
 /**
  * Register Screen
@@ -21,8 +23,11 @@ import { Card, H1, Text, XStack, YStack } from "tamagui";
  */
 export default function RegisterScreen() {
   const router = useRouter();
-  const { mutate: register, isPending, data: registerResult } =
-    useRegisterMutation();
+  const {
+    mutate: register,
+    isPending,
+    data: registerResult,
+  } = useRegisterMutation();
 
   const {
     control,
@@ -48,37 +53,32 @@ export default function RegisterScreen() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={{ flex: 1, backgroundColor: "$background" }}
     >
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }} bounces={false}>
-        <YStack flex={1} justifyContent="space-between">
+      <ScrollView
+        contentContainerStyle={{ flexGrow: 1 }}
+        bounces={false}
+        className="bg-background"
+      >
+        <View className="flex-1 justify-between">
           {/* Top Section */}
-          <YStack padding="$6" paddingTop="$10">
-            <H1 fontSize="$10" fontWeight="bold" fontFamily="$lexend">
+          <View className="flex-1 items-center justify-center px-6">
+            <Text variant="h1" className="text-primary text-center">
               Tạo tài khoản mới
-            </H1>
-            <Text color="$color10" fontFamily="$lexend" marginTop="$1">
+            </Text>
+            <Text className="mt-2 text-center text-lg text-muted-foreground">
               Khởi đầu hành trình đọc sách cùng LexEase
             </Text>
-          </YStack>
+          </View>
 
           {/* Form Card */}
-          <Card
-            padding="$6"
-            borderTopLeftRadius="$12"
-            borderTopRightRadius="$12"
-            borderBottomLeftRadius={0}
-            borderBottomRightRadius={0}
-            backgroundColor="$surface"
-            elevation="$2"
-          >
-            <YStack gap="$5">
-              <YStack gap="$4">
+          <Card className="rounded-t-3xl rounded-b-none border-b-0 px-6 py-6">
+            <View className="gap-5">
+              <View className="gap-4">
                 <FormField
                   label="Họ và tên"
                   name="name"
                   control={control}
                   placeholder="Nguyễn Văn A"
                   error={errors.name?.message}
-                  fontFamily="$lexend"
                 />
 
                 <FormField
@@ -89,7 +89,6 @@ export default function RegisterScreen() {
                   keyboardType="email-address"
                   autoCapitalize="none"
                   error={errors.email?.message}
-                  fontFamily="$lexend"
                 />
 
                 <FormField
@@ -99,7 +98,6 @@ export default function RegisterScreen() {
                   placeholder="••••••••"
                   secureTextEntry
                   error={errors.password?.message}
-                  fontFamily="$lexend"
                 />
 
                 <FormField
@@ -109,29 +107,23 @@ export default function RegisterScreen() {
                   placeholder="••••••••"
                   secureTextEntry
                   error={errors.confirmPassword?.message}
-                  fontFamily="$lexend"
                 />
 
                 {/* Role Selection */}
-                <YStack gap="$2">
-                  <Text
-                    fontSize="$3"
-                    fontWeight="bold"
-                    color="$color11"
-                    marginLeft="$1"
-                  >
+                <View className="gap-2">
+                  <Text className="text-sm font-bold text-foreground ml-1">
                     Bạn là ai?
                   </Text>
                   <Controller
                     control={control}
                     name="role"
                     render={({ field: { onChange, value } }) => (
-                      <XStack gap="$3">
+                      <View className="flex-row gap-3">
                         <RoleButton
                           icon={
                             <Baby
                               size={32}
-                              color={value === "child" ? "#4CAF50" : "#9E9E9E"}
+                              color={value === "child" ? "#2196F3" : "#9E9E9E"}
                             />
                           }
                           label="Bé"
@@ -151,50 +143,43 @@ export default function RegisterScreen() {
                           isSelected={value === "guardian"}
                           onPress={() => onChange("guardian")}
                         />
-                      </XStack>
+                      </View>
                     )}
                   />
                   {errors.role ? (
-                    <Text fontSize="$2" color="$red10" marginLeft="$1">
+                    <Text className="text-sm text-destructive ml-1">
                       {errors.role.message}
                     </Text>
                   ) : null}
-                </YStack>
+                </View>
 
                 <Button
                   onPress={handleSubmit(onRegister)}
                   disabled={isPending}
                   size="large"
-                  marginTop="$2"
+                  className="mt-2"
                 >
                   {isPending ? "Đang đăng ký..." : "Đăng ký"}
                 </Button>
                 {registerResult?.success === false && registerResult.error ? (
-                  <Text color="$red10" fontSize="$3" textAlign="center">
+                  <Text className="text-center text-sm text-destructive">
                     {registerResult.error}
                   </Text>
                 ) : null}
-              </YStack>
+              </View>
 
-              <Text
-                textAlign="center"
-                color="$color10"
-                fontFamily="$lexend"
-                marginTop="$2"
-              >
+              <Text className="mt-2 text-center text-sm text-muted-foreground">
                 Đã có tài khoản?{" "}
                 <Text
-                  color="$primary"
-                  fontWeight="bold"
-                  fontFamily="$lexend"
+                  className="font-bold text-primary"
                   onPress={() => router.push("/(auth)/login")}
                 >
                   Đăng nhập
                 </Text>
               </Text>
-            </YStack>
+            </View>
           </Card>
-        </YStack>
+        </View>
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -209,42 +194,19 @@ interface RoleButtonProps {
 
 const RoleButton = ({ icon, label, isSelected, onPress }: RoleButtonProps) => (
   <Pressable onPress={onPress} style={{ flex: 1 }}>
-    <YStack
-      padding="$4"
-      borderWidth={2}
-      borderRadius="$4"
-      borderColor={
+    <View
+      className={`p-4 border-2 rounded-lg items-center gap-2 ${
         isSelected
-          ? label === "Bé"
-            ? "$brandAccent"
-            : "$brandPrimary"
-          : "transparent"
-      }
-      backgroundColor={
-        isSelected
-          ? label === "Bé"
-            ? "$brandAccentLight"
-            : "#E3F2FD"
-          : "$brandMuted"
-      }
-      opacity={isSelected ? 1 : 0.6}
-      alignItems="center"
-      gap="$2"
+          ? "border-transparent bg-primary/10"
+          : "border-transparent bg-muted"
+      }`}
     >
       {icon}
       <Text
-        fontWeight="bold"
-        fontFamily="$lexend"
-        color={
-          isSelected
-            ? label === "Bé"
-              ? "$brandAccent"
-              : "$brandPrimary"
-            : "$color10"
-        }
+        className={`font-bold ${isSelected ? "text-primary" : "text-foreground"}`}
       >
         {label}
       </Text>
-    </YStack>
+    </View>
   </Pressable>
 );

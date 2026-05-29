@@ -1,4 +1,4 @@
-import appTamaguiConfig from "@/src/core/constants/tamagui.config";
+// Tamagui removed: config no longer needed
 import { PortalHost } from "@rn-primitives/portal";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useFonts } from "expo-font";
@@ -8,7 +8,8 @@ import React, { useEffect } from "react";
 import { Platform, useColorScheme, View } from "react-native";
 import "react-native-reanimated";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import { TamaguiProvider } from "tamagui";
+// TamaguiProvider removed; using Reusables + Tailwind
+import { useThemeStore } from "@/src/store/useThemeStore";
 import { useMeQuery } from "../src/hooks/useAuthQueries";
 import { useAuthStore } from "../src/store/useAuthStore";
 import "./global.css";
@@ -59,9 +60,10 @@ function RootLayoutContent() {
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   const _hasHydrated = useAuthStore((s) => s._hasHydrated);
+  const preferredTheme = useThemeStore((s) => s.theme);
 
-  // On web, fallback to matchMedia if useColorScheme is unreliable
-  const effectiveColorScheme =
+  // Determine effective color scheme: user preference overrides system
+  const systemPreference =
     Platform.OS === "web" &&
     typeof window !== "undefined" &&
     typeof window.matchMedia === "function"
@@ -69,6 +71,9 @@ export default function RootLayout() {
         ? "dark"
         : "light"
       : colorScheme;
+
+  const effectiveColorScheme =
+    preferredTheme === "system" ? systemPreference : preferredTheme;
 
   useEffect(() => {
     if (Platform.OS === "web") {
@@ -106,24 +111,12 @@ export default function RootLayout() {
 
   return (
     <SafeAreaProvider>
-      <TamaguiProvider
-        config={appTamaguiConfig}
-        defaultTheme={"light"}
-        // defaultTheme={effectiveColorScheme === "dark" ? "dark" : "light"}
-      >
-        <QueryClientProvider client={queryClient}>
-          <View
-            className={
-              "flex-1"
-              // effectiveColorScheme === "dark" ? "dark flex-1" : "flex-1"
-            }
-            style={{ flex: 1 }}
-          >
-            <RootLayoutContent />
-            <PortalHost />
-          </View>
-        </QueryClientProvider>
-      </TamaguiProvider>
+      <QueryClientProvider client={queryClient}>
+        <View className={"flex-1 bg-background"} style={{ flex: 1 }}>
+          <RootLayoutContent />
+          <PortalHost />
+        </View>
+      </QueryClientProvider>
     </SafeAreaProvider>
   );
 }

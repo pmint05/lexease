@@ -1,12 +1,14 @@
 import { BookGridCard } from "@/src/components/child/BookGridCard";
+import { Button } from "@/src/components/ui/button";
+import { Input } from "@/src/components/ui/input";
+import { Text } from "@/src/components/ui/text";
 import { storySummaryToBook } from "@/src/core/types";
 import { useGenresQuery, useStoriesQuery } from "@/src/hooks/useStoryQueries";
 import { useRouter } from "expo-router";
 import { ChevronLeft, Search as SearchIcon, X } from "lucide-react-native";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { FlatList } from "react-native";
+import { FlatList, Pressable, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Button, Input, Text, XStack, YStack } from "tamagui";
 
 export default function SearchScreen(): React.ReactElement {
   const router = useRouter();
@@ -35,86 +37,74 @@ export default function SearchScreen(): React.ReactElement {
   }, [genresQuery.data]);
 
   return (
-    <YStack flex={1} backgroundColor="$background">
+    <View className="flex-1 bg-background">
       {/* Header Search Bar */}
-      <XStack
-        paddingHorizontal="$4"
-        paddingTop={insets.top + 8}
-        paddingBottom="$2"
-        alignItems="center"
-        gap="$2"
-        borderBottomWidth={1}
-        borderBottomColor="$border"
+      <View
+        style={{
+          paddingTop: insets.top + 8,
+          paddingBottom: 8,
+        }}
+        className="flex-row items-center border-b border-border bg-card gap-2 px-2"
       >
         <Button
-          icon={<ChevronLeft size={24} />}
-          chromeless
           onPress={() =>
             router.canGoBack()
               ? router.back()
               : router.push("/(child)/(tabs)/library")
           }
-          padding={0}
-          width={40}
-        />
-        <XStack flex={1} position="relative">
+          size="icon"
+          variant="ghost"
+          accessibilityLabel="Quay lại"
+        >
+          <ChevronLeft className="text-foreground size-4" />
+        </Button>
+        <View style={{ flex: 1 }} className="relative">
           <Input
             ref={inputRef}
-            flex={1}
+            className="flex-1 pl-8 rounded-xl bg-color3"
             value={query}
             onChangeText={setQuery}
             placeholder="Tìm kiếm sách..."
-            size="$3"
-            paddingLeft="$7"
-            borderRadius="$10"
-            backgroundColor="$color3"
-            borderWidth={0}
             clearButtonMode="while-editing"
           />
-          <YStack
-            position="absolute"
-            left="$3"
-            top={0}
-            bottom={0}
-            justifyContent="center"
-          >
-            <SearchIcon size={18} />
-          </YStack>
+          <View className="absolute left-3 top-0 bottom-0 justify-center">
+            <SearchIcon className="text-muted-foreground" size={18} />
+          </View>
           {query.length > 0 && (
-            <YStack
-              position="absolute"
-              right="$3"
-              top={0}
-              bottom={0}
-              justifyContent="center"
+            <Pressable
               onPress={() => setQuery("")}
+              className="absolute right-3 top-0 bottom-0 justify-center"
             >
-              <X size={18} color="$mutedForeground" />
-            </YStack>
+              <X className="text-muted-foreground" size={18} />
+            </Pressable>
           )}
-        </XStack>
-      </XStack>
+        </View>
+      </View>
 
       {/* Filters */}
-      <XStack padding="$4" gap="$2" flexWrap="wrap">
+      <View className="p-4 flex-row flex-wrap gap-2">
         {genres.map((item) => (
           <Button
             key={item.id}
-            size="$3"
-            borderRadius="$10"
-            backgroundColor={genreId === item.id ? "$primary" : "$color3"}
-            borderWidth={1}
-            borderColor={genreId === item.id ? "$primary" : "$border"}
             onPress={() => setGenreId(item.id)}
+            className={
+              genreId === item.id
+                ? "bg-primary border-primary"
+                : "bg-color3 border-border"
+            }
           >
             <Text
-              color={genreId === item.id ? "$primaryForeground" : "$foreground"}
+              className={
+                genreId === item.id
+                  ? "text-primary-foreground"
+                  : "text-foreground"
+              }
             >
               {item.name}
             </Text>
           </Button>
         ))}
-      </XStack>
+      </View>
 
       {/* Results */}
       <FlatList
@@ -136,18 +126,13 @@ export default function SearchScreen(): React.ReactElement {
           />
         )}
         ListEmptyComponent={
-          <YStack alignItems="center" gap="$2">
-            <Text
-              color="$mutedForeground"
-              textAlign="center"
-              textBreakStrategy="highQuality"
-              padding={10}
-            >
+          <View className="items-center">
+            <Text className="text-muted-foreground text-center p-2">
               Không tìm thấy cuốn sách nào khớp với tìm kiếm của bé.
             </Text>
-          </YStack>
+          </View>
         }
       />
-    </YStack>
+    </View>
   );
 }

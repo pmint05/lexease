@@ -1,3 +1,6 @@
+import { Button } from "@/src/components/shared/Button";
+import { Dialog, DialogContent } from "@/src/components/ui/dialog";
+import { Text } from "@/src/components/ui/text";
 import { fetchAndComputeMetering } from "@/src/utils/audioProcessing";
 import { formatDuration } from "@/src/utils/textProcessing";
 import { useAudioPlayer, useAudioPlayerStatus } from "expo-audio";
@@ -9,24 +12,15 @@ import {
     Trash2,
     X,
 } from "lucide-react-native";
-import React, { useEffect, useState } from "react";
-import { Platform } from "react-native";
-import {
-    Button,
-    Separator,
-    Sheet,
-    Slider,
-    Text,
-    XStack,
-    YStack,
-} from "tamagui";
+import React, { useEffect, useRef, useState } from "react";
+import { LayoutChangeEvent, Platform, Pressable, View } from "react-native";
 
 const AudioWaveform =
   Platform.OS === "web"
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    ? require("./AudioWaveform.web").AudioWaveform
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    : require("./AudioWaveform.native").AudioWaveform;
+    ? // eslint-disable-next-line @typescript-eslint/no-require-imports
+      require("./AudioWaveform.web").AudioWaveform
+    : // eslint-disable-next-line @typescript-eslint/no-require-imports
+      require("./AudioWaveform.native").AudioWaveform;
 
 const hasUsefulMetering = (values: number[] | undefined): boolean => {
   if (!values || values.length === 0) return false;
@@ -115,66 +109,42 @@ export const AudioPlaybackModal = ({
   if (!open && !uri) {
     return <></>;
   }
-
   return (
-    <Sheet
-      open={open}
-      onOpenChange={onOpenChange}
-      snapPointsMode="fit"
-      dismissOnSnapToBottom
-      position={0}
-      modal
-    >
-      <Sheet.Overlay
-        backgroundColor="rgba(0,0,0,0.5)"
-        enterStyle={{ opacity: 0 }}
-        exitStyle={{ opacity: 0 }}
-      />
-
-      <Sheet.Frame backgroundColor="transparent" paddingBottom={"$2"}>
-        <Sheet.Handle marginBottom="$4" />
-
-        <YStack
-          backgroundColor="$background"
-          padding="$6"
-          borderRadius="$6"
-          gap="$6"
-          shadowColor="rgba(0,0,0,0.1)"
-          shadowRadius={30}
-          maxWidth={450} // Kích thước tối ưu cho mobile
-          alignSelf="center"
-        >
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent>
+        <View style={{ maxWidth: 450, alignSelf: "center", padding: 16 }}>
           {/* Header */}
-          <XStack justifyContent="space-between" alignItems="center">
-            <YStack flex={1} gap="$1">
-              <Text
-                fontSize="$2"
-                color="$primary"
-                fontWeight="700"
-                textTransform="uppercase"
-                letterSpacing={1}
-              >
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <View style={{ flex: 1 }}>
+              <Text className="text-sm text-primary font-semibold">
                 Đang phát bản ghi
               </Text>
-              <Text fontSize="$5" fontWeight="900" numberOfLines={1}>
+              <Text className="text-xl font-black" numberOfLines={1}>
                 {title}
               </Text>
-            </YStack>
+            </View>
             <Button
+              uiVariant="ghost"
               circular
-              size="$3"
-              chromeless
               icon={<X size={20} />}
               onPress={() => onOpenChange(false)}
             />
-          </XStack>
+          </View>
 
-          {/* Real Audio Waveform */}
-          <YStack
-            height={80}
-            alignItems="center"
-            justifyContent="center"
-            width="100%"
+          {/* Waveform */}
+          <View
+            style={{
+              height: 80,
+              alignItems: "center",
+              justifyContent: "center",
+              marginTop: 12,
+            }}
           >
             <AudioWaveform
               meteringData={
@@ -183,93 +153,95 @@ export const AudioPlaybackModal = ({
               progress={progress}
               height={80}
             />
-          </YStack>
+          </View>
 
-          {/* Progress Slider */}
-          <YStack gap="$2">
-            <Slider
-              value={[status.currentTime]}
-              max={status.duration || 1}
-              step={0.01}
-              onValueChange={handleSeek}
+          {/* Custom progress bar */}
+          <View style={{ marginTop: 12 }}>
+            <ProgressBar
+              progress={progress}
+              duration={status.duration || 1}
+              onSeek={(time) => handleSeek([time])}
+            />
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                marginTop: 6,
+              }}
             >
-              <Slider.Track backgroundColor="$color4">
-                <Slider.TrackActive backgroundColor="$primary" />
-              </Slider.Track>
-              <Slider.Thumb
-                index={0}
-                circular
-                backgroundColor="white"
-                size="$1"
-                borderWidth={1}
-                borderColor="$border"
-              />
-            </Slider>
-            <XStack justifyContent="space-between">
-              <Text fontSize="$1" fontWeight="600" color="$mutedForeground">
+              <Text className="text-sm text-muted-foreground">
                 {formatDuration(status.currentTime * 1000)}
               </Text>
-              <Text fontSize="$1" fontWeight="600" color="$mutedForeground">
-                {formatDuration(status.duration * 1000)}
+              <Text className="text-sm text-muted-foreground">
+                {formatDuration((status.duration || 0) * 1000)}
               </Text>
-            </XStack>
-          </YStack>
+            </View>
+          </View>
 
           {/* Controls */}
-          <XStack justifyContent="center" alignItems="center" gap="$5">
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "center",
+              alignItems: "center",
+              gap: 20,
+              marginTop: 12,
+            }}
+          >
             <Button
+              uiVariant="ghost"
               circular
-              size="$4"
-              chromeless
-              icon={<SkipBack size={22} fill="currentColor" />}
+              icon={<SkipBack size={22} />}
               onPress={() => handleSkip(-10)}
             />
 
             <Button
+              uiVariant="primary"
               circular
-              size="$7"
-              backgroundColor="$primary"
+              size="lg"
               icon={
                 status.playing ? (
-                  <Pause size={32} fill="white" color="white" />
+                  <Pause size={32} color="white" />
                 ) : (
-                  <Play size={32} fill="white" color="white" />
+                  <Play size={32} color="white" />
                 )
               }
               onPress={handleTogglePlay}
-              shadowColor="$primary"
-              shadowRadius={15}
-              shadowOpacity={0.3}
             />
 
             <Button
+              uiVariant="ghost"
               circular
-              size="$4"
-              chromeless
-              icon={<SkipForward size={22} fill="currentColor" />}
+              icon={<SkipForward size={22} />}
               onPress={() => handleSkip(10)}
             />
-          </XStack>
+          </View>
 
-          <Separator backgroundColor="$border" />
+          <View
+            style={{
+              height: 1,
+              backgroundColor: "#E6E7E9",
+              marginVertical: 12,
+            }}
+          />
 
           {/* Footer Actions */}
-          <XStack justifyContent="space-between" alignItems="center">
-            <Button
-              size="$3"
-              variant="outlined"
-              borderRadius="$10"
-              onPress={handleToggleSpeed}
-              minWidth={100}
-            >
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <Button uiVariant="outline" size="sm" onPress={handleToggleSpeed}>
               Tốc độ: {speed}x
             </Button>
 
             {onDelete && (
               <Button
-                size="$3"
-                chromeless
-                icon={<Trash2 size={18} color="$destructive" />}
+                uiVariant="ghost"
+                size="sm"
+                icon={<Trash2 size={18} color="#D32F2F" />}
                 onPress={() => {
                   onOpenChange(false);
                   onDelete();
@@ -278,9 +250,60 @@ export const AudioPlaybackModal = ({
                 Xóa
               </Button>
             )}
-          </XStack>
-        </YStack>
-      </Sheet.Frame>
-    </Sheet>
+          </View>
+        </View>
+      </DialogContent>
+    </Dialog>
   );
 };
+
+function ProgressBar({
+  progress,
+  duration,
+  onSeek,
+}: {
+  progress: number;
+  duration: number;
+  onSeek: (time: number) => void;
+}) {
+  const [width, setWidth] = useState(0);
+  const ref = useRef<View | null>(null);
+
+  const handleLayout = (e: LayoutChangeEvent) => {
+    setWidth(e.nativeEvent.layout.width);
+  };
+
+  const handlePress = (e: any) => {
+    const x = e.nativeEvent.locationX;
+    if (width > 0) {
+      const t = Math.max(0, Math.min(1, x / width)) * duration;
+      onSeek(t);
+    }
+  };
+
+  return (
+    <Pressable
+      onPress={handlePress}
+      onLayout={handleLayout}
+      ref={ref as any}
+      style={{ height: 24, justifyContent: "center" }}
+    >
+      <View
+        style={{
+          height: 6,
+          backgroundColor: "#F1F5F9",
+          borderRadius: 6,
+          overflow: "hidden",
+        }}
+      >
+        <View
+          style={{
+            height: "100%",
+            width: `${Math.min(100, Math.max(0, progress * 100))}%`,
+            backgroundColor: "#0EA5E9",
+          }}
+        />
+      </View>
+    </Pressable>
+  );
+}

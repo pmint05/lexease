@@ -1,3 +1,5 @@
+import { Card } from "@/src/components/ui/card";
+import { Text } from "@/src/components/ui/text";
 import * as FileSystem from "expo-file-system";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import {
@@ -9,18 +11,8 @@ import {
     Play,
 } from "lucide-react-native";
 import { useMemo, useState } from "react";
-import { Alert } from "react-native";
+import { Alert, Image, ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import {
-    Card,
-    H3,
-    Image,
-    ScrollView,
-    Text,
-    View,
-    XStack,
-    YStack,
-} from "tamagui";
 
 import { AudioPlaybackModal } from "@/src/components/child/AudioPlaybackModal";
 import { RecordingTile } from "@/src/components/child/RecordingTile";
@@ -103,30 +95,22 @@ export default function ReadingDetailScreen(): React.ReactElement {
 
   if (storyQuery.isLoading) {
     return (
-      <YStack
-        flex={1}
-        justifyContent="center"
-        alignItems="center"
-        backgroundColor="$background"
-      >
-        <Text color="$mutedForeground">Đang tải bài đọc...</Text>
-      </YStack>
+      <View className="flex-1 justify-center items-center bg-background">
+        <Text className="text-muted-foreground">Đang tải bài đọc...</Text>
+      </View>
     );
   }
 
   if (!book) {
     return (
-      <YStack
-        flex={1}
-        justifyContent="center"
-        alignItems="center"
-        backgroundColor="$background"
-      >
-        <Text color="$mutedForeground">Không tìm thấy bài đọc này</Text>
-        <Button marginTop="$4" onPress={() => router.back()}>
+      <View className="flex-1 justify-center items-center bg-background">
+        <Text className="text-muted-foreground">
+          Không tìm thấy bài đọc này
+        </Text>
+        <Button className="mt-4" onPress={() => router.back()}>
           Quay lại
         </Button>
-      </YStack>
+      </View>
     );
   }
 
@@ -138,78 +122,59 @@ export default function ReadingDetailScreen(): React.ReactElement {
         : COLORS.hard;
 
   return (
-    <YStack flex={1} backgroundColor="$background">
+    <View className="flex-1 bg-background">
       {/* 1. Header */}
-      <XStack
-        paddingTop={insets.top}
-        paddingHorizontal="$4"
-        paddingVertical="$3.5"
-        alignItems="center"
-        backgroundColor="$background"
+      <View
+        style={{
+          paddingTop: insets.top,
+          paddingHorizontal: 16,
+          paddingVertical: 14,
+        }}
+        className="flex-row items-center bg-background"
       >
         <Button
           icon={<ChevronLeft size={24} />}
           chromeless
-          size={"xsmall"}
           uiVariant="ghost"
           onPress={() => router.back()}
           padding={0}
           width={40}
-          marginLeft="$-2"
         />
-        <Text fontSize="$5" fontWeight="700" flex={1}>
-          Chi tiết bài đọc
-        </Text>
-      </XStack>
+        <Text className="text-xl font-bold ml-2">Chi tiết bài đọc</Text>
+      </View>
 
       <ScrollView showsVerticalScrollIndicator={false}>
-        <YStack paddingHorizontal="$4" gap="$6" paddingBottom={100}>
+        <View className="px-4 gap-6 pb-24">
           {/* 2. Hero Section: Cover & Basic Info */}
-          <XStack gap="$4">
-            <Card
-              width={120}
-              height={180}
-              borderRadius="$4"
-              overflow="hidden"
-              borderColor="$border"
-            >
+          <View className="flex-row gap-4">
+            <Card className="w-[120px] h-[180px] overflow-hidden">
               <Image
-                source={{ uri: book.coverUrl, width: 120, height: 180 }}
-                width="100%"
-                height="100%"
-                backgroundColor="$color4"
+                source={{ uri: book.coverUrl }}
+                style={{ width: 120, height: 180 }}
               />
             </Card>
 
-            <YStack flex={1} justifyContent="center" gap="$2">
-              <Text
-                fontSize="$2"
-                color="$primary"
-                fontWeight="700"
-                textTransform="uppercase"
-                letterSpacing={1}
-              >
+            <View style={{ flex: 1 }} className="justify-center gap-2">
+              <Text className="text-primary font-semibold uppercase tracking-wider">
                 {book.category}
               </Text>
-              <H3 fontWeight="900" lineHeight={28}>
+              <Text className="font-extrabold text-xl" numberOfLines={2}>
                 {book.title}
-              </H3>
-              <Text color="$mutedForeground" fontSize="$4">
-                {book.author}
               </Text>
+              <Text className="text-muted-foreground">{book.author}</Text>
 
-              <XStack alignItems="center" gap="$2" marginTop="$1">
+              <View className="flex-row items-center gap-2 mt-1">
                 <View
-                  paddingHorizontal="$2"
-                  paddingVertical="$1"
-                  borderRadius="$2"
-                  backgroundColor={`${difficultyColor}22`}
+                  style={{
+                    paddingHorizontal: 8,
+                    paddingVertical: 4,
+                    borderRadius: 6,
+                    backgroundColor: `${difficultyColor}22`,
+                  }}
                 >
                   <Text
-                    color={difficultyColor}
-                    fontWeight="700"
-                    fontSize="$2"
-                    textTransform="uppercase"
+                    style={{ color: difficultyColor }}
+                    className="font-semibold uppercase"
                   >
                     Mức độ:{" "}
                     {book.difficulty === "easy"
@@ -219,68 +184,42 @@ export default function ReadingDetailScreen(): React.ReactElement {
                         : "Khó"}
                   </Text>
                 </View>
-              </XStack>
-            </YStack>
-          </XStack>
+              </View>
+            </View>
+          </View>
 
           {/* 3. Info Grid: Quick Stats */}
-          <XStack gap="$3">
-            <Card
-              flex={1}
-              padding="$3"
-              alignItems="center"
-              gap="$1"
-              backgroundColor="$color2"
-            >
-              <Clock size={20} color="$mutedForeground" />
-              <Text fontWeight="800" fontSize="$4">
+          <View className="flex-row gap-3">
+            <Card className="flex-1 p-3 bg-color2 items-center gap-1">
+              <Clock size={20} color="#6B7280" />
+              <Text className="font-extrabold text-lg">
                 {book.estimatedMinutes}p
               </Text>
-              <Text fontSize="$1" color="$mutedForeground">
-                Thời gian
-              </Text>
+              <Text className="text-sm text-muted-foreground">Thời gian</Text>
             </Card>
-            <Card
-              flex={1}
-              padding="$3"
-              alignItems="center"
-              gap="$1"
-              backgroundColor="$color2"
-            >
-              <FileText size={20} color="$mutedForeground" />
-              <Text fontWeight="800" fontSize="$4">
-                {book.wordCount}
-              </Text>
-              <Text fontSize="$1" color="$mutedForeground">
-                Số từ
-              </Text>
+            <Card className="flex-1 p-3 bg-color2 items-center gap-1">
+              <FileText size={20} color="#6B7280" />
+              <Text className="font-extrabold text-lg">{book.wordCount}</Text>
+              <Text className="text-sm text-muted-foreground">Số từ</Text>
             </Card>
-            <Card
-              flex={1}
-              padding="$3"
-              alignItems="center"
-              gap="$1"
-              backgroundColor="$color2"
-            >
-              <BarChart size={20} color="$mutedForeground" />
-              <Text fontWeight="800" fontSize="$4">
+            <Card className="flex-1 p-3 bg-color2 items-center gap-1">
+              <BarChart size={20} color="#6B7280" />
+              <Text className="font-extrabold text-lg">
                 {book.difficulty === "easy"
                   ? "Lv.1"
                   : book.difficulty === "medium"
                     ? "Lv.2"
                     : "Lv.3"}
               </Text>
-              <Text fontSize="$1" color="$mutedForeground">
-                Cấp độ
-              </Text>
+              <Text className="text-sm text-muted-foreground">Cấp độ</Text>
             </Card>
-          </XStack>
+          </View>
 
           {/* 4. Primary CTA: Start Reading */}
-          <YStack gap="$3">
+          <View className="gap-3">
             <Button
               size="large"
-              icon={<Play size={20} fill="white" />}
+              icon={<Play size={20} />}
               onPress={() =>
                 router.push({
                   pathname: "/(child)/reading/[id]",
@@ -288,30 +227,23 @@ export default function ReadingDetailScreen(): React.ReactElement {
                 })
               }
               uiVariant="primary"
-              borderRadius="$6"
-              shadowColor="$primary"
-              shadowRadius={15}
-              shadowOpacity={0.2}
-              backgroundColor={"$primary"}
             >
               Bắt đầu bài đọc
             </Button>
-            <Text textAlign="center" fontSize="$2" color="$mutedForeground">
+            <Text className="text-center text-sm text-muted-foreground">
               Bé hãy ấn nút xanh để bắt đầu hành trình khám phá nhé!
             </Text>
-          </YStack>
+          </View>
 
           {/* 5. Recent Recordings */}
           {bookRecordings.length > 0 && (
-            <YStack gap="$4" marginTop="$2">
-              <XStack alignItems="center" gap="$2">
+            <View className="gap-4 mt-2">
+              <View className="flex-row items-center gap-2">
                 <Headphones size={22} />
-                <Text fontSize="$5" fontWeight="900">
-                  Bản ghi của bé
-                </Text>
-              </XStack>
+                <Text className="text-lg font-extrabold">Bản ghi của bé</Text>
+              </View>
 
-              <YStack gap="$3">
+              <View className="gap-3">
                 {bookRecordings.slice(0, 5).map((recording) => (
                   <RecordingTile
                     key={recording.id}
@@ -320,10 +252,10 @@ export default function ReadingDetailScreen(): React.ReactElement {
                     onDelete={removeRecording}
                   />
                 ))}
-              </YStack>
-            </YStack>
+              </View>
+            </View>
           )}
-        </YStack>
+        </View>
       </ScrollView>
 
       {(isPlaybackOpen || playbackUri) && (
@@ -338,6 +270,6 @@ export default function ReadingDetailScreen(): React.ReactElement {
           }
         />
       )}
-    </YStack>
+    </View>
   );
 }

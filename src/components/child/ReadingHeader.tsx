@@ -1,7 +1,9 @@
+import { Button } from "@/src/components/shared/Button";
+import { Text } from "@/src/components/ui/text";
 import { ChevronLeft, Settings } from "lucide-react-native";
 import React from "react";
+import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Button, Text, XStack, YStack } from "tamagui";
 
 interface ReadingHeaderProps {
   title: string;
@@ -19,51 +21,47 @@ export const ReadingHeader = ({
   const insets = useSafeAreaInsets();
 
   return (
-    <YStack paddingTop={insets.top} backgroundColor="$background">
-      <XStack
-        paddingHorizontal="$4"
-        paddingVertical="$2"
-        alignItems="center"
-        justifyContent="space-between"
+    <View style={{ paddingTop: insets.top, backgroundColor: "transparent" }}>
+      <View
+        style={{
+          paddingHorizontal: 16,
+          paddingVertical: 8,
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
       >
-        <XStack flex={1} alignItems="center" gap="$2">
+        <View
+          style={{
+            flex: 1,
+            flexDirection: "row",
+            alignItems: "center",
+            gap: 8,
+          }}
+        >
           <Button
             icon={<ChevronLeft size={24} />}
+            uiVariant="ghost"
             chromeless
             onPress={onBack}
-            padding={0}
-            width={40}
+            className="p-0 w-10"
           />
           <Text
-            fontSize="$5"
-            fontWeight="700"
+            className="text-lg font-bold"
             numberOfLines={1}
-            flex={1}
-            textAlign="left"
+            style={{ flex: 1, textAlign: "left" }}
           >
             {title}
           </Text>
-        </XStack>
+        </View>
 
         <Button
           icon={<Settings size={22} />}
-          chromeless
+          uiVariant="ghost"
           circular
           onPress={onOpenSettings}
         />
-      </XStack>
-
-      {/* <Progress 
-        value={progress} 
-        size="$1" 
-        borderRadius={0} 
-        backgroundColor="$color4"
-        height={4}
-      >
-        <Progress.Indicator 
-          backgroundColor="$primary" 
-        />
-      </Progress> */}
-    </YStack>
+      </View>
+    </View>
   );
 };

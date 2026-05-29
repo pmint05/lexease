@@ -1,7 +1,8 @@
+import { Text } from "@/src/components/ui/text";
 import { LearningSession } from "@/src/core/types/learning";
 import { ChevronRight } from "lucide-react-native";
 import React from "react";
-import { ListItem, Text, View, XStack, YStack } from "tamagui";
+import { Pressable, View } from "react-native";
 
 type Props = {
   sessions: LearningSession[];
@@ -15,9 +16,7 @@ export default function RecentActivityList({
   if (sessions.length === 0) {
     return (
       <View style={{ marginTop: 8 }}>
-        <Text style={{ fontSize: 14, fontWeight: "700", marginBottom: 8 }}>
-          Hoạt động gần đây
-        </Text>
+        <Text className="font-semibold mb-2">Hoạt động gần đây</Text>
         <View
           style={{
             backgroundColor: "#fff",
@@ -27,7 +26,7 @@ export default function RecentActivityList({
             borderColor: "#F2F2F2",
           }}
         >
-          <Text style={{ fontSize: 13, color: "#777" }}>
+          <Text className="text-sm text-muted-foreground">
             Chưa có hoạt động gần đây để hiển thị.
           </Text>
         </View>
@@ -37,39 +36,27 @@ export default function RecentActivityList({
 
   return (
     <View style={{ marginTop: 12 }}>
-      <Text fontSize={16} fontWeight="700" marginBottom={8}>
-        Hoạt động gần đây
-      </Text>
+      <Text className="font-semibold mb-2">Hoạt động gần đây</Text>
 
-      <YStack gap="$2">
+      <View className="flex-col gap-2">
         {sessions.map((item) => (
-          <ListItem
-            key={item.id}
-            onPress={() => onPressSession?.(item)}
-            backgroundColor="$background"
-            borderWidth={1}
-            borderColor="$borderColor"
-            borderRadius="$4"
-            padding="$3"
-          >
-            <XStack flex={1} alignItems="center" justifyContent="space-between">
-              <YStack flex={1} gap="$1">
-                <Text fontSize={15} fontWeight="700">
-                  {item.bookTitle}
-                </Text>
-                <Text fontSize={12} color="$gray10">
+          <Pressable key={item.id} onPress={() => onPressSession?.(item)}>
+            <View className="bg-background border border-border rounded-md p-3 flex-row items-center justify-between">
+              <View style={{ flex: 1 }} className="gap-1">
+                <Text className="font-semibold">{item.bookTitle}</Text>
+                <Text className="text-sm text-muted-foreground">
                   {new Date(item.completedAt).toLocaleString()}
                 </Text>
-                <Text fontSize={12} color="$gray10">
+                <Text className="text-sm text-muted-foreground">
                   {Math.round(item.durationMs / 60000)} phút • {item.wordsRead}{" "}
                   từ
                 </Text>
-              </YStack>
+              </View>
               <ChevronRight size={16} color="#8A8A8A" />
-            </XStack>
-          </ListItem>
+            </View>
+          </Pressable>
         ))}
-      </YStack>
+      </View>
     </View>
   );
 }

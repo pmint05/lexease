@@ -1,6 +1,6 @@
+import { COLORS } from "@/src/core/constants/colors";
 import React, { useMemo } from "react";
 import { View, useWindowDimensions } from "react-native";
-import { useTheme } from "tamagui";
 
 interface AudioWaveformProps {
   meteringData: number[];
@@ -13,13 +13,12 @@ export const AudioWaveform = ({
   progress,
   height,
 }: AudioWaveformProps): React.ReactElement => {
-  const theme = useTheme();
   const { width: windowWidth } = useWindowDimensions();
 
   const canvasWidth = Math.min(windowWidth - 80, 380);
 
-  const primaryColor = theme.primary?.val || "#0066CC";
-  const mutedColor = theme.color5?.val || "#E0E0E0";
+  const primaryColor = COLORS.primary || "#0066CC";
+  const mutedColor = COLORS.muted || "#E0E0E0";
 
   const bars = useMemo(() => {
     if (!meteringData || meteringData.length === 0) return null;

@@ -1,7 +1,9 @@
+import { Card } from "@/src/components/ui/card";
+import { Text } from "@/src/components/ui/text";
 import { Book } from "@/src/core/types";
 import { Play } from "lucide-react-native";
 import React from "react";
-import { Card, Image, Text, XStack, YStack } from "tamagui";
+import { Image, Pressable, View } from "react-native";
 import { Button } from "../shared/Button";
 
 interface BookCarouselCardProps {
@@ -16,60 +18,34 @@ export const BookCarouselCard = ({
   onRead,
 }: BookCarouselCardProps): React.ReactElement => {
   return (
-    <Card
-      width={280}
-      height={180}
-      borderRadius="$6"
-      overflow="hidden"
-      borderColor="$border"
-      backgroundColor="$brandSurface"
-      onPress={() => onPress(book.id)}
-      marginRight="$4"
-    >
-      <XStack flex={1}>
-        <Image
-          src={book.coverUrl}
-          width={120}
-          height="100%"
-          borderRadius="$6"
-          backgroundColor="$color4"
-        />
-        <YStack flex={1} padding="$3" justifyContent="space-between">
-          <YStack gap="$1">
-            <Text
-              fontSize="$2"
-              color="$primary"
-              fontWeight="700"
-              textTransform="uppercase"
-              letterSpacing={1}
-            >
-              {book.category}
-            </Text>
-            <Text
-              fontFamily="$body"
-              fontSize="$4"
-              fontWeight="800"
-              numberOfLines={2}
-              color="$foreground"
-              lineHeight={20}
-            >
-              {book.title}
-            </Text>
-            <Text fontSize="$2" color="$mutedForeground" numberOfLines={1}>
-              {book.author}
-            </Text>
-          </YStack>
-
-          <Button
-            size="$3"
-            icon={<Play size={16} fill="white" />}
-            onPress={() => onRead(book.id)}
-            borderRadius="$4"
+    <Pressable onPress={() => onPress(book.id)}>
+      <Card className="w-[280px] h-[180px] overflow-hidden mr-4">
+        <View style={{ flex: 1 }} className="flex-row">
+          <Image
+            source={{ uri: book.coverUrl }}
+            style={{ width: 120, height: "100%", borderRadius: 12 }}
+          />
+          <View
+            style={{ flex: 1, padding: 12, justifyContent: "space-between" }}
           >
-            Đọc tiếp
-          </Button>
-        </YStack>
-      </XStack>
-    </Card>
+            <View>
+              <Text className="text-sm font-semibold uppercase tracking-wider">
+                {book.category}
+              </Text>
+              <Text className="font-extrabold text-lg" numberOfLines={2}>
+                {book.title}
+              </Text>
+              <Text className="text-muted-foreground text-sm" numberOfLines={1}>
+                {book.author}
+              </Text>
+            </View>
+
+            <Button onPress={() => onRead(book.id)} icon={<Play size={16} />}>
+              Đọc tiếp
+            </Button>
+          </View>
+        </View>
+      </Card>
+    </Pressable>
   );
 };

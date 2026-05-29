@@ -1,7 +1,8 @@
+import { Text } from "@/src/components/ui/text";
 import { useAuthStore } from "@/src/store/useAuthStore";
 import { Redirect } from "expo-router";
 import React from "react";
-import { Text, YStack } from "tamagui";
+import { View } from "react-native";
 
 /**
  * Entry Point Screen
@@ -13,14 +14,9 @@ export default function IndexScreen(): React.ReactElement {
   // Wait for hydration before making any redirection decisions
   if (!_hasHydrated) {
     return (
-      <YStack
-        flex={1}
-        justifyContent="center"
-        alignItems="center"
-        backgroundColor="$background"
-      >
+      <View className="flex-1 justify-center items-center bg-background">
         <Text>LexEase initializing...</Text>
-      </YStack>
+      </View>
     );
   }
 

@@ -1,6 +1,7 @@
+import { Text } from "@/src/components/ui/text";
 import { Mic, Pause, Play, SkipBack } from "lucide-react-native";
 import React from "react";
-import { Text, XStack, YStack } from "tamagui";
+import { View } from "react-native";
 import { Button } from "../shared/Button";
 
 interface ReadingControlsProps {
@@ -27,12 +28,12 @@ export const ReadingControls = ({
   onSpeedSelect,
 }: ReadingControlsProps): React.ReactElement => {
   return (
-    <YStack gap="$3">
-      <XStack gap="$2" flexWrap="wrap" justifyContent="center">
+    <View className="gap-3">
+      <View className="flex-row flex-wrap justify-center gap-2">
         <Button
-          size="$5"
+          size="large"
           onPress={onReset}
-          icon={<SkipBack color="$foreground" size={20} />}
+          icon={<SkipBack color="#000" size={20} />}
           accessible
           accessibilityRole="button"
           accessibilityLabel="Quay về đầu bài"
@@ -41,13 +42,13 @@ export const ReadingControls = ({
         </Button>
 
         <Button
-          size="$5"
+          size="large"
           onPress={isPlaying ? onPause : onPlay}
           icon={
             isPlaying ? (
-              <Pause color="$accentForeground" size={20} />
+              <Pause color="#000" size={20} />
             ) : (
-              <Play color="$accentForeground" size={20} />
+              <Play color="#000" size={20} />
             )
           }
           uiVariant="success"
@@ -59,16 +60,9 @@ export const ReadingControls = ({
         </Button>
 
         <Button
-          size="$5"
+          size="large"
           onPress={onRecord}
-          icon={
-            <Mic
-              color={
-                isRecording ? "$destructiveForeground" : "$secondaryForeground"
-              }
-              size={20}
-            />
-          }
+          icon={<Mic color={isRecording ? "#D32F2F" : "#FFC107"} size={20} />}
           uiVariant={isRecording ? "danger" : "warning"}
           accessible
           accessibilityRole="button"
@@ -76,35 +70,37 @@ export const ReadingControls = ({
         >
           {isRecording ? "Dừng" : "Ghi"}
         </Button>
-      </XStack>
+      </View>
 
-      <YStack gap="$2" alignItems="center">
-        <Text fontSize="$3" color="$mutedForeground">
-          Tốc độ đọc
-        </Text>
-        <XStack gap="$2" flexWrap="wrap" justifyContent="center">
+      <View className="items-center gap-2">
+        <Text className="text-base text-muted-foreground">Tốc độ đọc</Text>
+        <View className="flex-row flex-wrap justify-center gap-2">
           {SPEED_OPTIONS.map((option) => (
             <Button
               key={option}
-              size="$3"
+              size="sm"
               onPress={() => onSpeedSelect(option)}
-              backgroundColor={speed === option ? "$primary" : "$background"}
-              borderWidth={1}
-              borderColor={speed === option ? "$primary" : "$border"}
+              className={
+                option === speed
+                  ? "border border-primary"
+                  : "border border-border"
+              }
               accessible
               accessibilityRole="button"
               accessibilityLabel={`Đặt tốc độ ${option}`}
               accessibilityState={{ selected: speed === option }}
             >
               <Text
-                color={speed === option ? "$primaryForeground" : "$foreground"}
+                className={
+                  option === speed ? "text-primary" : "text-foreground"
+                }
               >
                 {option}x
               </Text>
             </Button>
           ))}
-        </XStack>
-      </YStack>
-    </YStack>
+        </View>
+      </View>
+    </View>
   );
 };

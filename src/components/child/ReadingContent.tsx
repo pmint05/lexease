@@ -1,9 +1,9 @@
+import { Text } from "@/src/components/ui/text";
 import { FONT_MAP } from "@/src/core/constants/fonts";
 import { useReadingStore } from "@/src/store/useReadingStore";
 import type { ReadingTextToken } from "@/src/utils/textProcessing";
 import React, { useEffect, useRef } from "react";
-import { ScrollView } from "react-native";
-import { Text, XStack, YStack } from "tamagui";
+import { Pressable, ScrollView, View } from "react-native";
 
 interface ReadingContentProps {
   tokens: ReadingTextToken[];
@@ -56,14 +56,14 @@ export const ReadingContent = ({
   return (
     <ScrollView
       ref={scrollRef}
-      // flex={1}
-      // paddingHorizontal="$4"
       showsVerticalScrollIndicator={false}
       onScrollBeginDrag={handleScrollBeginDrag}
       scrollEventThrottle={16}
-      contentContainerStyle={{ paddingBottom: 100 }} // Extra space for centering
+      contentContainerStyle={{ paddingBottom: 100, paddingHorizontal: 16 }}
     >
-      <XStack flexWrap="wrap" alignItems="center" padding="$4">
+      <View
+        style={{ flexDirection: "row", flexWrap: "wrap", alignItems: "center" }}
+      >
         {tokens.map((token, idx) => {
           const wordIndex = token.wordIndex;
           const isHighlighted = wordIndex === currentIndex;
@@ -72,14 +72,16 @@ export const ReadingContent = ({
             return (
               <Text
                 key={`${token.text}-${idx}`}
-                fontFamily={`$${tamaguiFontKey}`}
-                fontSize={fontSize}
-                fontWeight="400"
-                color={textColor}
-                letterSpacing={letterSpacing}
-                lineHeight={fontSize * lineHeight}
-                marginRight={token.spaceAfter ? "$1.5" : 0}
-                opacity={0.3}
+                style={{
+                  fontFamily: tamaguiFontKey,
+                  fontSize,
+                  fontWeight: "400",
+                  color: textColor,
+                  letterSpacing,
+                  lineHeight: fontSize * lineHeight,
+                  opacity: 0.3,
+                  marginRight: token.spaceAfter ? 6 : 0,
+                }}
               >
                 {token.text}
               </Text>
@@ -87,34 +89,37 @@ export const ReadingContent = ({
           }
 
           return (
-            <YStack
+            <Pressable
               key={`${token.text}-${idx}`}
               onLayout={(event) => {
                 wordLayouts.current[wordIndex] = event.nativeEvent.layout.y;
               }}
-              paddingHorizontal="$1.5"
-              paddingVertical="$1"
-              borderRadius="$3"
-              backgroundColor={isHighlighted ? highlightColor : "transparent"}
-              opacity={isHighlighted ? 1 : 0.3} // Spotlight metaphor: fade out others
               onPress={() => onWordPress(wordIndex)}
-              pressStyle={{ scale: 0.95 }}
-              marginRight={token.spaceAfter ? "$1.5" : 0}
+              style={{
+                paddingHorizontal: 6,
+                paddingVertical: 4,
+                borderRadius: 8,
+                backgroundColor: isHighlighted ? highlightColor : "transparent",
+                opacity: isHighlighted ? 1 : 0.3,
+                marginRight: token.spaceAfter ? 6 : 0,
+              }}
             >
               <Text
-                fontFamily={`$${tamaguiFontKey}`}
-                fontSize={fontSize}
-                fontWeight={isHighlighted ? "700" : "400"}
-                color={textColor}
-                letterSpacing={letterSpacing}
-                lineHeight={fontSize * lineHeight}
+                style={{
+                  fontFamily: tamaguiFontKey,
+                  fontSize,
+                  fontWeight: isHighlighted ? "700" : "400",
+                  color: textColor,
+                  letterSpacing,
+                  lineHeight: fontSize * lineHeight,
+                }}
               >
                 {token.text}
               </Text>
-            </YStack>
+            </Pressable>
           );
         })}
-      </XStack>
+      </View>
     </ScrollView>
   );
 };

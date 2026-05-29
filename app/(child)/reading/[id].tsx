@@ -1,8 +1,7 @@
 import { useFocusEffect } from "@react-navigation/native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Alert, BackHandler } from "react-native";
-import { YStack } from "tamagui";
+import { Alert, BackHandler, View } from "react-native";
 
 import { ReadingBottomBar } from "@/src/components/child/ReadingBottomBar";
 import { ReadingContent } from "@/src/components/child/ReadingContent";
@@ -10,21 +9,21 @@ import { ReadingHeader } from "@/src/components/child/ReadingHeader";
 import { ReadingSettingsModal } from "@/src/components/child/ReadingSettingsModal";
 
 import { BackendReadingSession } from "@/src/core/types";
+import { useAudioRecording } from "@/src/hooks/useAudioRecording";
 import { useDisplaySettingsQuery } from "@/src/hooks/useDisplaySettingsQueries";
 import {
-  useCompleteReadingSessionMutation,
-  useStartReadingSessionMutation,
-  useUpdateReadingProgressMutation,
+    useCompleteReadingSessionMutation,
+    useStartReadingSessionMutation,
+    useUpdateReadingProgressMutation,
 } from "@/src/hooks/useReadingSessionQueries";
-import { useAudioRecording } from "@/src/hooks/useAudioRecording";
 import { useTextToSpeech } from "@/src/hooks/useTextToSpeech";
 import { useAuthStore } from "@/src/store/useAuthStore";
 import { useLearningStore } from "@/src/store/useLearningStore";
 import { useReadingStore } from "@/src/store/useReadingStore";
 import { useRecordingStore } from "@/src/store/useRecordingStore";
 import {
-  buildReadingTextTokens,
-  tokenizeText,
+    buildReadingTextTokens,
+    tokenizeText,
 } from "@/src/utils/textProcessing";
 
 /**
@@ -328,11 +327,14 @@ export default function ReadingScreen(): React.ReactElement {
     lastProgressSyncRef.current = 0;
     sessionStartRef.current = 0;
 
-    startReadingSessionRef.current({
-      storyId: id,
-      voice: "Binh",
-      mode: shouldStartFromBeginning ? "START_FROM_BEGINNING" : "RESUME_OR_START",
-    })
+    startReadingSessionRef
+      .current({
+        storyId: id,
+        voice: "Binh",
+        mode: shouldStartFromBeginning
+          ? "START_FROM_BEGINNING"
+          : "RESUME_OR_START",
+      })
       .then((session) => {
         if (isCancelled) return;
         const resumeIndex = shouldStartFromBeginning
@@ -398,19 +400,19 @@ export default function ReadingScreen(): React.ReactElement {
 
   if (!book) {
     return (
-      <YStack flex={1} justifyContent="center" alignItems="center">
+      <View className="flex-1 justify-center items-center">
         <ReadingHeader
           title="Đang tải bài đọc"
           progress={0}
           onBack={() => router.replace("/(child)/(tabs)/library")}
           onOpenSettings={() => setIsSettingsOpen(true)}
         />
-      </YStack>
+      </View>
     );
   }
 
   return (
-    <YStack flex={1} backgroundColor={backgroundColor}>
+    <View style={{ flex: 1 }} className="bg-background">
       <ReadingHeader
         title={book.title}
         progress={readingProgress}
@@ -454,6 +456,6 @@ export default function ReadingScreen(): React.ReactElement {
           onOpenChange={setIsSettingsOpen}
         />
       )}
-    </YStack>
+    </View>
   );
 }

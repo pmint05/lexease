@@ -1,15 +1,18 @@
+import { Button } from "@/src/components/shared/Button";
+import { Card } from "@/src/components/ui/card";
+import { Text } from "@/src/components/ui/text";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useMemo } from "react";
-import { Button, Card, ScrollView, Text, XStack, YStack } from "tamagui";
+import { ScrollView, View } from "react-native";
 
 import { RecordingTile } from "@/src/components/child/RecordingTile";
 import { storyDetailToBook } from "@/src/core/types";
 import { useAudioRecording } from "@/src/hooks/useAudioRecording";
 import { useGuardianChildLinksQuery } from "@/src/hooks/useFamilyQueries";
 import {
-  useBlockStoryMutation,
-  useStoryQuery,
-  useUnblockStoryMutation,
+    useBlockStoryMutation,
+    useStoryQuery,
+    useUnblockStoryMutation,
 } from "@/src/hooks/useStoryQueries";
 import { useAuthStore } from "@/src/store/useAuthStore";
 import { useFamilyStore } from "@/src/store/useFamilyStore";
@@ -76,35 +79,24 @@ export default function GuardianBookDetailScreen(): React.ReactElement {
 
   if (storyQuery.isLoading) {
     return (
-      <YStack flex={1} justifyContent="center" alignItems="center" padding="$4">
-        <Text color="$muted">Đang tải sách...</Text>
-      </YStack>
+      <View className="flex-1 justify-center items-center p-4">
+        <Text className="text-muted">Đang tải sách...</Text>
+      </View>
     );
   }
 
   if (!book) {
     return (
-      <YStack flex={1} justifyContent="center" alignItems="center" padding="$4">
-        <Text color="$muted">Không tìm thấy sách.</Text>
-      </YStack>
+      <View className="flex-1 justify-center items-center p-4">
+        <Text className="text-muted">Không tìm thấy sách.</Text>
+      </View>
     );
   }
 
   return (
-    <YStack
-      flex={1}
-      backgroundColor="$background"
-      paddingHorizontal="$4"
-      gap="$4"
-    >
-      <XStack
-        justifyContent="space-between"
-        alignItems="center"
-        paddingTop="$4"
-      >
-        <Text fontSize="$6" fontWeight="700">
-          Chi tiết sách của bé
-        </Text>
+    <View className="flex-1 bg-background px-4 gap-4">
+      <View className="flex-row justify-between items-center pt-4">
+        <Text className="text-2xl font-bold">Chi tiết sách của bé</Text>
         <Button
           size="$3"
           onPress={() => router.back()}
@@ -112,21 +104,19 @@ export default function GuardianBookDetailScreen(): React.ReactElement {
         >
           Quay lại
         </Button>
-      </XStack>
+      </View>
 
-      <Card padding="$4" borderWidth={1} borderColor="$color5">
-        <YStack gap="$2">
-          <Text fontSize="$6" fontWeight="700">
-            {book.title}
-          </Text>
-          <Text color="$color10">{book.author}</Text>
-          <Text color="$color10">
+      <Card className="p-4 border border-color5">
+        <View className="gap-2">
+          <Text className="text-xl font-bold">{book.title}</Text>
+          <Text className="text-muted">{book.author}</Text>
+          <Text className="text-muted">
             Bé đang xem: {selectedChild?.childName ?? "Chưa chọn bé"}
           </Text>
-          <Text color="$color10">
+          <Text className="text-muted">
             {bookSessions.length} lần học · {bookRecordings.length} bản ghi
           </Text>
-          <XStack gap="$2" marginTop="$2">
+          <View className="flex-row gap-2 mt-2">
             <Button
               size="$3"
               disabled={!selectedChildId || blockStoryMutation.isPending}
@@ -155,45 +145,39 @@ export default function GuardianBookDetailScreen(): React.ReactElement {
             >
               Bỏ chặn
             </Button>
-          </XStack>
-        </YStack>
+          </View>
+        </View>
       </Card>
 
       <ScrollView showsVerticalScrollIndicator={false}>
-        <YStack gap="$4">
-          <Card padding="$4" borderWidth={1} borderColor="$color5">
-            <YStack gap="$3">
-              <Text fontSize="$5" fontWeight="700">
-                Các lần đọc
-              </Text>
+        <View className="gap-4">
+          <Card className="p-4 border border-color5">
+            <View className="gap-3">
+              <Text className="text-lg font-bold">Các lần đọc</Text>
               {bookSessions.length > 0 ? (
                 bookSessions.map((session) => (
-                  <YStack
+                  <View
                     key={session.id}
-                    paddingVertical="$2"
-                    borderBottomWidth={1}
-                    borderBottomColor="$color4"
+                    className="py-2 border-b border-color4"
                   >
-                    <Text fontWeight="700">
+                    <Text className="font-bold">
                       {new Date(session.startedAt).toLocaleString("vi-VN")}
                     </Text>
-                    <Text color="$color10">
+                    <Text className="text-muted">
                       {Math.round(session.durationMs / 60000)} phút ·{" "}
                       {session.wordsRead} từ · {session.speed}x
                     </Text>
-                  </YStack>
+                  </View>
                 ))
               ) : (
-                <Text color="$color10">Chưa có lần đọc nào.</Text>
+                <Text className="text-muted">Chưa có lần đọc nào.</Text>
               )}
-            </YStack>
+            </View>
           </Card>
 
-          <Card padding="$4" borderWidth={1} borderColor="$color5">
-            <YStack gap="$3">
-              <Text fontSize="$5" fontWeight="700">
-                Bản ghi âm ví dụ
-              </Text>
+          <Card className="p-4 border border-color5">
+            <View className="gap-3">
+              <Text className="text-lg font-bold">Bản ghi âm ví dụ</Text>
               {bookRecordings.length > 0 ? (
                 bookRecordings.map((recording) => (
                   <RecordingTile
@@ -206,12 +190,12 @@ export default function GuardianBookDetailScreen(): React.ReactElement {
                   />
                 ))
               ) : (
-                <Text color="$color10">Chưa có bản ghi âm nào.</Text>
+                <Text className="text-muted">Chưa có bản ghi âm nào.</Text>
               )}
-            </YStack>
+            </View>
           </Card>
-        </YStack>
+        </View>
       </ScrollView>
-    </YStack>
+    </View>
   );
 }

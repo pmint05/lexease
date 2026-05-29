@@ -1,8 +1,14 @@
 import React from "react";
 import { Control, Controller, FieldValues, Path } from "react-hook-form";
-import { Input, Text, YStack, InputProps } from "tamagui";
+import { View } from "react-native";
 
-interface FormFieldProps<T extends FieldValues> extends InputProps {
+import { Input } from "@/src/components/ui/input";
+import { Text } from "@/src/components/ui/text";
+
+interface FormFieldProps<T extends FieldValues> extends Omit<
+  React.ComponentProps<typeof Input>,
+  "value" | "onChangeText" | "onBlur"
+> {
   label: string;
   name: Path<T>;
   control: Control<T>;
@@ -25,43 +31,33 @@ export const FormField = <T extends FieldValues>({
   ...inputProps
 }: FormFieldProps<T>) => {
   return (
-    <YStack gap="$1.5" width="100%">
-      <Text fontSize="$3" fontWeight="bold" color="$color11" marginLeft="$1">
-        {label}
-      </Text>
+    <View className="w-full gap-1.5">
+      <Text className="ml-1 text-sm font-bold text-foreground">{label}</Text>
 
       <Controller
         control={control}
         name={name}
         render={({ field: { onChange, onBlur, value } }) => (
           <Input
-            size="$4"
             onBlur={onBlur}
             onChangeText={onChange}
             value={value}
             secureTextEntry={secureTextEntry}
-            borderColor={error ? "$red10" : "$color5"}
-            focusStyle={{
-              borderColor: error ? "$red10" : "$blue10",
-              borderWidth: 2,
-            }}
-            backgroundColor="$background"
+            className={error ? "border-destructive" : undefined}
             {...inputProps}
           />
         )}
       />
 
       {description && !error && (
-        <Text fontSize="$2" color="$color9" marginLeft="$1">
+        <Text className="ml-1 text-xs text-muted-foreground">
           {description}
         </Text>
       )}
 
       {error ? (
-        <Text fontSize="$2" color="$red10" marginLeft="$1">
-          {error}
-        </Text>
+        <Text className="ml-1 text-xs text-destructive">{error}</Text>
       ) : null}
-    </YStack>
+    </View>
   );
 };

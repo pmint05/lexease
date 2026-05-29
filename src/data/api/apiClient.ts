@@ -1,10 +1,10 @@
 import { useAuthStore } from "@/src/store/useAuthStore";
 import axios, {
-    AxiosError,
-    AxiosInstance,
-    AxiosResponse,
-    InternalAxiosRequestConfig,
-    isAxiosError,
+  AxiosError,
+  AxiosInstance,
+  AxiosResponse,
+  InternalAxiosRequestConfig,
+  isAxiosError,
 } from "axios";
 
 /**
@@ -18,7 +18,7 @@ import axios, {
 
 // Configuration
 const API_BASE_URL =
-  process.env.EXPO_PUBLIC_API_URL || "http://localhost:8080";
+  process.env.EXPO_PUBLIC_API_URL || "http://localhost:8080/api";
 const API_TIMEOUT = 10000; // 10 seconds
 
 interface RetryableRequestConfig extends InternalAxiosRequestConfig {
@@ -116,7 +116,11 @@ apiClient.interceptors.response.use(
   async (error: AxiosError) => {
     const originalRequest = error.config as RetryableRequestConfig | undefined;
 
-    if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
+    if (
+      error.response?.status === 401 &&
+      originalRequest &&
+      !originalRequest._retry
+    ) {
       originalRequest._retry = true;
       const { refreshToken, setAuth, logout } = useAuthStore.getState();
 
@@ -126,14 +130,15 @@ apiClient.interceptors.response.use(
       }
 
       try {
-        const refreshResponse: AxiosResponse<RefreshResponse> = await axios.post(
-          `${API_BASE_URL}/auth/refresh`,
-          { refreshToken },
-          {
-            timeout: API_TIMEOUT,
-            headers: { "Content-Type": "application/json" },
-          },
-        );
+        const refreshResponse: AxiosResponse<RefreshResponse> =
+          await axios.post(
+            `${API_BASE_URL}/auth/refresh`,
+            { refreshToken },
+            {
+              timeout: API_TIMEOUT,
+              headers: { "Content-Type": "application/json" },
+            },
+          );
         const frontendRole = toFrontendRole(refreshResponse.data.user.role);
 
         if (!frontendRole) {

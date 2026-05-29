@@ -1,13 +1,13 @@
 import { BookCarouselCard } from "@/src/components/child/BookCarouselCard";
 import { BookGridCard } from "@/src/components/child/BookGridCard";
 import { Button } from "@/src/components/shared/Button";
+import { Text } from "@/src/components/ui/text";
 import { storySummaryToBook } from "@/src/core/types";
 import { useGenresQuery, useStoriesQuery } from "@/src/hooks/useStoryQueries";
 import { useAuthStore } from "@/src/store/useAuthStore";
 import { useRouter } from "expo-router";
 import React, { useMemo, useState } from "react";
-import { ScrollView } from "react-native";
-import { H4, Text, XStack, YStack } from "tamagui";
+import { ScrollView, View } from "react-native";
 
 /**
  * Modern Library Screen for Child
@@ -49,30 +49,24 @@ export default function LibraryScreen(): React.ReactElement {
   };
 
   return (
-    <YStack flex={1} backgroundColor="$background">
+    <View className="flex-1 bg-background">
       <ScrollView showsVerticalScrollIndicator={false}>
-        <YStack gap="$6">
+        <View className="gap-6">
           {/* 1. Greeting Section */}
-          <YStack paddingHorizontal="$4" paddingTop="$6" gap="$1">
-            <Text fontSize="$4" color="$mutedForeground" fontWeight="500">
+          <View className="px-4 pt-6 gap-1">
+            <Text className="text-muted-foreground text-base font-medium">
               Chào mừng quay trở lại
             </Text>
-            <H4 fontWeight="800" color="$foreground">
+            <Text className="text-2xl font-extrabold">
               {user?.name || "Bé"} ơi, hôm nay đọc gì nhỉ?
-            </H4>
-          </YStack>
+            </Text>
+          </View>
 
           {/* 2. Carousel Section (Continue Reading / Newest) */}
-          <YStack gap="$3">
-            <XStack
-              paddingHorizontal="$4"
-              justifyContent="space-between"
-              alignItems="center"
-            >
-              <Text fontSize="$5" fontWeight="700">
-                Sách mới cho bé
-              </Text>
-            </XStack>
+          <View className="gap-3">
+            <View className="px-4 flex-row justify-between items-center">
+              <Text className="text-lg font-semibold">Sách mới cho bé</Text>
+            </View>
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
@@ -87,11 +81,11 @@ export default function LibraryScreen(): React.ReactElement {
                 />
               ))}
             </ScrollView>
-          </YStack>
+          </View>
 
           {/* 3. Category Filter Section */}
-          <YStack gap="$3">
-            <Text paddingHorizontal="$4" fontSize="$5" fontWeight="700">
+          <View className="gap-3">
+            <Text className="px-4 text-lg font-semibold">
               Khám phá theo thể loại
             </Text>
             <ScrollView
@@ -99,12 +93,11 @@ export default function LibraryScreen(): React.ReactElement {
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={{ paddingHorizontal: 16 }}
             >
-              <XStack gap="$2">
+              <View className="flex-row gap-2">
                 {categories.map((cat) => (
                   <Button
                     key={cat.id}
                     size="small"
-                    borderRadius="$10"
                     uiVariant={
                       selectedGenreId === cat.id ? "primary" : "outline"
                     }
@@ -113,14 +106,13 @@ export default function LibraryScreen(): React.ReactElement {
                     {cat.name}
                   </Button>
                 ))}
-              </XStack>
+              </View>
             </ScrollView>
-          </YStack>
+          </View>
 
           {/* 4. Main Grid Section */}
-          <YStack paddingHorizontal="$4" gap="$4">
-            {/* Grid display using flexWrap */}
-            <XStack flexWrap="wrap" justifyContent="space-between">
+          <View className="px-4 gap-4">
+            <View className="flex-row flex-wrap justify-between">
               {books.map((book) => (
                 <BookGridCard
                   key={book.id}
@@ -128,32 +120,36 @@ export default function LibraryScreen(): React.ReactElement {
                   onPress={handleBookPress}
                 />
               ))}
-            </XStack>
+            </View>
 
             {storiesQuery.isLoading && (
-              <YStack paddingVertical="$8" alignItems="center">
-                <Text color="$mutedForeground">Đang tải thư viện...</Text>
-              </YStack>
+              <View className="py-8 items-center">
+                <Text className="text-muted-foreground">
+                  Đang tải thư viện...
+                </Text>
+              </View>
             )}
 
             {storiesQuery.isError && (
-              <YStack paddingVertical="$8" alignItems="center">
-                <Text color="$mutedForeground">
+              <View className="py-8 items-center">
+                <Text className="text-muted-foreground">
                   Không thể tải thư viện từ máy chủ.
                 </Text>
-              </YStack>
+              </View>
             )}
 
-            {!storiesQuery.isLoading && !storiesQuery.isError && books.length === 0 && (
-              <YStack paddingVertical="$8" alignItems="center">
-                <Text color="$mutedForeground">
-                  Hiện chưa có sách trong thể loại này.
-                </Text>
-              </YStack>
-            )}
-          </YStack>
-        </YStack>
+            {!storiesQuery.isLoading &&
+              !storiesQuery.isError &&
+              books.length === 0 && (
+                <View className="py-8 items-center">
+                  <Text className="text-muted-foreground">
+                    Hiện chưa có sách trong thể loại này.
+                  </Text>
+                </View>
+              )}
+          </View>
+        </View>
       </ScrollView>
-    </YStack>
+    </View>
   );
 }

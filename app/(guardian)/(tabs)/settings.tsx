@@ -1,28 +1,24 @@
+import { Button } from "@/src/components/shared/Button";
+import { Card } from "@/src/components/ui/card";
+import { Input } from "@/src/components/ui/input";
+import { Label } from "@/src/components/ui/label";
+import { Switch } from "@/src/components/ui/switch";
+import { Text } from "@/src/components/ui/text";
 import {
-  useDisplaySettingsQuery,
-  useResetDisplaySettingsMutation,
-  useSaveDisplaySettingsMutation,
+    useDisplaySettingsQuery,
+    useResetDisplaySettingsMutation,
+    useSaveDisplaySettingsMutation,
 } from "@/src/hooks/useDisplaySettingsQueries";
 import {
-  useGuardianChildLinksQuery,
-  useRequestChildLinkMutation,
+    useGuardianChildLinksQuery,
+    useRequestChildLinkMutation,
 } from "@/src/hooks/useFamilyQueries";
 import { useAuthStore } from "@/src/store/useAuthStore";
 import { useFamilyStore } from "@/src/store/useFamilyStore";
 import { useReadingStore } from "@/src/store/useReadingStore";
 import { Palette, Settings, ShieldCheck } from "lucide-react-native";
 import React, { useMemo, useState } from "react";
-import {
-    Button,
-    Card,
-    Input,
-    Label,
-    ScrollView,
-    Switch,
-    Text,
-    XStack,
-    YStack,
-} from "tamagui";
+import { ScrollView, View } from "react-native";
 
 /**
  * Settings Screen
@@ -34,8 +30,14 @@ export default function SettingsScreen(): React.ReactElement {
   const selectedChildId = useFamilyStore((state) =>
     guardianId ? state.getSelectedChildId(guardianId) : null,
   );
-  const { fontSize, fontFamily, backgroundColor, textColor, lineHeight, letterSpacing } =
-    useReadingStore();
+  const {
+    fontSize,
+    fontFamily,
+    backgroundColor,
+    textColor,
+    lineHeight,
+    letterSpacing,
+  } = useReadingStore();
   const [childEmail, setChildEmail] = useState("");
   const linksQuery = useGuardianChildLinksQuery();
   const requestLinkMutation = useRequestChildLinkMutation();
@@ -77,27 +79,20 @@ export default function SettingsScreen(): React.ReactElement {
   };
 
   return (
-    <ScrollView backgroundColor="$background">
-      <YStack paddingHorizontal="$4" gap="$4">
-        <XStack gap="$2" alignItems="center" marginBottom="$2" paddingTop="$4">
-          <Settings size={24} color="$primary" />
-          <Text fontSize="$6" fontWeight="700">
-            Cài đặt hệ thống
-          </Text>
-        </XStack>
+    <ScrollView>
+      <View className="bg-background px-4">
+        <View className="flex-row items-center gap-2 mb-2 pt-4">
+          <Settings size={24} color="#0066CC" />
+          <Text className="text-2xl font-bold">Cài đặt hệ thống</Text>
+        </View>
 
-        <YStack gap="$4">
-          <Card
-            padding="$4"
-            borderWidth={1}
-            borderColor="$border"
-            backgroundColor="$background"
-          >
-            <YStack gap="$3">
-              <Text fontWeight="600">Liên kết tài khoản bé</Text>
-              <XStack gap="$2" alignItems="center">
+        <View className="gap-4">
+          <Card className="p-4 border border-border bg-background">
+            <View className="gap-3">
+              <Text className="font-semibold">Liên kết tài khoản bé</Text>
+              <View className="flex-row gap-2 items-center">
                 <Input
-                  flex={1}
+                  className="flex-1"
                   value={childEmail}
                   onChangeText={setChildEmail}
                   placeholder="email-cua-be@example.com"
@@ -110,43 +105,36 @@ export default function SettingsScreen(): React.ReactElement {
                 >
                   Gửi
                 </Button>
-              </XStack>
-              <Text fontSize="$3" color="$mutedForeground">
+              </View>
+              <Text className="text-sm text-muted">
                 {requestLinkMutation.isSuccess
                   ? "Đã gửi yêu cầu liên kết."
                   : "Bé hoặc phụ huynh đã được chấp nhận cần duyệt yêu cầu này."}
               </Text>
-            </YStack>
+            </View>
           </Card>
 
-          <Text fontWeight="700" fontSize="$5" color="$mutedForeground">
+          <Text className="font-bold text-lg text-muted">
             Cấu hình phiên đọc cho con
           </Text>
 
-          <Card
-            padding="$4"
-            borderWidth={1}
-            borderColor="$border"
-            backgroundColor="$background"
-          >
-            <YStack gap="$4">
-              <XStack justifyContent="space-between" alignItems="center">
-                <XStack gap="$2" alignItems="center">
-                  <Palette size={20} color="$primary" />
-                  <Text fontWeight="600">Giao diện đọc</Text>
-                </XStack>
-                <Text color="$primary" fontWeight="700">
-                  Tùy chỉnh
-                </Text>
-              </XStack>
+          <Card className="p-4 border border-border bg-background">
+            <View className="gap-4">
+              <View className="flex-row justify-between items-center">
+                <View className="flex-row gap-2 items-center">
+                  <Palette size={20} color="#0066CC" />
+                  <Text className="font-semibold">Giao diện đọc</Text>
+                </View>
+                <Text className="text-primary font-bold">Tùy chỉnh</Text>
+              </View>
 
-              <YStack gap="$2">
-                <Text fontSize="$3" color="$mutedForeground">
+              <View className="gap-2">
+                <Text className="text-sm text-muted">
                   Điều chỉnh màu nền, cỡ chữ và font chữ để phù hợp với thị giác
                   của trẻ. Các thay đổi sẽ được áp dụng tự động xuống máy của
                   trẻ.
                 </Text>
-                <XStack gap="$2" marginTop="$2">
+                <View className="flex-row gap-2 mt-2">
                   <Button
                     size="$3"
                     disabled={!targetChildId || resetSettingsMutation.isPending}
@@ -162,50 +150,41 @@ export default function SettingsScreen(): React.ReactElement {
                   >
                     Lưu hiện tại
                   </Button>
-                </XStack>
-              </YStack>
-            </YStack>
+                </View>
+              </View>
+            </View>
           </Card>
 
-          <Card
-            padding="$4"
-            borderWidth={1}
-            borderColor="$border"
-            backgroundColor="$background"
-          >
-            <YStack gap="$4">
-              <XStack justifyContent="space-between" alignItems="center">
-                <XStack gap="$2" alignItems="center">
-                  <ShieldCheck size={20} color="$accent" />
-                  <Text fontWeight="600">Quyền riêng tư & Bảo mật</Text>
-                </XStack>
-              </XStack>
+          <Card className="p-4 border border-border bg-background">
+            <View className="gap-4">
+              <View className="flex-row justify-between items-center">
+                <View className="flex-row gap-2 items-center">
+                  <ShieldCheck size={20} color="#00A676" />
+                  <Text className="font-semibold">
+                    Quyền riêng tư & Bảo mật
+                  </Text>
+                </View>
+              </View>
 
-              <XStack justifyContent="space-between" alignItems="center">
-                <Label flex={1} fontSize="$4">
-                  Ghi âm tự động
-                </Label>
-                <Switch defaultChecked size="$3">
-                  <Switch.Thumb />
-                </Switch>
-              </XStack>
+              <View className="flex-row justify-between items-center">
+                <Label className="flex-1 text-base">Ghi âm tự động</Label>
+                <Switch checked={true} onCheckedChange={() => {}} />
+              </View>
 
-              <XStack justifyContent="space-between" alignItems="center">
-                <Label flex={1} fontSize="$4">
+              <View className="flex-row justify-between items-center">
+                <Label className="flex-1 text-base">
                   Báo cáo hàng tuần qua Email
                 </Label>
-                <Switch size="$3">
-                  <Switch.Thumb />
-                </Switch>
-              </XStack>
-            </YStack>
+                <Switch checked={false} onCheckedChange={() => {}} />
+              </View>
+            </View>
           </Card>
-        </YStack>
 
-        <Button variant="outlined" marginTop="$4">
-          Xóa toàn bộ lịch sử đọc
-        </Button>
-      </YStack>
+          <Button variant="outlined" className="mt-4">
+            Xóa toàn bộ lịch sử đọc
+          </Button>
+        </View>
+      </View>
     </ScrollView>
   );
 }

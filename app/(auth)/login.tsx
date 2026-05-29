@@ -1,15 +1,14 @@
-// import { Button } from "@/src/components/shared/Button";
-// import { Button } from "@/src/components/shared/Button";
+import { Button } from "@/src/components/shared/Button";
 import { FormField } from "@/src/components/shared/FormField";
-import { Button } from "@/src/components/ui/button";
+import { Card } from "@/src/components/ui/card";
+import { Text } from "@/src/components/ui/text";
 import { LoginInput, LoginSchema } from "@/src/core/schemas/auth";
 import { useLoginMutation } from "@/src/hooks/useAuthQueries";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "expo-router";
 import React from "react";
 import { useForm } from "react-hook-form";
-import { KeyboardAvoidingView, Platform, ScrollView } from "react-native";
-import { Card, H1, Text, XStack, YStack } from "tamagui";
+import { KeyboardAvoidingView, Platform, ScrollView, View } from "react-native";
 
 /**
  * Login Screen
@@ -46,56 +45,33 @@ export default function LoginScreen() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={{ flex: 1 }}
     >
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }} bounces={false}>
-        <YStack flex={1} justifyContent="space-between">
-          {/* Top Section: Branding / Illustration */}
-          <YStack
-            flex={1}
-            justifyContent="center"
-            alignItems="center"
-            padding="$6"
-          >
-            <H1
-              fontSize="$12"
-              fontWeight="bold"
-              color="$primary"
-              fontFamily="$lexend"
-              textAlign="center"
-            >
+      <ScrollView
+        contentContainerStyle={{ flexGrow: 1 }}
+        bounces={false}
+        className="bg-background"
+      >
+        <View className="flex-1 justify-between">
+          <View className="flex-1 items-center justify-center px-6">
+            <Text variant="h1" className="text-primary text-center">
               LexEase
-            </H1>
-            <Text
-              fontSize="$5"
-              color="$color10"
-              textAlign="center"
-              marginTop="$2"
-              fontFamily="$lexend"
-            >
+            </Text>
+            <Text className="mt-2 text-center text-lg text-muted-foreground">
               Hỗ trợ bé đọc sách mỗi ngày
             </Text>
-          </YStack>
+          </View>
 
-          {/* Bottom Section: Form Card */}
-          <Card
-            padding="$6"
-            borderTopLeftRadius="$12"
-            borderTopRightRadius="$12"
-            borderBottomLeftRadius={0}
-            borderBottomRightRadius={0}
-            backgroundColor="$surface"
-            elevation="$2"
-          >
-            <YStack gap="$5">
-              <YStack gap="$1">
-                <Text fontSize="$8" fontWeight="bold" fontFamily="$lexend">
+          <Card className="rounded-t-3xl rounded-b-none border-b-0 px-6 py-6">
+            <View className="gap-5">
+              <View className="gap-1">
+                <Text className="text-3xl font-bold text-foreground">
                   Đăng nhập
                 </Text>
-                <Text color="$color10" fontFamily="$lexend">
+                <Text className="text-muted-foreground">
                   Chào mừng bạn quay trở lại
                 </Text>
-              </YStack>
+              </View>
 
-              <YStack gap="$4">
+              <View className="gap-4">
                 <FormField
                   label="Email"
                   name="email"
@@ -104,7 +80,6 @@ export default function LoginScreen() {
                   keyboardType="email-address"
                   autoCapitalize="none"
                   error={errors.email?.message}
-                  fontFamily="$lexend"
                 />
 
                 <FormField
@@ -114,55 +89,44 @@ export default function LoginScreen() {
                   placeholder="••••••••"
                   secureTextEntry
                   error={errors.password?.message}
-                  fontFamily="$lexend"
                 />
 
-                <XStack justifyContent="flex-end">
+                <View className="items-end">
                   <Text
-                    fontSize="$3"
-                    color="$primary"
-                    fontWeight="bold"
-                    fontFamily="$lexend"
+                    className="text-sm font-bold text-primary"
                     onPress={() => router.push("/(auth)/forgot-password")}
                   >
                     Quên mật khẩu?
                   </Text>
-                </XStack>
+                </View>
 
                 <Button
                   onPress={handleSubmit(onLogin)}
                   disabled={isPending}
-                  className="bg-primary"
-                  size={"lg"}
-                  variant="destructive"
+                  size="large"
+                  uiVariant="primary"
                 >
-                  <Text>{isPending ? "Đang xử lý..." : "Đăng nhập"}</Text>
+                  {isPending ? "Đang xử lý..." : "Đăng nhập"}
                 </Button>
                 {loginResult?.success === false && loginResult.error ? (
-                  <Text color="$red10" fontSize="$3" textAlign="center">
+                  <Text className="text-center text-sm text-destructive">
                     {loginResult.error}
                   </Text>
                 ) : null}
-              </YStack>
+              </View>
 
-              <Text
-                textAlign="center"
-                color="$color10"
-                fontFamily="$lexend"
-                marginTop="$2"
-              >
+              <Text className="mt-2 text-center text-sm text-muted-foreground">
                 Chưa có tài khoản?{" "}
                 <Text
-                  color="$primary"
-                  fontWeight="bold"
+                  className="font-bold text-primary"
                   onPress={() => router.push("/(auth)/register")}
                 >
                   Đăng ký ngay
                 </Text>
               </Text>
-            </YStack>
+            </View>
           </Card>
-        </YStack>
+        </View>
       </ScrollView>
     </KeyboardAvoidingView>
   );

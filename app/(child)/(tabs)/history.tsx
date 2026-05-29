@@ -1,8 +1,8 @@
+import { Text } from "@/src/components/ui/text";
 import * as FileSystem from "expo-file-system/legacy";
 import { Headphones } from "lucide-react-native";
 import React, { useMemo, useState } from "react";
-import { Alert, FlatList, Platform } from "react-native";
-import { Text, YStack } from "tamagui";
+import { Alert, FlatList, Platform, View } from "react-native";
 
 import { AudioPlaybackModal } from "@/src/components/child/AudioPlaybackModal";
 import { RecordingTile } from "@/src/components/child/RecordingTile";
@@ -124,12 +124,12 @@ export default function HistoryScreen(): React.ReactElement {
   };
 
   return (
-    <YStack flex={1} backgroundColor="$background" paddingHorizontal="$4">
+    <View className="flex-1 bg-background px-4">
       <FlatList
         data={sortedRecordings}
         keyExtractor={(item) => item.id}
         contentContainerStyle={{ paddingTop: 16, paddingBottom: 100 }}
-        ItemSeparatorComponent={() => <YStack height="$3" />}
+        ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
         renderItem={({ item }) => (
           <RecordingTile
             recording={item}
@@ -139,13 +139,13 @@ export default function HistoryScreen(): React.ReactElement {
           />
         )}
         ListEmptyComponent={
-          <YStack paddingVertical="$10" alignItems="center" gap="$2">
-            <Headphones size={48} color="$color5" />
-            <Text color="$mutedForeground" textAlign="center">
+          <View className="py-10 items-center gap-2">
+            <Headphones size={48} color="#9CA3AF" />
+            <Text className="text-muted-foreground text-center">
               Chưa có ghi âm nào. Hãy bắt đầu đọc sách để lưu giữ giọng đọc của
               bé nhé!
             </Text>
-          </YStack>
+          </View>
         }
         showsVerticalScrollIndicator={false}
       />
@@ -162,6 +162,6 @@ export default function HistoryScreen(): React.ReactElement {
           }
         />
       )}
-    </YStack>
+    </View>
   );
 }

@@ -1,8 +1,12 @@
+import { Button } from "@/src/components/ui/button";
+import { Text } from "@/src/components/ui/text";
 import { COLORS } from "@/src/core/constants/colors";
+import { THEME } from "@/src/lib/theme";
+import { useThemeStore } from "@/src/store/useThemeStore";
 import { Tabs, useRouter } from "expo-router";
 import { BookOpen, Clock, Search, User as UserIcon } from "lucide-react-native";
 import React from "react";
-import { Button, Text, XStack } from "tamagui";
+import { Platform, useColorScheme, View } from "react-native";
 
 /**
  * Child Tabs Layout
@@ -10,27 +14,41 @@ import { Button, Text, XStack } from "tamagui";
  */
 export default function ChildTabsLayout(): React.ReactElement {
   const router = useRouter();
+  const colorScheme = useColorScheme();
+  const preferredTheme = useThemeStore((s) => s.theme);
+
+  const systemPreference =
+    Platform.OS === "web" &&
+    typeof window !== "undefined" &&
+    typeof window.matchMedia === "function"
+      ? window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light"
+      : colorScheme;
+
+  const effectiveColorScheme =
+    preferredTheme === "system" ? systemPreference : preferredTheme;
+  const theme = effectiveColorScheme === "dark" ? THEME.dark : THEME.light;
 
   return (
     <Tabs
       screenOptions={{
         headerShown: true,
         headerStyle: {
-          backgroundColor: COLORS.cream,
+          backgroundColor: theme.card,
           borderBottomWidth: 1,
-          borderBottomColor: COLORS.border,
+          borderBottomColor: theme.border,
         },
         headerTitleStyle: {
-          fontFamily: "Lexend-Bold",
           fontSize: 18,
-          color: COLORS.textDark,
+          color: theme.foreground,
         },
         headerTitleAlign: "center",
         headerShadowVisible: false,
         tabBarStyle: {
-          backgroundColor: COLORS.cream,
+          backgroundColor: theme.card,
           borderTopWidth: 1,
-          borderTopColor: COLORS.border,
+          borderTopColor: theme.border,
           height: 70,
           elevation: 0,
           shadowOpacity: 0,
@@ -38,23 +56,16 @@ export default function ChildTabsLayout(): React.ReactElement {
         tabBarItemStyle: {
           paddingVertical: 8,
         },
-        tabBarActiveTintColor: COLORS.primary,
-        tabBarInactiveTintColor: COLORS.muted,
+        tabBarActiveTintColor: theme.primary,
+        tabBarInactiveTintColor: theme.mutedForeground,
         tabBarLabelStyle: {
           fontFamily: "Lexend-Medium",
           fontSize: 12,
         },
         headerLeft: () => (
-          <XStack paddingLeft="$4">
-            <Text
-              fontFamily="Lexend-Black"
-              fontSize={20}
-              color="$primary"
-              letterSpacing={-1}
-            >
-              LexEase
-            </Text>
-          </XStack>
+          <View style={{ paddingLeft: 16 }}>
+            <Text className="text-primary font-bold text-lg">LexEase</Text>
+          </View>
         ),
       }}
     >
@@ -66,17 +77,16 @@ export default function ChildTabsLayout(): React.ReactElement {
             <BookOpen color={color} size={size} />
           ),
           headerRight: () => (
-            <XStack marginRight="$2">
+            <View style={{ marginRight: 8 }}>
               <Button
-                size="$3"
-                chromeless
-                icon={
-                  <Search color={COLORS.primary} size={22} />
-                }
                 onPress={() => router.push("/(child)/search")}
+                size="icon"
+                variant="ghost"
                 accessibilityLabel="Tìm kiếm"
-              />
-            </XStack>
+              >
+                <Search color={COLORS.primary} className="size-6" />
+              </Button>
+            </View>
           ),
         }}
       />
