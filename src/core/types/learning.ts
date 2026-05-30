@@ -1,5 +1,6 @@
 export interface LearningSession {
   id: string;
+  sessionId?: string;
   childId: string;
   bookId: string;
   bookTitle: string;
