@@ -9,6 +9,8 @@ export interface GuardianChildLinkResponse {
   guardianId: string;
   childId: string;
   status: GuardianChildLinkStatus;
+  childEmail?: string;
+  guardianEmail?: string;
 }
 
 export interface CreateGuardianChildLinkRequest {

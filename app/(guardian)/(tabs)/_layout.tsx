@@ -1,6 +1,5 @@
-import { Button } from "@/src/components/shared/Button";
 import { Text } from "@/src/components/ui/text";
-import { COLORS } from "@/src/core/constants/colors";
+// COLORS import removed (logout moved to Settings)
 import { useEffectiveTheme } from "@/src/hooks/useEffectiveTheme";
 import { useAuthStore } from "@/src/store/useAuthStore";
 import { Tabs, useRouter } from "expo-router";
@@ -8,7 +7,6 @@ import {
   BarChart3,
   CalendarClock,
   LayoutDashboard,
-  LogOut,
   Settings,
 } from "lucide-react-native";
 import React from "react";
@@ -71,17 +69,7 @@ export default function GuardianTabsLayout(): React.ReactElement {
           fontFamily: "Lexend-Medium",
           fontSize: 11,
         },
-        headerRight: () => (
-          <View style={{ marginRight: 8 }}>
-            <Button
-              uiVariant="ghost"
-              circular
-              icon={<LogOut color={COLORS.error} size={20} />}
-              onPress={handleLogout}
-              accessibilityLabel="Đăng xuất"
-            />
-          </View>
-        ),
+        // headerRight removed: logout moved into Settings screen
       }}
     >
       <Tabs.Screen

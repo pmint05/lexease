@@ -6,4 +6,5 @@ export * from "./reading";
 export * from "./recording";
 export * from "./story";
 export * from "./user";
+export * from "./reminder";
 
