@@ -1,19 +1,26 @@
-import { Button } from "@/src/components/shared/Button";
-import { Dialog, DialogContent } from "@/src/components/ui/dialog";
+import { Button } from "@/src/components/ui/button";
+import { Dialog, DialogContent, DialogTitle } from "@/src/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  type Option,
+} from "@/src/components/ui/select";
+import {
+  Slider,
+  SliderRange,
+  SliderThumb,
+  SliderTrack,
+} from "@/src/components/ui/slider";
 import { Text } from "@/src/components/ui/text";
 import { fetchAndComputeMetering } from "@/src/utils/audioProcessing";
 import { formatDuration } from "@/src/utils/textProcessing";
 import { useAudioPlayer, useAudioPlayerStatus } from "expo-audio";
-import {
-    Pause,
-    Play,
-    SkipBack,
-    SkipForward,
-    Trash2,
-    X,
-} from "lucide-react-native";
-import React, { useEffect, useRef, useState } from "react";
-import { LayoutChangeEvent, Platform, Pressable, View } from "react-native";
+import { Pause, Play, SkipBack, SkipForward } from "lucide-react-native";
+import React, { useEffect, useState } from "react";
+import { Platform, View } from "react-native";
 
 const AudioWaveform =
   Platform.OS === "web"
@@ -33,7 +40,6 @@ interface AudioPlaybackModalProps {
   meteringData?: number[];
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onDelete?: () => void; // Thêm callback để xóa file từ modal
 }
 
 export const AudioPlaybackModal = ({
@@ -42,8 +48,8 @@ export const AudioPlaybackModal = ({
   meteringData = [],
   open,
   onOpenChange,
-  onDelete,
 }: AudioPlaybackModalProps): React.ReactElement => {
+  const SPEED_OPTIONS = [0.75, 1, 1.25, 1.5];
   const player = useAudioPlayer(uri);
   const status = useAudioPlayerStatus(player);
   const [speed, setSpeed] = useState(1.0);
@@ -60,22 +66,33 @@ export const AudioPlaybackModal = ({
   };
 
   const handleSeek = (value: number[]) => {
-    player.seekTo(value[0]);
-  };
-
-  const handleSkip = (seconds: number) => {
-    const nextTime = Math.min(
-      Math.max(0, status.currentTime + seconds),
-      status.duration,
-    );
+    const nextTime = value[0];
+    if (!Number.isFinite(nextTime)) return;
     player.seekTo(nextTime);
   };
 
-  const handleToggleSpeed = () => {
-    const nextSpeed =
-      speed === 1.0 ? 1.25 : speed === 1.25 ? 1.5 : speed === 1.5 ? 0.75 : 1.0;
+  const currentSpeedOption: Option = {
+    value: String(speed),
+    label: `${speed}x`,
+  };
+
+  const handleSpeedChange = (nextOption: Option) => {
+    if (!nextOption) return;
+
+    const nextSpeed = Number(nextOption.value);
+    if (!Number.isFinite(nextSpeed)) return;
     setSpeed(nextSpeed);
     player.playbackRate = nextSpeed;
+  };
+
+  const handleSkip = (seconds: number) => {
+    const currentTime = Number.isFinite(status.currentTime)
+      ? status.currentTime
+      : 0;
+    const duration = Number.isFinite(status.duration) ? status.duration : 0;
+    const nextTime = Math.min(Math.max(0, currentTime + seconds), duration);
+    if (!Number.isFinite(nextTime)) return;
+    player.seekTo(nextTime);
   };
 
   useEffect(() => {
@@ -95,215 +112,128 @@ export const AudioPlaybackModal = ({
   }, [open, uri, player, meteringData]);
 
   const progress =
-    status.duration > 0 ? status.currentTime / status.duration : 0;
+    Number.isFinite(status.duration) &&
+    status.duration > 0 &&
+    Number.isFinite(status.currentTime)
+      ? Math.min(Math.max(status.currentTime / status.duration, 0), 1)
+      : 0;
 
-  console.log("Rendering AudioPlaybackModal with status:", status);
-  console.log(
-    "Metering data length:",
-    meteringData.length,
-    "Local metering length:",
-    localMetering?.length,
-  );
-  console.log(meteringData, localMetering);
+  const currentDuration = Number.isFinite(status.currentTime)
+    ? status.currentTime
+    : 0;
+  const totalDuration = Number.isFinite(status.duration) ? status.duration : 0;
+  const progressValue = Math.round(progress * 100);
 
   if (!open && !uri) {
     return <></>;
   }
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <View style={{ maxWidth: 450, alignSelf: "center", padding: 16 }}>
-          {/* Header */}
-          <View
-            style={{
-              flexDirection: "row",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <View style={{ flex: 1 }}>
-              <Text className="text-sm text-primary font-semibold">
-                Đang phát bản ghi
-              </Text>
-              <Text className="text-xl font-black" numberOfLines={1}>
-                {title}
-              </Text>
-            </View>
-            <Button
-              uiVariant="ghost"
-              circular
-              icon={<X size={20} />}
-              onPress={() => onOpenChange(false)}
-            />
-          </View>
-
-          {/* Waveform */}
-          <View
-            style={{
-              height: 80,
-              alignItems: "center",
-              justifyContent: "center",
-              marginTop: 12,
-            }}
-          >
-            <AudioWaveform
-              meteringData={
-                hasUsefulMetering(localMetering) ? localMetering : meteringData
-              }
-              progress={progress}
-              height={80}
-            />
-          </View>
-
-          {/* Custom progress bar */}
-          <View style={{ marginTop: 12 }}>
-            <ProgressBar
-              progress={progress}
-              duration={status.duration || 1}
-              onSeek={(time) => handleSeek([time])}
-            />
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "space-between",
-                marginTop: 6,
-              }}
+      <DialogContent className="w-full min-w-[280px] lg:max-w-[520px] max-w-[calc(100vw-1rem)]">
+        <View className="w-full gap-4 self-center">
+          <DialogTitle>
+            <Text className="text-xs font-semibold uppercase tracking-wider text-primary">
+              Đang phát bản ghi
+            </Text>
+            <Text
+              className="text-2xl font-extrabold leading-tight"
+              numberOfLines={2}
             >
-              <Text className="text-sm text-muted-foreground">
-                {formatDuration(status.currentTime * 1000)}
-              </Text>
-              <Text className="text-sm text-muted-foreground">
-                {formatDuration((status.duration || 0) * 1000)}
-              </Text>
-            </View>
-          </View>
+              {title}
+            </Text>
+          </DialogTitle>
 
-          {/* Controls */}
-          <View
-            style={{
-              flexDirection: "row",
-              justifyContent: "center",
-              alignItems: "center",
-              gap: 20,
-              marginTop: 12,
-            }}
-          >
-            <Button
-              uiVariant="ghost"
-              circular
-              icon={<SkipBack size={22} />}
-              onPress={() => handleSkip(-10)}
-            />
+          <View className="rounded-3xl border border-border bg-card p-4 shadow-sm">
+            {/* <View className="items-center justify-center rounded-2xl bg-muted/50 px-3 py-4">
+              <AudioWaveform
+                meteringData={
+                  hasUsefulMetering(localMetering)
+                    ? localMetering
+                    : meteringData
+                }
+                progress={progress}
+                height={76}
+              />
+            </View> */}
 
-            <Button
-              uiVariant="primary"
-              circular
-              size="lg"
-              icon={
-                status.playing ? (
-                  <Pause size={32} color="white" />
-                ) : (
-                  <Play size={32} color="white" />
-                )
-              }
-              onPress={handleTogglePlay}
-            />
-
-            <Button
-              uiVariant="ghost"
-              circular
-              icon={<SkipForward size={22} />}
-              onPress={() => handleSkip(10)}
-            />
-          </View>
-
-          <View
-            style={{
-              height: 1,
-              backgroundColor: "#E6E7E9",
-              marginVertical: 12,
-            }}
-          />
-
-          {/* Footer Actions */}
-          <View
-            style={{
-              flexDirection: "row",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <Button uiVariant="outline" size="sm" onPress={handleToggleSpeed}>
-              Tốc độ: {speed}x
-            </Button>
-
-            {onDelete && (
-              <Button
-                uiVariant="ghost"
-                size="sm"
-                icon={<Trash2 size={18} color="#D32F2F" />}
-                onPress={() => {
-                  onOpenChange(false);
-                  onDelete();
+            <View className="mt-4 gap-2">
+              <Slider
+                value={progressValue}
+                min={0}
+                max={100}
+                step={1}
+                onValueChange={(value) => {
+                  const nextValue = value[0];
+                  if (!Number.isFinite(nextValue) || totalDuration <= 0) return;
+                  handleSeek([(nextValue / 100) * totalDuration]);
                 }}
               >
-                Xóa
+                <SliderTrack>
+                  <SliderRange />
+                </SliderTrack>
+                <SliderThumb />
+              </Slider>
+              <View className="flex-row justify-between">
+                <Text className="text-xs text-muted-foreground">
+                  {formatDuration(currentDuration * 1000)}
+                </Text>
+                <Text className="text-xs text-muted-foreground">
+                  {formatDuration(totalDuration * 1000)}
+                </Text>
+              </View>
+            </View>
+
+            <View className="mt-4 flex-row items-center justify-between gap-3">
+              <Button
+                variant="outline"
+                size="icon"
+                onPress={() => handleSkip(-10)}
+              >
+                <SkipBack className="size-4 text-foreground" />
               </Button>
-            )}
+
+              <Button variant="default" size="icon" onPress={handleTogglePlay}>
+                {status.playing ? (
+                  <Pause className="size-4 text-foreground" />
+                ) : (
+                  <Play className="size-4 text-foreground" />
+                )}
+              </Button>
+
+              <Button
+                variant="outline"
+                size="icon"
+                onPress={() => handleSkip(10)}
+              >
+                <SkipForward className="size-4 text-foreground" />
+              </Button>
+
+              <Select
+                value={currentSpeedOption}
+                onValueChange={handleSpeedChange}
+              >
+                <SelectTrigger className="h-11 min-w-[84px] rounded-full px-4">
+                  <SelectValue
+                    placeholder="Tốc độ"
+                    className="text-xs font-semibold"
+                  />
+                </SelectTrigger>
+                <SelectContent>
+                  {SPEED_OPTIONS.map((option) => (
+                    <SelectItem
+                      key={option}
+                      value={String(option)}
+                      label={`${option}x`}
+                    >
+                      {option}x
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </View>
           </View>
         </View>
       </DialogContent>
     </Dialog>
   );
 };
-
-function ProgressBar({
-  progress,
-  duration,
-  onSeek,
-}: {
-  progress: number;
-  duration: number;
-  onSeek: (time: number) => void;
-}) {
-  const [width, setWidth] = useState(0);
-  const ref = useRef<View | null>(null);
-
-  const handleLayout = (e: LayoutChangeEvent) => {
-    setWidth(e.nativeEvent.layout.width);
-  };
-
-  const handlePress = (e: any) => {
-    const x = e.nativeEvent.locationX;
-    if (width > 0) {
-      const t = Math.max(0, Math.min(1, x / width)) * duration;
-      onSeek(t);
-    }
-  };
-
-  return (
-    <Pressable
-      onPress={handlePress}
-      onLayout={handleLayout}
-      ref={ref as any}
-      style={{ height: 24, justifyContent: "center" }}
-    >
-      <View
-        style={{
-          height: 6,
-          backgroundColor: "#F1F5F9",
-          borderRadius: 6,
-          overflow: "hidden",
-        }}
-      >
-        <View
-          style={{
-            height: "100%",
-            width: `${Math.min(100, Math.max(0, progress * 100))}%`,
-            backgroundColor: "#0EA5E9",
-          }}
-        />
-      </View>
-    </Pressable>
-  );
-}

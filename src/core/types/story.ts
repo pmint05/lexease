@@ -1,5 +1,8 @@
 import { Book } from "@/src/core/types/reading";
-import { estimateWordTimestamps, tokenizeText } from "@/src/utils/textProcessing";
+import {
+  estimateWordTimestamps,
+  tokenizeText,
+} from "@/src/utils/textProcessing";
 
 export interface PageResponse<T> {
   items: T[];
@@ -15,7 +18,12 @@ export interface MetadataItem {
 }
 
 export type StoryStatus = "DRAFT" | "PUBLISHED" | "ARCHIVED";
-export type TtsStatus = "PENDING" | "PROCESSING" | "READY" | "FAILED" | "INVALIDATED";
+export type TtsStatus =
+  | "PENDING"
+  | "PROCESSING"
+  | "READY"
+  | "FAILED"
+  | "INVALIDATED";
 
 export interface StorySummary {
   id: string;
@@ -54,8 +62,9 @@ export interface StoryAccessResponse {
   blocked: boolean;
 }
 
-const getPlaceholderCover = (title: string): string => {
-  return `https://placehold.co/400x600/FFE082/333333?text=${encodeURIComponent(title)}`;
+const getPlaceholderCover = (title: string, id: string): string => {
+  // return `https://placehold.co/400x600/FFE082/333333?text=${encodeURIComponent(title)}`;
+  return `https://picsum.photos/seed/${encodeURIComponent(id)}/200/300`;
 };
 
 export const storySummaryToBook = (story: StorySummary): Book => {
@@ -64,12 +73,12 @@ export const storySummaryToBook = (story: StorySummary): Book => {
     title: story.title,
     author: story.authors.map((author) => author.name).join(", ") || "LexEase",
     category: story.genres[0]?.name ?? "Khác",
-    difficulty: "medium",
-    coverUrl: getPlaceholderCover(story.title),
+    coverUrl: getPlaceholderCover(story.title, story.id),
+    status: story.status,
     content: "",
     words: [],
     wordCount: 0,
-    estimatedMinutes: 1,
+    estimatedMinutes: 0,
   };
 };
 

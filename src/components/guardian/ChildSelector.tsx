@@ -1,14 +1,17 @@
+import { Badge } from "@/src/components/ui/badge";
+import { Card } from "@/src/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/src/components/ui/dialog";
+import { Text } from "@/src/components/ui/text";
+import { useEffectiveTheme } from "@/src/hooks/useEffectiveTheme";
+import { useGuardianChildLinksQuery } from "@/src/hooks/useFamilyQueries";
 import { ChevronsUpDown } from "lucide-react-native";
 import React from "react";
-import {
-    FlatList,
-    Modal,
-    Pressable,
-    Text,
-    TouchableWithoutFeedback,
-    View,
-} from "react-native";
-import { useGuardianChildLinksQuery } from "@/src/hooks/useFamilyQueries";
+import { FlatList, Pressable, View } from "react-native";
 import { useAuthStore } from "../../store/useAuthStore";
 import { useFamilyStore } from "../../store/useFamilyStore";
 
@@ -20,6 +23,7 @@ export default function ChildSelector({ onChange }: Props) {
   const [open, setOpen] = React.useState(false);
   const user = useAuthStore((s) => s.user);
   const guardianId = user?.id ?? null;
+  const { theme } = useEffectiveTheme();
 
   const getChildrenForGuardian = useFamilyStore(
     (s) => s.getChildrenForGuardian,
@@ -65,140 +69,82 @@ export default function ChildSelector({ onChange }: Props) {
 
   return (
     <View>
-      <Text style={{ fontSize: 14, color: "#666", marginBottom: 6 }}>
-        Bé đang xem
-      </Text>
+      <Text className="mb-2 text-sm text-muted-foreground">Bé đang xem</Text>
 
       {children.length === 0 ? (
-        <View
-          style={{
-            backgroundColor: "#fff",
-            borderWidth: 1,
-            borderColor: "#EEE",
-            borderRadius: 12,
-            padding: 12,
-          }}
-        >
-          <Text style={{ fontSize: 14, color: "#999" }}>
+        <Card className="p-4">
+          <Text className="text-sm text-muted-foreground">
             {linksQuery.isLoading
               ? "Đang tải danh sách bé..."
               : backendLinks.length > 0
                 ? "Chưa có liên kết nào được chấp nhận."
                 : "Chưa có bé được liên kết."}
           </Text>
-        </View>
+        </Card>
       ) : (
         <>
           <Pressable
             onPress={() => setOpen(true)}
-            style={{
-              backgroundColor: "#fff",
-              borderWidth: 1,
-              borderColor: "#EAEAEA",
-              borderRadius: 12,
-              padding: 12,
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
+            className="flex-row items-center justify-between rounded-xl border border-border bg-card px-4 py-3"
             accessibilityRole="button"
             accessibilityLabel="Mở danh sách chọn bé"
           >
-            <View>
-              <Text
-                style={{
-                  fontSize: 16,
-                  fontWeight: "700",
-                }}
-              >
+            <View className="flex-1 gap-1">
+              <Text className="text-base font-semibold">
                 {selectedChild?.childName ?? "Chọn bé"}
               </Text>
-              <Text style={{ fontSize: 12, color: "#777", marginTop: 2 }}>
+              <Text className="text-sm text-muted-foreground">
                 {selectedChild?.childEmail ?? ""}
               </Text>
             </View>
-            <ChevronsUpDown size={18} color="#555" />
+            <ChevronsUpDown size={18} color={theme.mutedForeground} />
           </Pressable>
 
-          <Modal
-            visible={open}
-            transparent
-            animationType="slide"
-            onRequestClose={() => setOpen(false)}
-          >
-            <TouchableWithoutFeedback onPress={() => setOpen(false)}>
-              <View
-                style={{
-                  flex: 1,
-                  backgroundColor: "rgba(0,0,0,0.3)",
-                  justifyContent: "flex-end",
-                }}
-              >
-                <TouchableWithoutFeedback>
-                  <View
-                    style={{
-                      backgroundColor: "#fff",
-                      borderTopLeftRadius: 16,
-                      borderTopRightRadius: 16,
-                      padding: 14,
-                      maxHeight: "60%",
-                    }}
-                  >
-                    <Text
-                      style={{
-                        fontSize: 16,
-                        fontWeight: "700",
-                        marginBottom: 10,
-                      }}
-                    >
-                      Chọn bé để xem thống kê
-                    </Text>
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogContent className="max-w-[calc(100%-1rem)] sm:max-w-lg">
+              <DialogHeader>
+                <DialogTitle>Chọn bé để xem thống kê</DialogTitle>
+              </DialogHeader>
 
-                    <FlatList
-                      data={children}
-                      keyExtractor={(item) => item.childId}
-                      renderItem={({ item }) => {
-                        const isActive = item.childId === selectedChildId;
-                        const isAccepted = item.status === "ACCEPTED";
-                        return (
-                          <Pressable
-                            onPress={() =>
-                              isAccepted ? handleSelect(item.childId) : null
-                            }
-                            style={{
-                              paddingVertical: 12,
-                              paddingHorizontal: 10,
-                              borderRadius: 10,
-                              backgroundColor: isActive ? "#EEF6FF" : "#fff",
-                              borderWidth: 1,
-                              borderColor: isActive ? "#CFE6FF" : "#F0F0F0",
-                              marginBottom: 8,
-                              opacity: isAccepted ? 1 : 0.55,
-                            }}
-                            accessibilityRole="button"
-                            accessibilityState={{ selected: isActive }}
-                          >
-                            <Text style={{ fontSize: 15, fontWeight: "700" }}>
-                              {item.childName}
-                            </Text>
-                            <Text
-                              style={{
-                                fontSize: 12,
-                                color: "#777",
-                                marginTop: 2,
-                              }}
-                            >
-                              {item.childEmail}
-                            </Text>
-                          </Pressable>
-                        );
-                      }}
-                    />
-                  </View>
-                </TouchableWithoutFeedback>
-              </View>
-            </TouchableWithoutFeedback>
-          </Modal>
+              <FlatList
+                data={children}
+                keyExtractor={(item) => item.childId}
+                renderItem={({ item }) => {
+                  const isActive = item.childId === selectedChildId;
+                  const isAccepted = item.status === "ACCEPTED";
+
+                  return (
+                    <Pressable
+                      onPress={() =>
+                        isAccepted ? handleSelect(item.childId) : null
+                      }
+                      className={
+                        isActive
+                          ? "mb-2 rounded-xl border border-primary/30 bg-primary/10 p-3"
+                          : "mb-2 rounded-xl border border-border bg-background p-3"
+                      }
+                      accessibilityRole="button"
+                      accessibilityState={{ selected: isActive }}
+                    >
+                      <View className="flex-row items-center justify-between gap-2">
+                        <View className="flex-1">
+                          <Text className="text-sm font-semibold">
+                            {item.childName}
+                          </Text>
+                          <Text className="mt-1 text-xs text-muted-foreground">
+                            {item.childEmail}
+                          </Text>
+                        </View>
+                        {!isAccepted ? (
+                          <Badge variant="secondary">Chờ duyệt</Badge>
+                        ) : null}
+                      </View>
+                    </Pressable>
+                  );
+                }}
+              />
+            </DialogContent>
+          </Dialog>
         </>
       )}
     </View>

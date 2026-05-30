@@ -5,7 +5,7 @@ import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import React, { useEffect } from "react";
-import { Platform, useColorScheme, View } from "react-native";
+import { Appearance, Platform, useColorScheme, View } from "react-native";
 import "react-native-reanimated";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 // TamaguiProvider removed; using Reusables + Tailwind
@@ -76,6 +76,10 @@ export default function RootLayout() {
     preferredTheme === "system" ? systemPreference : preferredTheme;
 
   useEffect(() => {
+    if (typeof Appearance.setColorScheme === "function") {
+      Appearance.setColorScheme(effectiveColorScheme);
+    }
+
     if (Platform.OS === "web") {
       const root = document.documentElement;
       if (effectiveColorScheme === "dark") root.classList.add("dark");

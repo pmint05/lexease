@@ -1,20 +1,32 @@
 import { useFocusEffect } from "@react-navigation/native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Alert, BackHandler, View } from "react-native";
+import { BackHandler, ScrollView, View } from "react-native";
 
 import { ReadingBottomBar } from "@/src/components/child/ReadingBottomBar";
 import { ReadingContent } from "@/src/components/child/ReadingContent";
 import { ReadingHeader } from "@/src/components/child/ReadingHeader";
 import { ReadingSettingsModal } from "@/src/components/child/ReadingSettingsModal";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/src/components/ui/alert-dialog";
+import { Skeleton } from "@/src/components/ui/skeleton";
 
+import { Text } from "@/src/components/ui/text";
 import { BackendReadingSession } from "@/src/core/types";
 import { useAudioRecording } from "@/src/hooks/useAudioRecording";
 import { useDisplaySettingsQuery } from "@/src/hooks/useDisplaySettingsQueries";
 import {
-    useCompleteReadingSessionMutation,
-    useStartReadingSessionMutation,
-    useUpdateReadingProgressMutation,
+  useCompleteReadingSessionMutation,
+  useStartReadingSessionMutation,
+  useUpdateReadingProgressMutation,
 } from "@/src/hooks/useReadingSessionQueries";
 import { useTextToSpeech } from "@/src/hooks/useTextToSpeech";
 import { useAuthStore } from "@/src/store/useAuthStore";
@@ -22,8 +34,8 @@ import { useLearningStore } from "@/src/store/useLearningStore";
 import { useReadingStore } from "@/src/store/useReadingStore";
 import { useRecordingStore } from "@/src/store/useRecordingStore";
 import {
-    buildReadingTextTokens,
-    tokenizeText,
+  buildReadingTextTokens,
+  tokenizeText,
 } from "@/src/utils/textProcessing";
 
 /**
@@ -68,6 +80,7 @@ export default function ReadingScreen(): React.ReactElement {
 
   // UI State
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isExitAlertOpen, setIsExitAlertOpen] = useState(false);
 
   const sessionStartRef = useRef(0);
   const sessionLoggedRef = useRef(false);
@@ -272,26 +285,18 @@ export default function ReadingScreen(): React.ReactElement {
     }
   };
 
-  const triggerExitAlert = useCallback(() => {
-    Alert.alert(
-      "Thoát bài đọc?",
-      "Tiến độ đọc và bản ghi âm của bé sẽ bị mất nếu bé thoát bây giờ. Bé có chắc chắn muốn quay lại thư viện không?",
-      [
-        { text: "Quay lại đọc tiếp", style: "cancel" },
-        {
-          text: "Thoát ra",
-          style: "destructive",
-          onPress: () => {
-            syncProgress(true);
-            finalizeSession();
-            resetSession();
-            stop();
-            router.replace("/(child)/(tabs)/library");
-          },
-        },
-      ],
-    );
+  const handleConfirmExit = useCallback(() => {
+    setIsExitAlertOpen(false);
+    syncProgress(true);
+    finalizeSession();
+    resetSession();
+    stop();
+    router.replace("/(child)/(tabs)/library");
   }, [finalizeSession, resetSession, stop, router, syncProgress]);
+
+  const triggerExitAlert = useCallback(() => {
+    setIsExitAlertOpen(true);
+  }, []);
 
   // Handle hardware back button
   useFocusEffect(
@@ -400,13 +405,30 @@ export default function ReadingScreen(): React.ReactElement {
 
   if (!book) {
     return (
-      <View className="flex-1 justify-center items-center">
+      <View className="flex-1 bg-background">
         <ReadingHeader
           title="Đang tải bài đọc"
           progress={0}
           onBack={() => router.replace("/(child)/(tabs)/library")}
           onOpenSettings={() => setIsSettingsOpen(true)}
         />
+
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: 120 }}
+          className="pt-4"
+        >
+          <View className="px-4">
+            <Skeleton className="h-6 w-2/3 rounded-full mb-4" />
+            {Array.from({ length: 8 }).map((_, i) => (
+              <Skeleton key={i} className="h-4 w-full rounded-full mb-3" />
+            ))}
+          </View>
+        </ScrollView>
+
+        <View className="absolute bottom-0 left-0 right-0 px-4 py-3 bg-background border-t border-border">
+          <Skeleton className="h-11 w-full rounded-xl" />
+        </View>
       </View>
     );
   }
@@ -448,6 +470,34 @@ export default function ReadingScreen(): React.ReactElement {
         onToggleRecording={handleToggleRecording}
         onRepeat={handleRepeat}
       />
+
+      <AlertDialog open={isExitAlertOpen} onOpenChange={setIsExitAlertOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Thoát bài đọc?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tiến độ đọc và bản ghi âm của bé sẽ bị mất nếu thoát bây giờ. Bé
+              có chắc chắn muốn quay lại thư viện không?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          <AlertDialogFooter>
+            <AlertDialogCancel className="flex-1">
+              <Text className="text-base font-semibold text-foreground text-center">
+                Quay lại đọc tiếp
+              </Text>
+            </AlertDialogCancel>
+            <AlertDialogAction
+              className="flex-1 bg-destructive text-foreground active:bg-destructive/90"
+              onPress={handleConfirmExit}
+            >
+              <Text className="text-base font-semibold text-foreground text-center">
+                Thoát ra
+              </Text>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Modals */}
       {isSettingsOpen && (

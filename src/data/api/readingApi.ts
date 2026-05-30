@@ -3,7 +3,40 @@ import {
   StartReadingSessionRequest,
   UpdateReadingProgressRequest,
 } from "@/src/core/types/reading";
-import { apiClient } from "@/src/data/api/apiClient";
+import { apiClient, getApiBaseUrl } from "@/src/data/api/apiClient";
+
+const rewriteLocalhostAudioUrl = (url: string | null): string | null => {
+  if (!url) return null;
+
+  try {
+    const parsedUrl = new URL(url);
+    if (parsedUrl.hostname !== "localhost") {
+      return url;
+    }
+
+    const apiBaseUrl = getApiBaseUrl();
+    const apiBase = new URL(apiBaseUrl);
+    parsedUrl.protocol = apiBase.protocol;
+    parsedUrl.host = apiBase.host;
+    parsedUrl.port = apiBase.port;
+
+    return parsedUrl.toString();
+  } catch {
+    return url;
+  }
+};
+
+const normalizeSessionAudioUrl = (
+  session: BackendReadingSession,
+): BackendReadingSession => {
+  return {
+    ...session,
+    tts: {
+      ...session.tts,
+      audioUrl: rewriteLocalhostAudioUrl(session.tts.audioUrl),
+    },
+  };
+};
 
 export const readingApi = {
   startSession: async (
@@ -13,7 +46,7 @@ export const readingApi = {
       "/sessions",
       request,
     );
-    return response.data;
+    return normalizeSessionAudioUrl(response.data);
   },
 
   getActiveSession: async (params: {
@@ -25,14 +58,14 @@ export const readingApi = {
     const response = await apiClient.get<BackendReadingSession>(
       `/sessions/active?${searchParams.toString()}`,
     );
-    return response.data;
+    return normalizeSessionAudioUrl(response.data);
   },
 
   getSession: async (id: string): Promise<BackendReadingSession> => {
     const response = await apiClient.get<BackendReadingSession>(
       `/sessions/${id}`,
     );
-    return response.data;
+    return normalizeSessionAudioUrl(response.data);
   },
 
   updateProgress: async (
@@ -43,14 +76,13 @@ export const readingApi = {
       `/sessions/${id}/progress`,
       request,
     );
-    return response.data;
+    return normalizeSessionAudioUrl(response.data);
   },
 
   completeSession: async (id: string): Promise<BackendReadingSession> => {
     const response = await apiClient.post<BackendReadingSession>(
       `/sessions/${id}/complete`,
     );
-    return response.data;
+    return normalizeSessionAudioUrl(response.data);
   },
 };
-

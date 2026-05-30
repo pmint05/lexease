@@ -36,6 +36,8 @@ export const normalizeDisplaySettings = (
     letterSpacing: Number(clamp(settings.letterSpacing, 0, 0.5).toFixed(2)),
     backgroundColor: settings.backgroundColor.toUpperCase(),
     textColor: settings.textColor.toUpperCase(),
+    highlightBackgroundColor: settings.highlightBackgroundColor.toUpperCase(),
+    highlightTextColor: settings.highlightTextColor.toUpperCase(),
   };
 };
 
@@ -60,6 +62,9 @@ export const useDisplaySettingsQuery = (childId?: string) => {
       letterSpacing: query.data.letterSpacing * query.data.fontSize,
       backgroundColor: query.data.backgroundColor,
       textColor: query.data.textColor,
+      highlightBackgroundColor: query.data.highlightBackgroundColor,
+      highlightTextColor: query.data.highlightTextColor,
+      highlightColor: query.data.highlightBackgroundColor,
     });
   }, [query.data, syncFromServer]);
 

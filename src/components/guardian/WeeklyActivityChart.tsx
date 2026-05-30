@@ -1,5 +1,8 @@
+import { Card } from "@/src/components/ui/card";
+import { Text } from "@/src/components/ui/text";
+import { useEffectiveTheme } from "@/src/hooks/useEffectiveTheme";
 import React from "react";
-import { Text, View } from "react-native";
+import { View } from "react-native";
 
 type DataPoint = { x: string; y: number };
 
@@ -8,17 +11,17 @@ type Props = {
   color?: string;
 };
 
-export default function WeeklyActivityChart({
-  data,
-  color = "#2E8B57",
-}: Props) {
+export default function WeeklyActivityChart({ data, color }: Props) {
+  const { theme } = useEffectiveTheme();
+  const barColor = color ?? theme.primary;
+
   if (!data.length) {
     return (
-      <View style={{ padding: 12, backgroundColor: "#fff", borderRadius: 8 }}>
-        <Text style={{ color: "#777", fontSize: 13 }}>
+      <Card className="p-4">
+        <Text className="text-sm text-muted-foreground">
           Chưa có dữ liệu hoạt động tuần này.
         </Text>
-      </View>
+      </Card>
     );
   }
 
@@ -28,53 +31,31 @@ export default function WeeklyActivityChart({
 
   if (allZero) {
     return (
-      <View style={{ padding: 12, backgroundColor: "#fff", borderRadius: 8 }}>
-        <Text style={{ color: "#777", fontSize: 13 }}>
+      <Card className="p-4">
+        <Text className="text-sm text-muted-foreground">
           Tuần này chưa có bài học nào được ghi nhận.
         </Text>
-      </View>
+      </Card>
     );
   }
 
   return (
-    <View
-      style={{
-        padding: 10,
-        backgroundColor: "#fff",
-        borderRadius: 10,
-        borderWidth: 1,
-        borderColor: "#F1F1F1",
-      }}
-    >
-      <View
-        style={{
-          flexDirection: "row",
-          alignItems: "flex-end",
-          height: barAreaHeight,
-          columnGap: 6,
-          overflow: "hidden",
-        }}
-      >
+    <Card className="gap-4 p-4">
+      <View className="h-[110px] flex-row items-end gap-1.5 overflow-hidden">
         {data.map((point, idx) => {
           const barHeight =
             point.y > 0 ? Math.max((point.y / max) * barAreaHeight, 8) : 0;
           return (
             <View
               key={`${point.x}-${idx}`}
-              style={{
-                flex: 1,
-                alignItems: "center",
-                justifyContent: "flex-end",
-                height: "100%",
-              }}
+              className="flex-1 items-center justify-end"
             >
               <View
+                className="w-3/5 rounded-sm"
                 style={{
-                  width: "60%",
                   height: barHeight,
                   maxHeight: barAreaHeight,
-                  backgroundColor: color,
-                  borderRadius: 4,
+                  backgroundColor: barColor,
                 }}
               />
             </View>
@@ -82,22 +63,13 @@ export default function WeeklyActivityChart({
         })}
       </View>
 
-      <View
-        style={{
-          marginTop: 8,
-          flexDirection: "row",
-          columnGap: 6,
-        }}
-      >
+      <View className="flex-row gap-1.5">
         {data.map((point, idx) => (
-          <View
-            key={`${point.x}-label-${idx}`}
-            style={{ flex: 1, alignItems: "center" }}
-          >
-            <Text style={{ fontSize: 11, color: "#666" }}>{point.x}</Text>
+          <View key={`${point.x}-label-${idx}`} className="flex-1 items-center">
+            <Text className="text-xs text-muted-foreground">{point.x}</Text>
           </View>
         ))}
       </View>
-    </View>
+    </Card>
   );
 }

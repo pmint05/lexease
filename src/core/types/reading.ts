@@ -1,3 +1,5 @@
+import { StoryStatus } from "./story";
+
 export type BookDifficulty = "easy" | "medium" | "hard";
 
 export interface Book {
@@ -6,12 +8,12 @@ export interface Book {
   author: string;
   coverUrl?: string;
   category: string;
-  difficulty: BookDifficulty;
   wordCount: number;
   estimatedMinutes: number;
   content: string;
   words: string[];
   wordTimestamps?: number[];
+  status: StoryStatus;
 }
 
 export interface ReadingSession {

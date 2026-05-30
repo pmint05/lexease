@@ -1,10 +1,10 @@
-import { Dialog, DialogContent } from "@/src/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/src/components/ui/dialog";
 import { Text } from "@/src/components/ui/text";
 import { useReadingStore } from "@/src/store/useReadingStore";
 import { Minus, Plus } from "lucide-react-native";
 import React from "react";
 import { View } from "react-native";
-import { Button } from "../shared/Button";
+import { Button } from "../ui/button";
 
 interface ReadingSettingsModalProps {
   open: boolean;
@@ -33,16 +33,17 @@ export const ReadingSettingsModal = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <View className="bg-background p-6 rounded-md shadow-md border border-border">
+      <DialogContent className="min-w-[300px]">
+        <DialogTitle>
           <View className="gap-1">
             <Text className="text-xl font-black text-foreground">Cài đặt</Text>
             <Text className="text-sm text-muted-foreground">
               Điều chỉnh nhịp độ phù hợp với bé
             </Text>
           </View>
-
-          <View className="gap-4 mt-4">
+        </DialogTitle>
+        <View className="">
+          <View className="gap-4">
             <Text className="font-bold uppercase">Tốc độ Spotlight</Text>
 
             <View
@@ -54,13 +55,13 @@ export const ReadingSettingsModal = ({
               }}
             >
               <Button
-                uiVariant="outline"
-                circular
-                size="large"
-                icon={<Minus size={24} />}
+                variant="outline"
+                size="lg"
                 onPress={handleDecrement}
                 disabled={speed <= 0.5}
-              />
+              >
+                <Minus className="text-foreground size-5" />
+              </Button>
 
               <View style={{ alignItems: "center", width: 100 }}>
                 <Text className="text-2xl font-black text-primary">
@@ -74,19 +75,25 @@ export const ReadingSettingsModal = ({
               </View>
 
               <Button
-                uiVariant="outline"
-                circular
-                size="large"
-                icon={<Plus size={24} />}
+                variant="outline"
+                size="lg"
                 onPress={handleIncrement}
                 disabled={speed >= 2.0}
-              />
+              >
+                <Plus className="text-foreground size-5" />
+              </Button>
             </View>
           </View>
 
-          <View style={{ marginTop: 16 }}>
-            <Button size="large" onPress={() => onOpenChange(false)}>
-              Hoàn tất
+          <View className="mt-6 w-full">
+            <Button
+              size="lg"
+              onPress={() => onOpenChange(false)}
+              className="w-full"
+            >
+              <Text className="text-base font-semibold text-white">
+                Hoàn tất
+              </Text>
             </Button>
           </View>
         </View>

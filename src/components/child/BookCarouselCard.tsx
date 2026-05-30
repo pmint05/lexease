@@ -4,7 +4,8 @@ import { Book } from "@/src/core/types";
 import { Play } from "lucide-react-native";
 import React from "react";
 import { Image, Pressable, View } from "react-native";
-import { Button } from "../shared/Button";
+import { Button } from "../ui/button";
+// import { Button } from "../shared/Button";
 
 interface BookCarouselCardProps {
   book: Book;
@@ -19,14 +20,16 @@ export const BookCarouselCard = ({
 }: BookCarouselCardProps): React.ReactElement => {
   return (
     <Pressable onPress={() => onPress(book.id)}>
-      <Card className="w-[280px] h-[180px] overflow-hidden mr-4">
+      <Card className="w-[300px] overflow-hidden mr-4 p-0">
         <View style={{ flex: 1 }} className="flex-row">
           <Image
             source={{ uri: book.coverUrl }}
             style={{ width: 120, height: "100%", borderRadius: 12 }}
+            className="aspect-[2/3]"
           />
           <View
-            style={{ flex: 1, padding: 12, justifyContent: "space-between" }}
+            style={{ flex: 1, justifyContent: "space-between" }}
+            className="gap-2 p-4"
           >
             <View>
               <Text className="text-sm font-semibold uppercase tracking-wider">
@@ -40,8 +43,9 @@ export const BookCarouselCard = ({
               </Text>
             </View>
 
-            <Button onPress={() => onRead(book.id)} icon={<Play size={16} />}>
-              Đọc tiếp
+            <Button onPress={() => onRead(book.id)} size={"sm"}>
+              <Play size={16} />
+              <Text>Đọc tiếp</Text>
             </Button>
           </View>
         </View>

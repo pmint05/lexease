@@ -23,8 +23,10 @@ export const ReadingContent = ({
   const {
     fontSize,
     fontFamily,
+    backgroundColor,
     textColor,
-    highlightColor,
+    highlightBackgroundColor,
+    highlightTextColor,
     letterSpacing,
     lineHeight,
   } = useReadingStore();
@@ -33,7 +35,7 @@ export const ReadingContent = ({
   const wordLayouts = useRef<Record<number, number>>({});
   const isAutoScrolling = useRef(false);
 
-  const tamaguiFontKey = FONT_MAP[fontFamily] || "body";
+  const fontFamilyStyle = FONT_MAP[fontFamily] || FONT_MAP.System;
 
   // Auto-scroll logic: Keep active word in center
   useEffect(() => {
@@ -60,6 +62,8 @@ export const ReadingContent = ({
       onScrollBeginDrag={handleScrollBeginDrag}
       scrollEventThrottle={16}
       contentContainerStyle={{ paddingBottom: 100, paddingHorizontal: 16 }}
+      className="pt-4"
+      style={{ backgroundColor }}
     >
       <View
         style={{ flexDirection: "row", flexWrap: "wrap", alignItems: "center" }}
@@ -73,7 +77,7 @@ export const ReadingContent = ({
               <Text
                 key={`${token.text}-${idx}`}
                 style={{
-                  fontFamily: tamaguiFontKey,
+                  fontFamily: fontFamilyStyle,
                   fontSize,
                   fontWeight: "400",
                   color: textColor,
@@ -99,17 +103,19 @@ export const ReadingContent = ({
                 paddingHorizontal: 6,
                 paddingVertical: 4,
                 borderRadius: 8,
-                backgroundColor: isHighlighted ? highlightColor : "transparent",
+                backgroundColor: isHighlighted
+                  ? highlightBackgroundColor
+                  : "transparent",
                 opacity: isHighlighted ? 1 : 0.3,
                 marginRight: token.spaceAfter ? 6 : 0,
               }}
             >
               <Text
                 style={{
-                  fontFamily: tamaguiFontKey,
+                  fontFamily: fontFamilyStyle,
                   fontSize,
                   fontWeight: isHighlighted ? "700" : "400",
-                  color: textColor,
+                  color: isHighlighted ? highlightTextColor : textColor,
                   letterSpacing,
                   lineHeight: fontSize * lineHeight,
                 }}

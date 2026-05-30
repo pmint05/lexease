@@ -22,13 +22,12 @@ export const KaraokeTile = ({
     lineHeight,
   } = useReadingStore();
 
-  // Map configured family names to actual font family strings if available
   const mappedFamily =
     fontFamily === "Lexend"
       ? FONTS.lexend
       : fontFamily === "OpenDyslexic"
         ? FONTS.openDyslexic
-        : undefined;
+        : FONTS.lexend;
 
   return (
     <View

@@ -1,22 +1,22 @@
 import { Button } from "@/src/components/shared/Button";
 import { Card } from "@/src/components/ui/card";
 import { Input } from "@/src/components/ui/input";
-import { Label } from "@/src/components/ui/label";
-import { Switch } from "@/src/components/ui/switch";
 import { Text } from "@/src/components/ui/text";
 import {
-    useDisplaySettingsQuery,
-    useResetDisplaySettingsMutation,
-    useSaveDisplaySettingsMutation,
+  useDisplaySettingsQuery,
+  useResetDisplaySettingsMutation,
+  useSaveDisplaySettingsMutation,
 } from "@/src/hooks/useDisplaySettingsQueries";
+import { useEffectiveTheme } from "@/src/hooks/useEffectiveTheme";
 import {
-    useGuardianChildLinksQuery,
-    useRequestChildLinkMutation,
+  useGuardianChildLinksQuery,
+  useRequestChildLinkMutation,
 } from "@/src/hooks/useFamilyQueries";
 import { useAuthStore } from "@/src/store/useAuthStore";
 import { useFamilyStore } from "@/src/store/useFamilyStore";
 import { useReadingStore } from "@/src/store/useReadingStore";
-import { Palette, Settings, ShieldCheck } from "lucide-react-native";
+import { useThemeStore, type ThemePref } from "@/src/store/useThemeStore";
+import { Palette, Settings } from "lucide-react-native";
 import React, { useMemo, useState } from "react";
 import { ScrollView, View } from "react-native";
 
@@ -27,6 +27,7 @@ import { ScrollView, View } from "react-native";
 export default function SettingsScreen(): React.ReactElement {
   const { user } = useAuthStore();
   const guardianId = user?.id ?? "";
+  const { theme } = useEffectiveTheme();
   const selectedChildId = useFamilyStore((state) =>
     guardianId ? state.getSelectedChildId(guardianId) : null,
   );
@@ -35,6 +36,8 @@ export default function SettingsScreen(): React.ReactElement {
     fontFamily,
     backgroundColor,
     textColor,
+    highlightBackgroundColor,
+    highlightTextColor,
     lineHeight,
     letterSpacing,
   } = useReadingStore();
@@ -74,62 +77,33 @@ export default function SettingsScreen(): React.ReactElement {
       letterSpacing: fontSize > 0 ? letterSpacing / fontSize : 0.04,
       backgroundColor,
       textColor,
+      highlightBackgroundColor,
+      highlightTextColor,
       themeName: "guardian-current",
     });
   };
 
   return (
-    <ScrollView>
-      <View className="bg-background px-4">
+    <View className="flex-1 bg-background px-4">
+      <ScrollView>
         <View className="flex-row items-center gap-2 mb-2 pt-4">
-          <Settings size={24} color="#0066CC" />
+          <Settings size={24} color={theme.primary} />
           <Text className="text-2xl font-bold">Cài đặt hệ thống</Text>
         </View>
 
-        <View className="gap-4">
+        <View className="gap-4 mt-3">
           <Card className="p-4 border border-border bg-background">
             <View className="gap-3">
-              <Text className="font-semibold">Liên kết tài khoản bé</Text>
-              <View className="flex-row gap-2 items-center">
-                <Input
-                  className="flex-1"
-                  value={childEmail}
-                  onChangeText={setChildEmail}
-                  placeholder="email-cua-be@example.com"
-                  autoCapitalize="none"
-                  keyboardType="email-address"
-                />
-                <Button
-                  disabled={requestLinkMutation.isPending}
-                  onPress={handleRequestLink}
-                >
-                  Gửi
-                </Button>
-              </View>
-              <Text className="text-sm text-muted">
-                {requestLinkMutation.isSuccess
-                  ? "Đã gửi yêu cầu liên kết."
-                  : "Bé hoặc phụ huynh đã được chấp nhận cần duyệt yêu cầu này."}
-              </Text>
-            </View>
-          </Card>
-
-          <Text className="font-bold text-lg text-muted">
-            Cấu hình phiên đọc cho con
-          </Text>
-
-          <Card className="p-4 border border-border bg-background">
-            <View className="gap-4">
               <View className="flex-row justify-between items-center">
                 <View className="flex-row gap-2 items-center">
-                  <Palette size={20} color="#0066CC" />
-                  <Text className="font-semibold">Giao diện đọc</Text>
+                  <Palette size={20} color={theme.primary} />
+                  <Text className="font-semibold">Giao diện đọc của trẻ</Text>
                 </View>
                 <Text className="text-primary font-bold">Tùy chỉnh</Text>
               </View>
 
               <View className="gap-2">
-                <Text className="text-sm text-muted">
+                <Text className="text-sm text-muted-foreground">
                   Điều chỉnh màu nền, cỡ chữ và font chữ để phù hợp với thị giác
                   của trẻ. Các thay đổi sẽ được áp dụng tự động xuống máy của
                   trẻ.
@@ -156,35 +130,79 @@ export default function SettingsScreen(): React.ReactElement {
           </Card>
 
           <Card className="p-4 border border-border bg-background">
-            <View className="gap-4">
-              <View className="flex-row justify-between items-center">
-                <View className="flex-row gap-2 items-center">
-                  <ShieldCheck size={20} color="#00A676" />
-                  <Text className="font-semibold">
-                    Quyền riêng tư & Bảo mật
-                  </Text>
-                </View>
+            <View className="gap-3">
+              <Text className="font-semibold">Liên kết tài khoản bé</Text>
+              <View className="flex-row gap-2 items-center">
+                <Input
+                  className="flex-1"
+                  value={childEmail}
+                  onChangeText={setChildEmail}
+                  placeholder="email-cua-be@example.com"
+                  autoCapitalize="none"
+                  keyboardType="email-address"
+                />
+                <Button
+                  disabled={requestLinkMutation.isPending}
+                  onPress={handleRequestLink}
+                >
+                  Gửi
+                </Button>
               </View>
-
-              <View className="flex-row justify-between items-center">
-                <Label className="flex-1 text-base">Ghi âm tự động</Label>
-                <Switch checked={true} onCheckedChange={() => {}} />
-              </View>
-
-              <View className="flex-row justify-between items-center">
-                <Label className="flex-1 text-base">
-                  Báo cáo hàng tuần qua Email
-                </Label>
-                <Switch checked={false} onCheckedChange={() => {}} />
-              </View>
+              <Text className="text-sm text-muted-foreground">
+                {requestLinkMutation.isSuccess
+                  ? "Đã gửi yêu cầu liên kết."
+                  : "Bé hoặc phụ huynh đã được chấp nhận cần duyệt yêu cầu này."}
+              </Text>
             </View>
           </Card>
 
-          <Button variant="outlined" className="mt-4">
-            Xóa toàn bộ lịch sử đọc
-          </Button>
+          <Card className="p-4 border border-border bg-background">
+            <View className="gap-3">
+              <View className="flex-row items-center justify-between gap-3">
+                <View className="flex-row items-center gap-2">
+                  <Palette size={20} color={theme.primary} />
+                  <Text className="font-semibold">Giao diện ứng dụng</Text>
+                </View>
+              </View>
+
+              <ThemeModePicker />
+            </View>
+          </Card>
         </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </View>
+  );
+}
+
+function ThemeModePicker(): React.ReactElement {
+  const theme = useThemeStore((state) => state.theme);
+  const setTheme = useThemeStore((state) => state.setTheme);
+
+  const options: { value: ThemePref; label: string }[] = [
+    { value: "system", label: "Hệ thống" },
+    { value: "light", label: "Sáng" },
+    { value: "dark", label: "Tối" },
+  ];
+
+  return (
+    <View className="flex-row gap-2">
+      {options.map((option) => {
+        const active = theme === option.value;
+
+        return (
+          <Button
+            key={option.value}
+            size="sm"
+            uiVariant={active ? "primary" : "outline"}
+            className="flex-1"
+            onPress={() => setTheme(option.value)}
+            accessibilityRole="button"
+            accessibilityState={{ selected: active }}
+          >
+            {option.label}
+          </Button>
+        );
+      })}
+    </View>
   );
 }

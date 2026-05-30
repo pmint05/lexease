@@ -1,16 +1,15 @@
 export const FONTS = {
-  openDyslexic: "OpenDyslexic",
-  lexend: "Lexend",
+  openDyslexic: "OpenDyslexic-Regular",
+  lexend: "Lexend-Regular",
 } as const;
 
 /**
- * Maps ReadingConfig fontFamily values to Tamagui font keys
+ * Maps server fontFamily values to the native font family names loaded by Expo.
  */
 export const FONT_MAP = {
-  OpenDyslexic: "dyslexic",
-  Lexend: "lexend",
-  System: "system",
-  // Dễ dàng thêm font mới ở đây
+  OpenDyslexic: FONTS.openDyslexic,
+  Lexend: FONTS.lexend,
+  System: FONTS.lexend,
 } as const;
 
 export type ConfigFontFamily = keyof typeof FONT_MAP;

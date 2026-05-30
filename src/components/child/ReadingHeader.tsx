@@ -1,9 +1,10 @@
-import { Button } from "@/src/components/shared/Button";
 import { Text } from "@/src/components/ui/text";
 import { ChevronLeft, Settings } from "lucide-react-native";
 import React from "react";
 import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Button } from "../ui/button";
+import { Progress } from "../ui/progress";
 
 interface ReadingHeaderProps {
   title: string;
@@ -21,7 +22,7 @@ export const ReadingHeader = ({
   const insets = useSafeAreaInsets();
 
   return (
-    <View style={{ paddingTop: insets.top, backgroundColor: "transparent" }}>
+    <View style={{ paddingTop: insets.top }} className="bg-card">
       <View
         style={{
           paddingHorizontal: 16,
@@ -39,13 +40,9 @@ export const ReadingHeader = ({
             gap: 8,
           }}
         >
-          <Button
-            icon={<ChevronLeft size={24} />}
-            uiVariant="ghost"
-            chromeless
-            onPress={onBack}
-            className="p-0 w-10"
-          />
+          <Button onPress={onBack} size="icon" variant="ghost">
+            <ChevronLeft className="text-foreground size-6" />
+          </Button>
           <Text
             className="text-lg font-bold"
             numberOfLines={1}
@@ -55,13 +52,11 @@ export const ReadingHeader = ({
           </Text>
         </View>
 
-        <Button
-          icon={<Settings size={22} />}
-          uiVariant="ghost"
-          circular
-          onPress={onOpenSettings}
-        />
+        <Button variant="ghost" size={"icon"} onPress={onOpenSettings}>
+          <Settings className="text-foreground size-5" />
+        </Button>
       </View>
+      <Progress value={progress} className="rounded-none" />
     </View>
   );
 };

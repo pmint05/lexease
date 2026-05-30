@@ -1,9 +1,8 @@
 import { Button } from "@/src/components/shared/Button";
 import { Text } from "@/src/components/ui/text";
 import { COLORS } from "@/src/core/constants/colors";
-import { THEME } from "@/src/lib/theme";
+import { useEffectiveTheme } from "@/src/hooks/useEffectiveTheme";
 import { useAuthStore } from "@/src/store/useAuthStore";
-import { useThemeStore } from "@/src/store/useThemeStore";
 import { Tabs, useRouter } from "expo-router";
 import {
   BarChart3,
@@ -13,7 +12,7 @@ import {
   Settings,
 } from "lucide-react-native";
 import React from "react";
-import { Platform, useColorScheme, View } from "react-native";
+import { View } from "react-native";
 
 /**
  * Guardian Tabs Layout
@@ -22,21 +21,7 @@ import { Platform, useColorScheme, View } from "react-native";
 export default function GuardianTabsLayout(): React.ReactElement {
   const { logout } = useAuthStore();
   const router = useRouter();
-  const colorScheme = useColorScheme();
-  const preferredTheme = useThemeStore((s) => s.theme);
-
-  const systemPreference =
-    Platform.OS === "web" &&
-    typeof window !== "undefined" &&
-    typeof window.matchMedia === "function"
-      ? window.matchMedia("(prefers-color-scheme: dark)").matches
-        ? "dark"
-        : "light"
-      : colorScheme;
-
-  const effectiveColorScheme =
-    preferredTheme === "system" ? systemPreference : preferredTheme;
-  const theme = effectiveColorScheme === "dark" ? THEME.dark : THEME.light;
+  const { theme } = useEffectiveTheme();
 
   const handleLogout = async () => {
     logout();

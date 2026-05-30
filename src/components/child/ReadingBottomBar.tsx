@@ -1,8 +1,9 @@
-import { Button } from "@/src/components/shared/Button";
+import { cn } from "@/src/lib/utils";
 import { BlurView } from "expo-blur";
 import { Mic, Pause, Play, RotateCcw, Volume2 } from "lucide-react-native";
 import React from "react";
 import { Platform, View } from "react-native";
+import { Button } from "../ui/button";
 
 interface ReadingBottomBarProps {
   isPlaying: boolean;
@@ -40,8 +41,9 @@ export const ReadingBottomBar = ({
           borderTopRightRadius: 32,
           overflow: "hidden",
           borderTopWidth: 1,
-          borderTopColor: "rgba(255,255,255,0.5)",
+          borderTopColor: "rgba(255,255,255,0.1)",
         }}
+        className="bg-card"
       >
         <View
           style={{
@@ -54,41 +56,49 @@ export const ReadingBottomBar = ({
         >
           {/* TTS Toggle */}
           <Button
-            uiVariant={isTtsEnabled ? "primary" : "ghost"}
-            circular
-            size="sm"
-            icon={<Volume2 color={isTtsEnabled ? "white" : "#666"} size={22} />}
+            variant={isTtsEnabled ? "default" : "ghost"}
+            size="icon"
             onPress={onToggleTts}
-            className=""
-          />
+          >
+            <Volume2
+              className={cn(
+                "text-foreground size-5",
+                isTtsEnabled && "text-white",
+              )}
+              size={22}
+            />
+          </Button>
 
           {/* Central Button: Play / Pause / Repeat */}
           <Button
-            circular
-            size="lg"
-            uiVariant="primary"
-            icon={
-              isFinished ? (
-                <RotateCcw size={24} color="white" />
-              ) : isPlaying ? (
-                <Pause size={24} color="white" />
-              ) : (
-                <Play size={24} color="white" />
-              )
-            }
+            size="icon"
+            variant="default"
             onPress={isFinished ? onRepeat : onTogglePlay}
-            className=""
-          />
+            className="size-14 rounded-full"
+          >
+            {isFinished ? (
+              <RotateCcw className="text-foreground size-6" />
+            ) : isPlaying ? (
+              <Pause className="text-foreground size-6" />
+            ) : (
+              <Play className="text-foreground size-6" />
+            )}
+          </Button>
 
           {/* Record Button */}
           <View style={{ alignItems: "center", position: "relative" }}>
             <Button
-              circular
-              size="sm"
-              uiVariant={isRecording ? "danger" : "ghost"}
-              icon={<Mic color={isRecording ? "white" : "#666"} size={22} />}
+              size="icon"
+              variant={isRecording ? "destructive" : "ghost"}
               onPress={onToggleRecording}
-            />
+            >
+              <Mic
+                className={cn(
+                  "text-foreground size-5",
+                  isRecording && "text-white",
+                )}
+              />
+            </Button>
             {isRecording && (
               <View
                 style={{

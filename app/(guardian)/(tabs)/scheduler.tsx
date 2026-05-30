@@ -41,7 +41,8 @@ export default function SchedulerScreen(): React.ReactElement {
     <View className="flex-1 bg-background px-4 gap-4">
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingVertical: 16 }}
+        className="flex-1"
+        contentContainerClassName="gap-4 py-4"
       >
         <View className="gap-4">
           {/* Time Settings */}

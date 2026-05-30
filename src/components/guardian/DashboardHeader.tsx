@@ -1,5 +1,6 @@
+import { Text } from "@/src/components/ui/text";
 import React from "react";
-import { Text, View } from "react-native";
+import { View } from "react-native";
 import ChildSelector from "./ChildSelector";
 
 type Props = {
@@ -8,8 +9,8 @@ type Props = {
 
 export default function DashboardHeader({ onChildChange }: Props) {
   return (
-    <View style={{ padding: 4, backgroundColor: "transparent" }}>
-      <Text style={{ fontSize: 22, fontWeight: "800", marginBottom: 8 }}>
+    <View className="gap-4 py-1">
+      <Text className="text-2xl font-extrabold tracking-tight">
         Bảng điều khiển
       </Text>
       <ChildSelector onChange={onChildChange} />

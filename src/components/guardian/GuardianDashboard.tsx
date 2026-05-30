@@ -1,11 +1,12 @@
-import React from "react";
-import { ScrollView, Text, View } from "react-native";
+import { Text } from "@/src/components/ui/text";
 import { useGuardianChildLinksQuery } from "@/src/hooks/useFamilyQueries";
+import React from "react";
+import { ScrollView, View } from "react-native";
 import { useAuthStore } from "../../store/useAuthStore";
 import { useFamilyStore } from "../../store/useFamilyStore";
 import { useLearningStore } from "../../store/useLearningStore";
 import DashboardHeader from "./DashboardHeader";
-import RecentActivityList from "./RecentActivityList";
+import RecentActivityList from "./RecentActivityListView";
 import StatCard from "./StatCard";
 import WeeklyActivityChart from "./WeeklyActivityChart";
 
@@ -71,41 +72,41 @@ export default function GuardianDashboard() {
   );
 
   return (
-    <ScrollView style={{ padding: 12 }}>
-      <DashboardHeader onChildChange={handleChildChange} />
+    <View className="flex-1 bg-background px-4">
+      <ScrollView className="flex-1" contentContainerClassName="gap-4 py-3">
+        <DashboardHeader onChildChange={handleChildChange} />
 
-      <View style={{ flexDirection: "row", flexWrap: "wrap", marginTop: 8 }}>
-        <StatCard
-          title="Tổng thời gian"
-          value={`${Math.round(stats.totalTimeMs / 60000)} phút`}
-          subtitle="Tổng học"
-        />
-        <StatCard
-          title="Sách hoàn thành"
-          value={`${stats.booksCompleted}`}
-          subtitle="Số sách đã học"
-        />
-        <StatCard
-          title="Phiên gần nhất"
-          value={
-            sessionsForChild[0]
-              ? new Date(sessionsForChild[0].completedAt).toLocaleDateString()
-              : "—"
-          }
-        />
-      </View>
+        <View className="flex-row flex-wrap gap-3">
+          <StatCard
+            title="Tổng thời gian"
+            value={`${Math.round(stats.totalTimeMs / 60000)} phút`}
+            subtitle="Tổng học"
+          />
+          <StatCard
+            title="Sách hoàn thành"
+            value={`${stats.booksCompleted}`}
+            subtitle="Số sách đã học"
+          />
+          <StatCard
+            title="Phiên gần nhất"
+            value={
+              sessionsForChild[0]
+                ? new Date(sessionsForChild[0].completedAt).toLocaleDateString()
+                : "—"
+            }
+          />
+        </View>
 
-      <View style={{ marginTop: 12 }}>
-        <Text style={{ fontSize: 16, fontWeight: "700", marginBottom: 8 }}>
-          Hoạt động theo tuần
-        </Text>
-        <WeeklyActivityChart data={weeklyData} />
-      </View>
+        <View className="gap-3">
+          <Text className="text-base font-bold">Hoạt động theo tuần</Text>
+          <WeeklyActivityChart data={weeklyData} />
+        </View>
 
-      <RecentActivityList
-        sessions={sessionsForChild.slice(0, 20)}
-        onPressSession={() => {}}
-      />
-    </ScrollView>
+        <RecentActivityList
+          sessions={sessionsForChild.slice(0, 20)}
+          onPressSession={() => {}}
+        />
+      </ScrollView>
+    </View>
   );
 }

@@ -21,6 +21,8 @@ export interface ReadingStoreState {
   letterSpacing: number;
   lineHeight: number;
   highlightColor: string;
+  highlightBackgroundColor: string;
+  highlightTextColor: string;
 
   // --- Preferences (Child/Persisted) ---
   speed: number;
@@ -56,6 +58,8 @@ const DEFAULT_VISUALS = {
   letterSpacing: 1.2,
   lineHeight: 1.5,
   highlightColor: "#FFD93D",
+  highlightBackgroundColor: "#FFD93D",
+  highlightTextColor: "#2D3436",
 };
 
 const DEFAULT_PREFERENCES = {
@@ -88,14 +92,15 @@ export const useReadingStore = create<ReadingStoreState>()(
       setIndex: (index) => set({ currentIndex: index }),
       setIsPlaying: (playing) => set({ isPlaying: playing }),
       setIsRecording: (recording) => set({ isRecording: recording }),
-      
+
       resetSession: () => set(INITIAL_SESSION),
-      
-      resetAll: () => set({
-        ...DEFAULT_VISUALS,
-        ...DEFAULT_PREFERENCES,
-        ...INITIAL_SESSION,
-      }),
+
+      resetAll: () =>
+        set({
+          ...DEFAULT_VISUALS,
+          ...DEFAULT_PREFERENCES,
+          ...INITIAL_SESSION,
+        }),
     }),
     {
       name: "lexease-reading-v2",
@@ -109,9 +114,11 @@ export const useReadingStore = create<ReadingStoreState>()(
         letterSpacing: state.letterSpacing,
         lineHeight: state.lineHeight,
         highlightColor: state.highlightColor,
+        highlightBackgroundColor: state.highlightBackgroundColor,
+        highlightTextColor: state.highlightTextColor,
         speed: state.speed,
         isTtsEnabled: state.isTtsEnabled,
       }),
-    }
-  )
+    },
+  ),
 );

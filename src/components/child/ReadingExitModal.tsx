@@ -1,14 +1,15 @@
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogTitle,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogTitle,
 } from "@/src/components/ui/dialog";
 import { AlertCircle } from "lucide-react-native";
 import React from "react";
 import { View } from "react-native";
 import { Button } from "../shared/Button";
+import { Text } from "../ui/text";
 
 interface ReadingExitModalProps {
   open: boolean;
@@ -43,10 +44,14 @@ export const ReadingExitModal = ({
               onPress={() => onOpenChange(false)}
               className="flex-1 mr-2"
             >
-              Quay lại đọc tiếp
+              <Text className="text-base font-semibold text-foreground">
+                Quay lại đọc tiếp
+              </Text>
             </Button>
             <Button uiVariant="danger" onPress={onConfirm} className="flex-1">
-              Thoát ra
+              <Text className="text-base font-semibold text-foreground">
+                Thoát ra
+              </Text>
             </Button>
           </DialogFooter>
         </View>

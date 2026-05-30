@@ -19,6 +19,8 @@ export interface DisplaySettingsResponse {
   letterSpacing: number;
   backgroundColor: string;
   textColor: string;
+  highlightBackgroundColor: string;
+  highlightTextColor: string;
   themeName: string | null;
   settingsVersion: number;
 }
@@ -30,5 +32,7 @@ export interface SaveDisplaySettingsRequest {
   letterSpacing: number;
   backgroundColor: string;
   textColor: string;
+  highlightBackgroundColor: string;
+  highlightTextColor: string;
   themeName?: string | null;
 }

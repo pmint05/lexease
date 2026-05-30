@@ -1,23 +1,21 @@
 import { Card } from "@/src/components/ui/card";
 import { Text } from "@/src/components/ui/text";
-import * as FileSystem from "expo-file-system";
+import * as FileSystem from "expo-file-system/legacy";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import {
-    BarChart,
-    ChevronLeft,
-    Clock,
-    FileText,
-    Headphones,
-    Play,
+  ChevronLeft,
+  Clock,
+  FileText,
+  Play
 } from "lucide-react-native";
 import { useMemo, useState } from "react";
-import { Alert, Image, ScrollView, View } from "react-native";
+import { Alert, Image, Platform, ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { AudioPlaybackModal } from "@/src/components/child/AudioPlaybackModal";
 import { RecordingTile } from "@/src/components/child/RecordingTile";
-import { Button } from "@/src/components/shared/Button";
-import { COLORS } from "@/src/core/constants/colors";
+import { Button } from "@/src/components/ui/button";
+import { Skeleton } from "@/src/components/ui/skeleton";
 import { Recording, storyDetailToBook } from "@/src/core/types";
 import { useStoryQuery } from "@/src/hooks/useStoryQueries";
 import { useRecordingStore } from "@/src/store/useRecordingStore";
@@ -63,8 +61,28 @@ export default function ReadingDetailScreen(): React.ReactElement {
     [id, recordings],
   );
 
+  const isWebPlayableAudioUri = (uri: string): boolean => {
+    return /^(https?:|blob:|data:)/i.test(uri);
+  };
+
   const handleOpenPlayback = async (recording: Recording) => {
     try {
+      if (Platform.OS === "web") {
+        if (!isWebPlayableAudioUri(recording.filePath)) {
+          Alert.alert(
+            "Lỗi tập tin",
+            "Bản ghi này chưa có URI phù hợp để phát trên web. Hãy thử trên thiết bị di động hoặc dùng bản ghi từ web.",
+          );
+          return;
+        }
+
+        setPlaybackUri(recording.filePath);
+        setSelectedRecordingId(recording.id);
+        setPlaybackMeteringData(recording.meteringData);
+        setIsPlaybackOpen(true);
+        return;
+      }
+
       const fileInfo = await FileSystem.getInfoAsync(recording.filePath);
 
       if (!fileInfo.exists) {
@@ -93,10 +111,50 @@ export default function ReadingDetailScreen(): React.ReactElement {
     }
   };
 
+  const handleBack = () => {
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.push("/(child)/(tabs)/library");
+    }
+  };
+
   if (storyQuery.isLoading) {
     return (
-      <View className="flex-1 justify-center items-center bg-background">
-        <Text className="text-muted-foreground">Đang tải bài đọc...</Text>
+      <View className="flex-1 bg-background">
+        <View className="flex-row items-center bg-background px-4 py-3">
+          <Skeleton className="h-10 w-10 rounded-full" />
+          <Skeleton className="h-6 w-40 ml-3 rounded-full" />
+        </View>
+
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <View className="px-4 gap-6 pb-24">
+            <View className="flex-row gap-4">
+              <Skeleton className="w-[120px] aspect-[2/3] rounded-md" />
+              <View className="flex-1 justify-center gap-2">
+                <Skeleton className="h-4 w-24 rounded-full" />
+                <Skeleton className="h-8 w-4/5 rounded-full" />
+                <Skeleton className="h-4 w-3/5 rounded-full" />
+              </View>
+            </View>
+
+            <View className="flex-row gap-3">
+              <Skeleton className="flex-1 h-20 rounded-lg" />
+              <Skeleton className="flex-1 h-20 rounded-lg" />
+            </View>
+
+            <View className="gap-3">
+              <Skeleton className="h-12 w-full rounded-xl" />
+            </View>
+
+            <View className="gap-4 mt-2">
+              <Skeleton className="h-6 w-1/3 rounded-full" />
+              {Array.from({ length: 3 }).map((_, i) => (
+                <Skeleton key={i} className="h-16 w-full rounded-lg" />
+              ))}
+            </View>
+          </View>
+        </ScrollView>
       </View>
     );
   }
@@ -107,39 +165,20 @@ export default function ReadingDetailScreen(): React.ReactElement {
         <Text className="text-muted-foreground">
           Không tìm thấy bài đọc này
         </Text>
-        <Button className="mt-4" onPress={() => router.back()}>
+        <Button className="mt-4" onPress={handleBack}>
           Quay lại
         </Button>
       </View>
     );
   }
 
-  const difficultyColor =
-    book.difficulty === "easy"
-      ? COLORS.easy
-      : book.difficulty === "medium"
-        ? COLORS.medium
-        : COLORS.hard;
-
   return (
     <View className="flex-1 bg-background">
       {/* 1. Header */}
-      <View
-        style={{
-          paddingTop: insets.top,
-          paddingHorizontal: 16,
-          paddingVertical: 14,
-        }}
-        className="flex-row items-center bg-background"
-      >
-        <Button
-          icon={<ChevronLeft size={24} />}
-          chromeless
-          uiVariant="ghost"
-          onPress={() => router.back()}
-          padding={0}
-          width={40}
-        />
+      <View className="flex-row items-center bg-background px-4 py-3">
+        <Button onPress={handleBack} variant="ghost" size="icon">
+          <ChevronLeft className="text-foreground size-6" />
+        </Button>
         <Text className="text-xl font-bold ml-2">Chi tiết bài đọc</Text>
       </View>
 
@@ -147,10 +186,10 @@ export default function ReadingDetailScreen(): React.ReactElement {
         <View className="px-4 gap-6 pb-24">
           {/* 2. Hero Section: Cover & Basic Info */}
           <View className="flex-row gap-4">
-            <Card className="w-[120px] h-[180px] overflow-hidden">
+            <Card className="w-[120px] aspect-[2/3] overflow-hidden p-0">
               <Image
                 source={{ uri: book.coverUrl }}
-                style={{ width: 120, height: 180 }}
+                style={{ width: "100%", height: "100%" }}
               />
             </Card>
 
@@ -162,29 +201,6 @@ export default function ReadingDetailScreen(): React.ReactElement {
                 {book.title}
               </Text>
               <Text className="text-muted-foreground">{book.author}</Text>
-
-              <View className="flex-row items-center gap-2 mt-1">
-                <View
-                  style={{
-                    paddingHorizontal: 8,
-                    paddingVertical: 4,
-                    borderRadius: 6,
-                    backgroundColor: `${difficultyColor}22`,
-                  }}
-                >
-                  <Text
-                    style={{ color: difficultyColor }}
-                    className="font-semibold uppercase"
-                  >
-                    Mức độ:{" "}
-                    {book.difficulty === "easy"
-                      ? "Dễ"
-                      : book.difficulty === "medium"
-                        ? "Vừa"
-                        : "Khó"}
-                  </Text>
-                </View>
-              </View>
             </View>
           </View>
 
@@ -202,49 +218,31 @@ export default function ReadingDetailScreen(): React.ReactElement {
               <Text className="font-extrabold text-lg">{book.wordCount}</Text>
               <Text className="text-sm text-muted-foreground">Số từ</Text>
             </Card>
-            <Card className="flex-1 p-3 bg-color2 items-center gap-1">
-              <BarChart size={20} color="#6B7280" />
-              <Text className="font-extrabold text-lg">
-                {book.difficulty === "easy"
-                  ? "Lv.1"
-                  : book.difficulty === "medium"
-                    ? "Lv.2"
-                    : "Lv.3"}
-              </Text>
-              <Text className="text-sm text-muted-foreground">Cấp độ</Text>
-            </Card>
           </View>
 
           {/* 4. Primary CTA: Start Reading */}
           <View className="gap-3">
             <Button
-              size="large"
-              icon={<Play size={20} />}
+              size="lg"
               onPress={() =>
                 router.push({
                   pathname: "/(child)/reading/[id]",
                   params: { id: book.id, mode: "start" },
                 })
               }
-              uiVariant="primary"
             >
-              Bắt đầu bài đọc
+              <Play size={20} />
+              <Text>Bắt đầu bài đọc</Text>
             </Button>
-            <Text className="text-center text-sm text-muted-foreground">
-              Bé hãy ấn nút xanh để bắt đầu hành trình khám phá nhé!
-            </Text>
           </View>
 
           {/* 5. Recent Recordings */}
           {bookRecordings.length > 0 && (
             <View className="gap-4 mt-2">
-              <View className="flex-row items-center gap-2">
-                <Headphones size={22} />
-                <Text className="text-lg font-extrabold">Bản ghi của bé</Text>
-              </View>
+              <Text className="text-lg font-extrabold">Bản ghi của bé</Text>
 
               <View className="gap-3">
-                {bookRecordings.slice(0, 5).map((recording) => (
+                {bookRecordings.map((recording) => (
                   <RecordingTile
                     key={recording.id}
                     recording={recording}
@@ -265,9 +263,6 @@ export default function ReadingDetailScreen(): React.ReactElement {
           meteringData={playbackMeteringData}
           open={isPlaybackOpen}
           onOpenChange={handlePlaybackOpenChange}
-          onDelete={() =>
-            selectedRecordingId && removeRecording(selectedRecordingId)
-          }
         />
       )}
     </View>
