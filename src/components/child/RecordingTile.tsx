@@ -30,6 +30,8 @@ import { Button } from "../ui/button";
 interface RecordingTileProps {
   recording: Recording;
   showTitle?: boolean; // Hiển thị tên sách nếu cần (ví dụ trong trang Lịch sử)
+  showRenameAction?: boolean;
+  showCreateDate?: boolean;
   onPlay: (recording: Recording) => void;
   onDelete: (recordingId: string) => void;
   onRename?: (recordingId: string, newTitle: string) => void;
@@ -38,6 +40,8 @@ interface RecordingTileProps {
 export const RecordingTile = ({
   recording,
   showTitle = false,
+  showRenameAction = true,
+  showCreateDate = false,
   onPlay,
   onDelete,
   onRename,
@@ -81,12 +85,14 @@ export const RecordingTile = ({
   const renderRightActions = () => {
     return (
       <View className="ml-3 flex-row items-stretch overflow-hidden rounded-2xl">
-        <Pressable
-          onPress={openRenameDialog}
-          className="w-20 items-center justify-center bg-amber-500 px-1"
-        >
-          <Text className="text-sm font-semibold text-white">Sửa</Text>
-        </Pressable>
+        {showRenameAction ? (
+          <Pressable
+            onPress={openRenameDialog}
+            className="w-20 items-center justify-center bg-amber-500 px-1"
+          >
+            <Text className="text-sm font-semibold text-white">Sửa</Text>
+          </Pressable>
+        ) : null}
         <Pressable
           onPress={handleDelete}
           className="w-20 items-center justify-center bg-destructive px-1"
@@ -119,13 +125,15 @@ export const RecordingTile = ({
                 {recording.bookTitle}
               </Text>
             )}
-            <Text
-              className={
-                showTitle ? "text-sm text-muted-foreground" : "text-base"
-              }
-            >
-              {formatDateTime(recording.createdAt)}
-            </Text>
+            {showCreateDate && (
+              <Text
+                className={
+                  showTitle ? "text-sm text-muted-foreground" : "text-base"
+                }
+              >
+                {formatDateTime(recording.createdAt)}
+              </Text>
+            )}
             <Text className="text-sm text-muted-foreground">
               {formatReadingTime(recording.durationMs)}
             </Text>
@@ -171,52 +179,56 @@ export const RecordingTile = ({
         </AlertDialogContent>
       </AlertDialog>
 
-      <Dialog open={isRenameOpen} onOpenChange={setIsRenameOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Đổi tên bản ghi</DialogTitle>
-            <DialogDescription>
-              Cập nhật tên hiển thị cho bản ghi này để dễ tìm lại hơn.
-            </DialogDescription>
-          </DialogHeader>
+      {showRenameAction ? (
+        <Dialog open={isRenameOpen} onOpenChange={setIsRenameOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Đổi tên bản ghi</DialogTitle>
+              <DialogDescription>
+                Cập nhật tên hiển thị cho bản ghi này để dễ tìm lại hơn.
+              </DialogDescription>
+            </DialogHeader>
 
-          <View className="gap-2">
-            <Text className="text-sm font-medium text-foreground">Tên mới</Text>
-            <Input
-              ref={renameInputRef}
-              value={draftTitle}
-              onChangeText={setDraftTitle}
-              placeholder="Nhập tên mới"
-              autoFocus
-              returnKeyType="done"
-              onSubmitEditing={handleSaveRename}
-              className="text-base"
-            />
-          </View>
+            <View className="gap-2">
+              <Text className="text-sm font-medium text-foreground">
+                Tên mới
+              </Text>
+              <Input
+                ref={renameInputRef}
+                value={draftTitle}
+                onChangeText={setDraftTitle}
+                placeholder="Nhập tên mới"
+                autoFocus
+                returnKeyType="done"
+                onSubmitEditing={handleSaveRename}
+                className="text-base"
+              />
+            </View>
 
-          <DialogFooter>
-            <Button
-              variant="outline"
-              className="flex-1"
-              onPress={() => setIsRenameOpen(false)}
-            >
-              <Text className="text-base font-semibold text-foreground">
-                Hủy
-              </Text>
-            </Button>
-            <Button
-              variant="default"
-              className="flex-1"
-              disabled={!canSaveRename}
-              onPress={handleSaveRename}
-            >
-              <Text className="text-base font-semibold primary-foreground">
-                Lưu
-              </Text>
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                className="flex-1"
+                onPress={() => setIsRenameOpen(false)}
+              >
+                <Text className="text-base font-semibold text-foreground">
+                  Hủy
+                </Text>
+              </Button>
+              <Button
+                variant="default"
+                className="flex-1"
+                disabled={!canSaveRename}
+                onPress={handleSaveRename}
+              >
+                <Text className="text-base font-semibold primary-foreground">
+                  Lưu
+                </Text>
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      ) : null}
     </>
   );
 };

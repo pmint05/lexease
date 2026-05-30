@@ -26,6 +26,13 @@ export default function ChildLayout(): React.ReactElement {
     >
       <Stack.Screen name="(tabs)" />
       <Stack.Screen name="reading/[id]" />
+      <Stack.Screen
+        name="reading/result"
+        options={{
+          animation: "fade",
+          gestureEnabled: false,
+        }}
+      />
       <Stack.Screen name="book/[id]" />
     </Stack>
   );

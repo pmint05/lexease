@@ -53,7 +53,6 @@ export default function ReadingScreen(): React.ReactElement {
     speed,
     isPlaying,
     isTtsEnabled,
-    backgroundColor,
     setIsPlaying,
     setIndex,
     setIsTtsEnabled,
@@ -162,6 +161,7 @@ export default function ReadingScreen(): React.ReactElement {
     const completedAt = Date.now();
     addSession({
       id: `learn-${completedAt}`,
+      sessionId: activeSession?.sessionId,
       childId: user?.id ?? "unknown-child",
       bookId: book.id,
       bookTitle: book.title,
@@ -172,7 +172,14 @@ export default function ReadingScreen(): React.ReactElement {
       speed: speed,
     });
     sessionLoggedRef.current = true;
-  }, [addSession, book, user?.id, currentIndex, speed]);
+  }, [
+    addSession,
+    activeSession?.sessionId,
+    book,
+    user?.id,
+    currentIndex,
+    speed,
+  ]);
 
   const syncProgress = useCallback(
     (force = false): void => {
@@ -204,6 +211,36 @@ export default function ReadingScreen(): React.ReactElement {
     },
     [activeSession, currentIndex, updateReadingProgress, words],
   );
+
+  const stopAndSaveRecording = useCallback(async (): Promise<boolean> => {
+    if (!book) return false;
+
+    const uri = await stopRecording();
+    if (!uri) return false;
+
+    addRecording({
+      id: `rec-${Date.now()}`,
+      sessionId: activeSession?.sessionId ?? `session-${Date.now()}`,
+      childId: user?.id ?? "unknown-child",
+      bookId: book.id,
+      bookTitle: book.title,
+      filePath: uri,
+      durationMs: Math.max(1000, recordingDuration * 1000),
+      createdAt: new Date().toISOString(),
+      sizeBytes: 0,
+      meteringData: [...meteringData],
+    });
+
+    return true;
+  }, [
+    activeSession?.sessionId,
+    addRecording,
+    book,
+    meteringData,
+    recordingDuration,
+    stopRecording,
+    user?.id,
+  ]);
 
   // Handlers
   const handleTogglePlay = () => {
@@ -265,21 +302,7 @@ export default function ReadingScreen(): React.ReactElement {
 
   const handleToggleRecording = async () => {
     if (isRecording) {
-      const uri = await stopRecording();
-      if (uri && book) {
-        addRecording({
-          id: `rec-${Date.now()}`,
-          sessionId: `session-${Date.now()}`,
-          childId: user?.id ?? "unknown-child",
-          bookId: book.id,
-          bookTitle: book.title,
-          filePath: uri,
-          durationMs: Math.max(1000, recordingDuration * 1000),
-          createdAt: new Date().toISOString(),
-          sizeBytes: 0,
-          meteringData: [...meteringData],
-        });
-      }
+      await stopAndSaveRecording();
     } else {
       await startRecording();
     }
@@ -392,14 +415,38 @@ export default function ReadingScreen(): React.ReactElement {
     if (!activeSession || !isFinished || completedBackendRef.current) return;
 
     completedBackendRef.current = true;
-    syncProgress(true);
-    completeSessionMutation.mutate(activeSession.sessionId);
-    finalizeSession();
+    const finishSession = async (): Promise<void> => {
+      try {
+        if (isRecording) {
+          await stopAndSaveRecording();
+        }
+
+        syncProgress(true);
+        await completeSessionMutation.mutateAsync(activeSession.sessionId);
+        finalizeSession();
+        router.replace({
+          pathname: "/(child)/reading/result",
+          params: {
+            sessionId: activeSession.sessionId,
+            storyId: id ?? activeSession.story.id,
+          },
+        });
+      } catch (error) {
+        completedBackendRef.current = false;
+        console.error("Unable to complete reading session:", error);
+      }
+    };
+
+    void finishSession();
   }, [
     activeSession,
     completeSessionMutation,
     finalizeSession,
+    isRecording,
+    id,
     isFinished,
+    router,
+    stopAndSaveRecording,
     syncProgress,
   ]);
 

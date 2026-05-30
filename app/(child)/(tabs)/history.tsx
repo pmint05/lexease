@@ -1,24 +1,31 @@
 import { Text } from "@/src/components/ui/text";
 import * as FileSystem from "expo-file-system/legacy";
-import { Headphones } from "lucide-react-native";
+import { Headphones, Search, SlidersHorizontal } from "lucide-react-native";
 import React, { useMemo, useState } from "react";
 import { Alert, FlatList, Platform, View } from "react-native";
 
 import { AudioPlaybackModal } from "@/src/components/child/AudioPlaybackModal";
+import {
+    HistoryFilterSheet,
+    type HistoryPeriodFilter,
+    type HistorySortOption,
+} from "@/src/components/child/HistoryFilterSheet";
 import { RecordingTile } from "@/src/components/child/RecordingTile";
+import { Button } from "@/src/components/ui/button";
+import { Icon } from "@/src/components/ui/icon";
+import { Input } from "@/src/components/ui/input";
 import { Recording } from "@/src/core/types";
 import { useAuthStore } from "@/src/store/useAuthStore";
 import { useRecordingStore } from "@/src/store/useRecordingStore";
 
-/**
- * History Screen
- * Displays child's past recordings and reading history
- */
 export default function HistoryScreen(): React.ReactElement {
   const { user } = useAuthStore();
   const { recordings, removeRecording } = useRecordingStore();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [periodFilter, setPeriodFilter] = useState<HistoryPeriodFilter>("all");
+  const [sortOption, setSortOption] = useState<HistorySortOption>("newest");
+  const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
 
-  // Playback State
   const [playbackUri, setPlaybackUri] = useState<string | null>(null);
   const [playbackTitle, setPlaybackTitle] = useState("");
   const [selectedRecordingId, setSelectedRecordingId] = useState<string | null>(
@@ -40,21 +47,72 @@ export default function HistoryScreen(): React.ReactElement {
     }
   };
 
-  const sortedRecordings = useMemo<Recording[]>(() => {
-    return recordings
+  const filteredRecordings = useMemo<Recording[]>(() => {
+    const now = Date.now();
+    const normalizedQuery = searchQuery.trim().toLowerCase();
+
+    const filtered = recordings
       .filter((recording) => recording.childId === user?.id)
-      .sort(
-        (left, right) =>
-          new Date(right.createdAt).getTime() -
-          new Date(left.createdAt).getTime(),
-      );
-  }, [recordings, user?.id]);
+      .filter((recording) => {
+        if (normalizedQuery.length > 0) {
+          const title = recording.bookTitle.toLowerCase();
+          if (!title.includes(normalizedQuery)) {
+            return false;
+          }
+        }
+
+        if (periodFilter === "all") {
+          return true;
+        }
+
+        const ageMs = now - new Date(recording.createdAt).getTime();
+        const limitMs =
+          periodFilter === "7d"
+            ? 7 * 24 * 60 * 60 * 1000
+            : 30 * 24 * 60 * 60 * 1000;
+
+        return ageMs <= limitMs;
+      });
+
+    return filtered.sort((left, right) => {
+      switch (sortOption) {
+        case "oldest":
+          return (
+            new Date(left.createdAt).getTime() -
+            new Date(right.createdAt).getTime()
+          );
+        case "longest":
+          return (right.durationMs ?? 0) - (left.durationMs ?? 0);
+        case "shortest":
+          return (left.durationMs ?? 0) - (right.durationMs ?? 0);
+        case "title-asc":
+          return left.bookTitle.localeCompare(right.bookTitle, "vi-VN");
+        case "title-desc":
+          return right.bookTitle.localeCompare(left.bookTitle, "vi-VN");
+        case "newest":
+        default:
+          return (
+            new Date(right.createdAt).getTime() -
+            new Date(left.createdAt).getTime()
+          );
+      }
+    });
+  }, [periodFilter, recordings, searchQuery, sortOption, user?.id]);
+
+  const hasActiveFilters =
+    searchQuery.trim().length > 0 ||
+    periodFilter !== "all" ||
+    sortOption !== "newest";
+
+  const clearFilters = () => {
+    setSearchQuery("");
+    setPeriodFilter("all");
+    setSortOption("newest");
+  };
 
   const handleOpenPlayback = async (recording: Recording) => {
     try {
       if (Platform.OS === "web") {
-        // On web, recordings may be stored as blob: or http(s) URLs.
-        // Try to fetch the resource (HEAD then GET) to detect availability.
         const webUri = (recording as any).webUri ?? recording.filePath;
         if (!webUri) {
           Alert.alert(
@@ -93,7 +151,6 @@ export default function HistoryScreen(): React.ReactElement {
         return;
       }
 
-      // Native platforms: use expo-file-system to verify file exists
       const fileInfo = await FileSystem.getInfoAsync(recording.filePath);
 
       if (!fileInfo.exists) {
@@ -126,14 +183,71 @@ export default function HistoryScreen(): React.ReactElement {
   return (
     <View className="flex-1 bg-background px-4">
       <FlatList
-        data={sortedRecordings}
+        data={filteredRecordings}
         keyExtractor={(item) => item.id}
         contentContainerStyle={{ paddingTop: 16, paddingBottom: 100 }}
+        ListHeaderComponent={
+          <View className="mb-4 gap-4">
+            <View className="gap-2">
+              <Text className="text-2xl font-bold">Lịch sử ghi âm</Text>
+              <Text className="text-sm text-muted-foreground">
+                Tìm nhanh bản ghi theo tên sách, khoảng thời gian hoặc cách sắp
+                xếp.
+              </Text>
+            </View>
+
+            <View className="gap-2">
+              <Text className="text-sm font-medium text-muted-foreground">
+                Tìm kiếm
+              </Text>
+              <View className="flex-row items-center gap-2">
+                <View className="relative flex-1">
+                  <View className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2">
+                    <Icon
+                      as={Search}
+                      className="text-muted-foreground"
+                      size={18}
+                    />
+                  </View>
+                  <Input
+                    value={searchQuery}
+                    onChangeText={setSearchQuery}
+                    placeholder="Tìm theo tên sách"
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    className="pl-10"
+                  />
+                </View>
+
+                <Button
+                  size="icon"
+                  variant={hasActiveFilters ? "default" : "outline"}
+                  className="shrink-0"
+                  onPress={() => setIsFilterSheetOpen(true)}
+                >
+                  <Icon as={SlidersHorizontal} size={18} />
+                </Button>
+              </View>
+
+              <View className="flex-row items-center justify-between">
+                <Text className="text-sm text-muted-foreground">
+                  {filteredRecordings.length} bản ghi
+                </Text>
+                {hasActiveFilters ? (
+                  <Text className="text-sm text-muted-foreground">
+                    Đang áp dụng bộ lọc
+                  </Text>
+                ) : null}
+              </View>
+            </View>
+          </View>
+        }
         ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
         renderItem={({ item }) => (
           <RecordingTile
             recording={item}
             showTitle={true}
+            showCreateDate={true}
             onPlay={handleOpenPlayback}
             onDelete={removeRecording}
           />
@@ -142,8 +256,9 @@ export default function HistoryScreen(): React.ReactElement {
           <View className="py-10 items-center gap-2">
             <Headphones size={48} color="#9CA3AF" />
             <Text className="text-muted-foreground text-center">
-              Chưa có ghi âm nào. Hãy bắt đầu đọc sách để lưu giữ giọng đọc của
-              bé nhé!
+              {hasActiveFilters
+                ? "Không tìm thấy bản ghi phù hợp với bộ lọc hiện tại."
+                : "Chưa có ghi âm nào. Hãy bắt đầu đọc sách để lưu giữ giọng đọc của bé nhé!"}
             </Text>
           </View>
         }
@@ -157,11 +272,21 @@ export default function HistoryScreen(): React.ReactElement {
           meteringData={playbackMeteringData}
           open={isPlaybackOpen}
           onOpenChange={handlePlaybackOpenChange}
-          onDelete={() =>
-            selectedRecordingId && removeRecording(selectedRecordingId)
-          }
         />
       )}
+
+      <HistoryFilterSheet
+        open={isFilterSheetOpen}
+        onOpenChange={setIsFilterSheetOpen}
+        searchQuery={searchQuery}
+        periodFilter={periodFilter}
+        sortOption={sortOption}
+        filteredCount={filteredRecordings.length}
+        hasActiveFilters={hasActiveFilters}
+        onClearFilters={clearFilters}
+        onPeriodChange={setPeriodFilter}
+        onSortChange={setSortOption}
+      />
     </View>
   );
 }

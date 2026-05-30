@@ -2,12 +2,7 @@ import { Card } from "@/src/components/ui/card";
 import { Text } from "@/src/components/ui/text";
 import * as FileSystem from "expo-file-system/legacy";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import {
-  ChevronLeft,
-  Clock,
-  FileText,
-  Play
-} from "lucide-react-native";
+import { ChevronLeft, Clock, FileText, Play } from "lucide-react-native";
 import { useMemo, useState } from "react";
 import { Alert, Image, Platform, ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -248,6 +243,8 @@ export default function ReadingDetailScreen(): React.ReactElement {
                     recording={recording}
                     onPlay={handleOpenPlayback}
                     onDelete={removeRecording}
+                    showTitle={true}
+                    showCreateDate={true}
                   />
                 ))}
               </View>

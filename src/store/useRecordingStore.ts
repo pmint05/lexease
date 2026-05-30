@@ -7,8 +7,10 @@ import { Recording } from "@/src/core/types";
 interface RecordingStoreState {
   recordings: Recording[];
   addRecording: (recording: Recording) => void;
+  replaceRecording: (recordingId: string, recording: Recording) => void;
   removeRecording: (recordingId: string) => void;
   clearRecordingsByChild: (childId: string) => void;
+  clearRecordingsBySession: (sessionId: string) => void;
   clearRecordings: () => void;
 }
 
@@ -65,6 +67,14 @@ export const useRecordingStore = create<RecordingStoreState>()(
       recordings: SAMPLE_RECORDINGS,
       addRecording: (recording) =>
         set((state) => ({ recordings: [recording, ...state.recordings] })),
+      replaceRecording: (recordingId, recording) =>
+        set((state) => ({
+          recordings: state.recordings.map((item) =>
+            item.id === recordingId
+              ? { ...item, ...recording, id: recordingId }
+              : item,
+          ),
+        })),
       removeRecording: (recordingId) =>
         set((state) => ({
           recordings: state.recordings.filter(
@@ -75,6 +85,12 @@ export const useRecordingStore = create<RecordingStoreState>()(
         set((state) => ({
           recordings: state.recordings.filter(
             (recording) => recording.childId !== childId,
+          ),
+        })),
+      clearRecordingsBySession: (sessionId) =>
+        set((state) => ({
+          recordings: state.recordings.filter(
+            (recording) => recording.sessionId !== sessionId,
           ),
         })),
       clearRecordings: () => set({ recordings: [] }),
