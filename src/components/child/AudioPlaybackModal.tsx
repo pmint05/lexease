@@ -95,11 +95,16 @@ export const AudioPlaybackModal = ({
     player.seekTo(nextTime);
   };
 
-  // Pause when closing
+  // Pause when closing or unmounting
   useEffect(() => {
     if (!open) {
       player.pause();
     }
+
+    return () => {
+      // Critical: Ensure audio stops when component is unmounted
+      player.pause();
+    };
   }, [open, player]);
 
   const progress =
