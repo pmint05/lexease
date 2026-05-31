@@ -1,8 +1,7 @@
-import { Text } from "@/src/components/ui/text";
-// COLORS import removed (logout moved to Settings)
+import ChildSelector from "@/src/components/guardian/ChildSelector";
+import RangeSelector from "@/src/components/guardian/RangeSelector";
 import { useEffectiveTheme } from "@/src/hooks/useEffectiveTheme";
-import { useAuthStore } from "@/src/store/useAuthStore";
-import { Tabs, useRouter } from "expo-router";
+import { Tabs } from "expo-router";
 import {
   BarChart3,
   CalendarClock,
@@ -17,40 +16,29 @@ import { View } from "react-native";
  * Manages dashboard, reports, scheduler, and settings tabs
  */
 export default function GuardianTabsLayout(): React.ReactElement {
-  const { logout } = useAuthStore();
-  const router = useRouter();
   const { theme } = useEffectiveTheme();
-
-  const handleLogout = async () => {
-    logout();
-    await new Promise((resolve) => setTimeout(resolve, 100));
-    router.replace("/(auth)/login");
-  };
 
   return (
     <Tabs
       screenOptions={{
         headerShown: true,
         headerStyle: {
-          backgroundColor: theme.card,
+          backgroundColor: theme.background,
           borderBottomWidth: 1,
           borderBottomColor: theme.border,
+          height: 64, // Slightly taller to accommodate selector items comfortably
         },
-        headerTitleStyle: {
-          fontSize: 18,
-          color: theme.foreground,
-        },
+        headerTitle: "",
         headerLeft: () => (
           <View style={{ paddingLeft: 16 }}>
-            <Text
-              className="text-primary"
-              style={{ fontSize: 20, letterSpacing: -1 }}
-            >
-              LexEase
-            </Text>
+            <ChildSelector />
           </View>
         ),
-        headerTitleAlign: "center",
+        headerRight: () => (
+          <View style={{ paddingRight: 16 }}>
+            <RangeSelector />
+          </View>
+        ),
         headerShadowVisible: false,
         tabBarStyle: {
           backgroundColor: theme.card,
@@ -69,43 +57,42 @@ export default function GuardianTabsLayout(): React.ReactElement {
           fontFamily: "Lexend-Medium",
           fontSize: 11,
         },
-        // headerRight removed: logout moved into Settings screen
       }}
     >
       <Tabs.Screen
         name="dashboard"
         options={{
-          title: "Tổng Quan",
           tabBarIcon: ({ color, size }) => (
             <LayoutDashboard color={color} size={size} />
           ),
+          tabBarLabel: "Tổng Quan",
         }}
       />
       <Tabs.Screen
         name="report"
         options={{
-          title: "Báo Cáo",
           tabBarIcon: ({ color, size }) => (
             <BarChart3 color={color} size={size} />
           ),
+          tabBarLabel: "Báo Cáo",
         }}
       />
       <Tabs.Screen
         name="scheduler"
         options={{
-          title: "Lịch Học",
           tabBarIcon: ({ color, size }) => (
             <CalendarClock color={color} size={size} />
           ),
+          tabBarLabel: "Lịch Học",
         }}
       />
       <Tabs.Screen
         name="settings"
         options={{
-          title: "Cài Đặt",
           tabBarIcon: ({ color, size }) => (
             <Settings color={color} size={size} />
           ),
+          tabBarLabel: "Cài Đặt",
         }}
       />
     </Tabs>

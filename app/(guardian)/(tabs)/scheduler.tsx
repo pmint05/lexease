@@ -348,9 +348,9 @@ export default function SchedulerScreen(): React.ReactElement {
                       >
                         <Card
                           key={reminder.scheduleId}
-                          className="border-border"
+                          className="border-border py-4"
                         >
-                          <CardContent className="p-4">
+                          <CardContent className="px-4">
                             <View className="flex-row justify-between items-start">
                               <View className="flex-1 gap-2">
                                 <View className="flex-row items-center gap-2">

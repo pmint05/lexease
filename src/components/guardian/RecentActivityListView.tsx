@@ -1,5 +1,6 @@
 import { Text } from "@/src/components/ui/text";
 import { LearningSession } from "@/src/core/types/learning";
+import { formatDurationMs } from "@/src/utils/formatters";
 import { ChevronRight } from "lucide-react-native";
 import React from "react";
 import { View } from "react-native";
@@ -48,7 +49,7 @@ export default function RecentActivityListView({
                   {new Date(item.completedAt).toLocaleString()}
                 </Text>
                 <Text className="text-sm text-muted-foreground">
-                  {Math.round(item.durationMs / 60000)} phút - {item.wordsRead} từ
+                  {formatDurationMs(item.durationMs)} - {item.wordsRead} từ
                 </Text>
               </View>
               <ChevronRight size={16} color="#8A8A8A" />

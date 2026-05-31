@@ -1,57 +1,48 @@
-import { Badge } from "@/src/components/ui/badge";
-import { Card } from "@/src/components/ui/card";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from "@/src/components/ui/dialog";
 import { Text } from "@/src/components/ui/text";
 import { useEffectiveTheme } from "@/src/hooks/useEffectiveTheme";
 import { useGuardianChildLinksQuery } from "@/src/hooks/useFamilyQueries";
-import { ChevronsUpDown } from "lucide-react-native";
+import { cn } from "@/src/lib/utils";
+import { Check, ChevronDown, User } from "lucide-react-native";
 import React from "react";
-import { FlatList, Pressable, View } from "react-native";
+import { ActivityIndicator, FlatList, Pressable, View } from "react-native";
 import { useAuthStore } from "../../store/useAuthStore";
 import { useFamilyStore } from "../../store/useFamilyStore";
 
 type Props = {
   onChange?: (childId: string | null) => void;
+  className?: string;
 };
 
-export default function ChildSelector({ onChange }: Props) {
+export default function ChildSelector({ onChange, className }: Props) {
   const [open, setOpen] = React.useState(false);
   const user = useAuthStore((s) => s.user);
   const guardianId = user?.id ?? null;
   const { theme } = useEffectiveTheme();
 
-  const getChildrenForGuardian = useFamilyStore(
-    (s) => s.getChildrenForGuardian,
-  );
   const getSelectedChildId = useFamilyStore((s) => s.getSelectedChildId);
   const setSelectedChild = useFamilyStore((s) => s.setSelectedChild);
   const linksQuery = useGuardianChildLinksQuery();
 
   if (!guardianId) return null;
 
-  const backendLinks = (linksQuery.data ?? []).filter(
-    (link) => link.guardianId === guardianId,
+  const acceptedLinks = (linksQuery.data ?? []).filter(
+    (link) => link.guardianId === guardianId && link.status === "ACCEPTED",
   );
-  const acceptedLinks = backendLinks.filter(
-    (link) => link.status === "ACCEPTED",
-  );
-  const children =
-    backendLinks.length > 0
-      ? acceptedLinks.map((link) => ({
-          childId: link.childId,
-          childName: `Bé ${link.childId.slice(0, 8)}`,
-          childEmail: `${link.status.toLowerCase()} · ${link.childId.slice(0, 8)}`,
-          status: link.status,
-        }))
-      : getChildrenForGuardian(guardianId).map((child) => ({
-          ...child,
-          status: "ACCEPTED" as const,
-        }));
+
+  const children = acceptedLinks.map((link) => ({
+    childId: link.childId,
+    childName:
+      link.childEmail?.split("@")[0] || `Bé ${link.childId.slice(0, 4)}`,
+    childEmail: link.childEmail,
+  }));
+
   const selectedChildId = getSelectedChildId(guardianId);
   const selectedChild =
     children.find((child) => child.childId === selectedChildId) ??
@@ -59,94 +50,114 @@ export default function ChildSelector({ onChange }: Props) {
     null;
 
   const handleSelect = (childId: string) => {
-    if (onChange) {
-      onChange(childId);
-    } else {
-      setSelectedChild(guardianId, childId);
-    }
+    setSelectedChild(guardianId, childId);
+    if (onChange) onChange(childId);
     setOpen(false);
   };
 
   return (
-    <View>
-      <Text className="mb-2 text-sm text-muted-foreground">Bé đang xem</Text>
-
-      {children.length === 0 ? (
-        <Card className="p-4">
-          <Text className="text-sm text-muted-foreground">
-            {linksQuery.isLoading
-              ? "Đang tải danh sách bé..."
-              : backendLinks.length > 0
-                ? "Chưa có liên kết nào được chấp nhận."
-                : "Chưa có bé được liên kết."}
-          </Text>
-        </Card>
-      ) : (
-        <>
+    <View className={cn("flex-row items-center", className)}>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogTrigger asChild>
           <Pressable
-            onPress={() => setOpen(true)}
-            className="flex-row items-center justify-between rounded-xl border border-border bg-card px-4 py-3"
+            className="flex-row items-center gap-1.5 px-3 py-1.5 bg-muted/20 rounded-full border border-border/40 active:bg-muted/40"
             accessibilityRole="button"
-            accessibilityLabel="Mở danh sách chọn bé"
+            accessibilityLabel="Chọn tài khoản bé"
           >
-            <View className="flex-1 gap-1">
-              <Text className="text-base font-semibold">
-                {selectedChild?.childName ?? "Chọn bé"}
-              </Text>
-              <Text className="text-sm text-muted-foreground">
-                {selectedChild?.childEmail ?? ""}
-              </Text>
+            <View className="size-6 bg-primary/10 rounded-full items-center justify-center">
+              <User size={14} className="text-primary" />
             </View>
-            <ChevronsUpDown size={18} color={theme.mutedForeground} />
+            <Text
+              className="text-sm font-bold text-foreground"
+              numberOfLines={1}
+            >
+              {selectedChild?.childName || "Chọn bé"}
+            </Text>
+            <ChevronDown size={14} className="text-muted-foreground" />
           </Pressable>
+        </DialogTrigger>
 
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogContent className="max-w-[calc(100%-1rem)] sm:max-w-lg">
-              <DialogHeader>
-                <DialogTitle>Chọn bé để xem thống kê</DialogTitle>
-              </DialogHeader>
+        <DialogContent className="max-w-full sm:max-w-md p-0 overflow-hidden border-0 bg-background rounded-t-3xl sm:rounded-3xl bottom-0 left-0 right-0 absolute mx-auto slide-in-from-bottom-full rounded-b-none">
+          <View className="p-6 pb-2">
+            <DialogHeader className="mb-4">
+              <DialogTitle className="text-xl">Chọn bé đang xem</DialogTitle>
+              <Text className="text-sm text-muted-foreground">
+                Dữ liệu thống kê sẽ được hiển thị theo bé bạn chọn.
+              </Text>
+            </DialogHeader>
+          </View>
 
+          <View className="px-2 pb-6 max-h-[60vh]">
+            {linksQuery.isLoading ? (
+              <View className="py-10 items-center">
+                <ActivityIndicator color={theme.primary} />
+              </View>
+            ) : children.length === 0 ? (
+              <View className="py-10 items-center px-6">
+                <Text className="text-center text-muted-foreground italic">
+                  Bạn chưa có bé nào được liên kết thành công. Hãy vào mục Cài
+                  đặt để kết nối nhé!
+                </Text>
+              </View>
+            ) : (
               <FlatList
                 data={children}
                 keyExtractor={(item) => item.childId}
+                contentContainerStyle={{ paddingHorizontal: 8 }}
                 renderItem={({ item }) => {
                   const isActive = item.childId === selectedChildId;
-                  const isAccepted = item.status === "ACCEPTED";
-
                   return (
                     <Pressable
-                      onPress={() =>
-                        isAccepted ? handleSelect(item.childId) : null
-                      }
-                      className={
+                      onPress={() => handleSelect(item.childId)}
+                      className={cn(
+                        "mb-3 flex-row items-center justify-between p-4 rounded-2xl border-2 transition-all",
                         isActive
-                          ? "mb-2 rounded-xl border border-primary/30 bg-primary/10 p-3"
-                          : "mb-2 rounded-xl border border-border bg-background p-3"
-                      }
-                      accessibilityRole="button"
-                      accessibilityState={{ selected: isActive }}
+                          ? "border-primary bg-primary/5 shadow-sm"
+                          : "border-border bg-card active:bg-muted/10",
+                      )}
                     >
-                      <View className="flex-row items-center justify-between gap-2">
+                      <View className="flex-row items-center gap-3 flex-1">
+                        <View
+                          className={cn(
+                            "size-10 rounded-full items-center justify-center",
+                            isActive ? "bg-primary" : "bg-muted",
+                          )}
+                        >
+                          <User
+                            size={20}
+                            color={isActive ? "white" : theme.mutedForeground}
+                          />
+                        </View>
                         <View className="flex-1">
-                          <Text className="text-sm font-semibold">
+                          <Text
+                            className={cn(
+                              "font-bold text-base",
+                              isActive ? "text-primary" : "text-foreground",
+                            )}
+                          >
                             {item.childName}
                           </Text>
-                          <Text className="mt-1 text-xs text-muted-foreground">
+                          <Text
+                            className="text-xs text-muted-foreground"
+                            numberOfLines={1}
+                          >
                             {item.childEmail}
                           </Text>
                         </View>
-                        {!isAccepted ? (
-                          <Badge variant="secondary">Chờ duyệt</Badge>
-                        ) : null}
                       </View>
+                      {isActive && (
+                        <View className="size-6 bg-primary rounded-full items-center justify-center">
+                          <Check size={14} color="white" strokeWidth={3} />
+                        </View>
+                      )}
                     </Pressable>
                   );
                 }}
               />
-            </DialogContent>
-          </Dialog>
-        </>
-      )}
+            )}
+          </View>
+        </DialogContent>
+      </Dialog>
     </View>
   );
 }

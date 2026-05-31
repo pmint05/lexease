@@ -33,7 +33,7 @@ interface RecordingTileProps {
   showRenameAction?: boolean;
   showCreateDate?: boolean;
   onPlay: (recording: Recording) => void;
-  onDelete: (recordingId: string) => void;
+  onDelete?: (recordingId: string) => void;
   onRename?: (recordingId: string, newTitle: string) => void;
 }
 
@@ -79,7 +79,7 @@ export const RecordingTile = ({
 
   const confirmDelete = () => {
     setIsDeleteConfirmOpen(false);
-    onDelete(recording.id);
+    onDelete?.(recording.id);
   };
 
   const renderRightActions = () => {

@@ -47,3 +47,26 @@ export const formatDateTime = (isoString: string): string => {
     minute: "2-digit",
   });
 };
+
+/**
+ * Format milliseconds into a human readable duration string in Vietnamese.
+ * Examples:
+ *  - 3723000 -> "1 giờ 2 phút 3 giây"
+ *  - 60000 -> "1 phút"
+ *  - 1000 -> "1 giây"
+ *  - 0 -> "0 giây"
+ */
+export const formatDurationMs = (ms: number): string => {
+  const totalSeconds = Math.floor(ms / 1000);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  const parts: string[] = [];
+  if (hours > 0) parts.push(`${hours} giờ`);
+  if (minutes > 0) parts.push(`${minutes} phút`);
+  if (seconds > 0) parts.push(`${seconds} giây`);
+
+  if (parts.length === 0) return `0 phút`;
+  return parts.join(" ");
+};

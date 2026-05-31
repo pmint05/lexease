@@ -4,7 +4,7 @@ import { useEffectiveTheme } from "@/src/hooks/useEffectiveTheme";
 import React from "react";
 import { View } from "react-native";
 
-type DataPoint = { x: string; y: number };
+type DataPoint = { x: string; subLabel?: string; y: number };
 
 type Props = {
   data: DataPoint[];
@@ -64,11 +64,33 @@ export default function WeeklyActivityChart({ data, color }: Props) {
       </View>
 
       <View className="flex-row gap-1.5">
-        {data.map((point, idx) => (
-          <View key={`${point.x}-label-${idx}`} className="flex-1 items-center">
-            <Text className="text-xs text-muted-foreground">{point.x}</Text>
-          </View>
-        ))}
+        {data.map((point, idx) => {
+          // Show label every 7 days for monthly view, or all labels for weekly
+          const showLabel =
+            data.length <= 7 || idx % 7 === 1 || idx === data.length - 1;
+
+          return (
+            <View
+              key={`${point.x}-label-${idx}`}
+              className="flex-1 items-center gap-0.5"
+            >
+              {showLabel ? (
+                <>
+                  <Text className="text-xs font-bold text-muted-foreground">
+                    {point.x}
+                  </Text>
+                  {point.subLabel && (
+                    <Text className="text-[9px] italic text-muted-foreground/60">
+                      {point.subLabel}
+                    </Text>
+                  )}
+                </>
+              ) : (
+                <View className="h-4" /> // Maintain spacing
+              )}
+            </View>
+          );
+        })}
       </View>
     </Card>
   );

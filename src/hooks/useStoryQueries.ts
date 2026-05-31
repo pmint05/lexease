@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { StorySearchParams } from "@/src/core/types/story";
 import { storyApi } from "@/src/data/api/storyApi";
@@ -58,13 +58,31 @@ export const useAuthorsQuery = () => {
 };
 
 export const useBlockStoryMutation = () => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: storyApi.blockStory,
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: storyQueryKeys.detail(variables.storyId, variables.childId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: storyQueryKeys.all,
+      });
+    },
   });
 };
 
 export const useUnblockStoryMutation = () => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: storyApi.unblockStory,
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: storyQueryKeys.detail(variables.storyId, variables.childId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: storyQueryKeys.all,
+      });
+    },
   });
 };
