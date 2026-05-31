@@ -2,6 +2,7 @@ import { RecordingTile } from "@/src/components/child/RecordingTile";
 import { Button } from "@/src/components/shared/Button";
 import { Badge } from "@/src/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/src/components/ui/card";
+import { Skeleton } from "@/src/components/ui/skeleton";
 import { Text } from "@/src/components/ui/text";
 import { useAudioRecording } from "@/src/hooks/useAudioRecording";
 import { useProgressSessionDetailQuery } from "@/src/hooks/useProgressQueries";
@@ -11,16 +12,16 @@ import { useFamilyStore } from "@/src/store/useFamilyStore";
 import { formatDurationMs } from "@/src/utils/formatters";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import {
-    Activity,
-    Calendar,
-    CheckCircle2,
-    ChevronLeft,
-    Clock,
-    Mic,
-    Trophy,
-    XCircle,
+  Activity,
+  Calendar,
+  CheckCircle2,
+  ChevronLeft,
+  Clock,
+  Mic,
+  Trophy,
+  XCircle,
 } from "lucide-react-native";
-import { ActivityIndicator, ScrollView, View } from "react-native";
+import { ScrollView, View } from "react-native";
 
 export default function SessionDetailScreen(): React.ReactElement {
   const router = useRouter();
@@ -43,11 +44,25 @@ export default function SessionDetailScreen(): React.ReactElement {
 
   if (isLoading) {
     return (
-      <View className="flex-1 justify-center items-center p-4 bg-background">
-        <ActivityIndicator size="large" color="#FF6B00" />
-        <Text className="text-muted-foreground mt-2">
-          Đang tải chi tiết buổi học...
-        </Text>
+      <View className="flex-1 bg-background px-4 pt-4">
+        <View className="flex-row justify-between items-center mb-4">
+          <Skeleton className="h-8 w-40" />
+          <Skeleton className="h-8 w-20" />
+        </View>
+
+        <Skeleton className="h-40 w-full rounded-xl mb-4" />
+
+        <View className="flex-row gap-3 mb-4">
+          <Skeleton className="h-12 flex-1" />
+          <Skeleton className="h-12 flex-1" />
+          <Skeleton className="h-12 flex-1" />
+        </View>
+
+        <View className="mt-2">
+          <Skeleton className="h-6 w-48 mb-3" />
+          <Skeleton className="h-12 w-full mb-2" />
+          <Skeleton className="h-12 w-full mb-2" />
+        </View>
       </View>
     );
   }

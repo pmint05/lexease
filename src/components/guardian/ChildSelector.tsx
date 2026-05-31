@@ -77,7 +77,15 @@ export default function ChildSelector({ onChange, className }: Props) {
           </Pressable>
         </DialogTrigger>
 
-        <DialogContent className="max-w-full sm:max-w-md p-0 overflow-hidden border-0 bg-background rounded-t-3xl sm:rounded-3xl bottom-0 left-0 right-0 absolute mx-auto slide-in-from-bottom-full rounded-b-none">
+        <DialogContent
+          className="max-w-full sm:max-w-md p-0 overflow-hidden border-0 bg-background rounded-t-3xl sm:rounded-3xl bottom-0 left-0 right-0 absolute mx-auto slide-in-from-bottom-full !rounded-b-none"
+          onPointerDownOutside={() => {
+            setOpen(false);
+          }}
+          onInteractOutside={() => {
+            setOpen(false);
+          }}
+        >
           <View className="p-6 pb-2">
             <DialogHeader className="mb-4">
               <DialogTitle className="text-xl">Chọn bé đang xem</DialogTitle>

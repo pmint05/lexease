@@ -291,7 +291,6 @@ export default function DisplaySettingsScreen(): React.ReactElement {
           addColor(settings.highlightBackgroundColor);
           if (!syncHighlightText) addColor(settings.highlightTextColor);
           toast.success("Đã lưu cấu hình thành công");
-          router.back();
         },
         onError: () => {
           toast.error("Không thể lưu cấu hình. Vui lòng thử lại.");
