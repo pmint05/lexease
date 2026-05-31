@@ -8,6 +8,7 @@ import React, { useEffect } from "react";
 import { Appearance, Platform, useColorScheme, View } from "react-native";
 import "react-native-reanimated";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { Toaster } from "sonner-native";
 // TamaguiProvider removed; using Reusables + Tailwind
 import { useThemeStore } from "@/src/store/useThemeStore";
 import { useMeQuery } from "../src/hooks/useAuthQueries";
@@ -119,6 +120,7 @@ export default function RootLayout() {
         <View className={"flex-1 bg-background"} style={{ flex: 1 }}>
           <RootLayoutContent />
           <PortalHost />
+          <Toaster />
         </View>
       </QueryClientProvider>
     </SafeAreaProvider>

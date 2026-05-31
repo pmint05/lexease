@@ -67,6 +67,7 @@ import {
   ScrollView,
   View,
 } from "react-native";
+import { toast } from "sonner-native";
 
 import ColorPicker, {
   HueSlider,
@@ -289,14 +290,25 @@ export default function DisplaySettingsScreen(): React.ReactElement {
           addColor(settings.textColor);
           addColor(settings.highlightBackgroundColor);
           if (!syncHighlightText) addColor(settings.highlightTextColor);
+          toast.success("Đã lưu cấu hình thành công");
           router.back();
+        },
+        onError: () => {
+          toast.error("Không thể lưu cấu hình. Vui lòng thử lại.");
         },
       },
     );
   };
 
   const handleReset = () => {
-    resetMutation.mutate(undefined);
+    resetMutation.mutate(undefined, {
+      onSuccess: () => {
+        toast.success("Đã đặt lại cấu hình mặc định");
+      },
+      onError: () => {
+        toast.error("Không thể đặt lại cấu hình.");
+      },
+    });
   };
 
   return (
@@ -305,7 +317,11 @@ export default function DisplaySettingsScreen(): React.ReactElement {
         <Button
           variant="ghost"
           size="icon"
-          onPress={() => router.back()}
+          onPress={() =>
+            router.canGoBack()
+              ? router.back()
+              : router.replace("/(guardian)/(tabs)/settings")
+          }
           className="rounded-full bg-muted/30"
         >
           <ChevronLeft size={24} className="text-foreground" />

@@ -70,15 +70,6 @@ export default function GuardianTabsLayout(): React.ReactElement {
         }}
       />
       <Tabs.Screen
-        name="library"
-        options={{
-          tabBarIcon: ({ color, size }) => (
-            <Library color={color} size={size} />
-          ),
-          tabBarLabel: "Thư Viện",
-        }}
-      />
-      <Tabs.Screen
         name="report"
         options={{
           tabBarIcon: ({ color, size }) => (
@@ -94,6 +85,15 @@ export default function GuardianTabsLayout(): React.ReactElement {
             <CalendarClock color={color} size={size} />
           ),
           tabBarLabel: "Lịch Học",
+        }}
+      />
+      <Tabs.Screen
+        name="library"
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <Library color={color} size={size} />
+          ),
+          tabBarLabel: "Thư Viện",
         }}
       />
       <Tabs.Screen

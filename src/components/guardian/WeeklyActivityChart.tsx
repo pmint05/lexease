@@ -67,7 +67,9 @@ export default function WeeklyActivityChart({ data, color }: Props) {
         {data.map((point, idx) => {
           // Show label every 7 days for monthly view, or all labels for weekly
           const showLabel =
-            data.length <= 7 || idx % 7 === 1 || idx === data.length - 1;
+            data.length <= 8 ||
+            (idx % 7 === 0 && data.length - idx > 3) ||
+            idx === data.length - 1;
 
           return (
             <View

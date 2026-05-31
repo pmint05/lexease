@@ -20,6 +20,7 @@ import {
 } from "@/src/components/ui/card";
 import { Input } from "@/src/components/ui/input";
 import { Label } from "@/src/components/ui/label";
+import { Skeleton } from "@/src/components/ui/skeleton";
 import { Switch } from "@/src/components/ui/switch";
 import { Text } from "@/src/components/ui/text";
 import { TimePicker } from "@/src/components/ui/time-picker";
@@ -295,11 +296,11 @@ export default function SchedulerScreen(): React.ReactElement {
             </View>
 
             {remindersQuery.isLoading ? (
-              <ActivityIndicator
-                className="mt-4"
-                size="large"
-                color="#FF6B00"
-              />
+              <View className="mt-4 gap-3">
+                <Skeleton className="h-20 w-full rounded-2xl" />
+                <Skeleton className="h-20 w-full rounded-2xl" />
+                <Skeleton className="h-20 w-full rounded-2xl" />
+              </View>
             ) : remindersQuery.data?.length === 0 ? (
               <Card className="items-center py-10 bg-muted/20 border-dashed">
                 <Info

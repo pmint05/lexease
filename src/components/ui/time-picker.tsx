@@ -4,7 +4,7 @@ import { cn } from "@/src/lib/utils";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Clock } from "lucide-react-native";
 import React, { useMemo, useRef, useState } from "react";
-import { Platform, View, StyleSheet } from "react-native";
+import { Platform, StyleSheet, View } from "react-native";
 
 type TimePickerProps = {
   value: Date;
@@ -37,7 +37,7 @@ export function TimePicker({
   className,
 }: TimePickerProps): React.ReactElement {
   const [show, setShow] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<any>(null);
 
   const display = useMemo(
     () => formatTime(value, use24Hour),
@@ -51,18 +51,20 @@ export function TimePicker({
   };
 
   const onWebPress = () => {
-    if (inputRef.current) {
-      // Modern browsers support showPicker()
-      if ('showPicker' in inputRef.current) {
-        try {
-          inputRef.current.showPicker();
-        } catch (e) {
-          inputRef.current.click();
-        }
-      } else {
-        inputRef.current.click();
+    const input = inputRef.current;
+    if (!input) return;
+
+    // Modern browsers support showPicker()
+    if (typeof input.showPicker === "function") {
+      try {
+        input.showPicker();
+        return;
+      } catch {
+        // Fall through to click()
       }
     }
+
+    input.click?.();
   };
 
   return (

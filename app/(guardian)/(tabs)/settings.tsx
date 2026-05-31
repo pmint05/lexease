@@ -89,28 +89,33 @@ export default function SettingsScreen(): React.ReactElement {
 
         <View className="gap-4 mt-3 pb-8">
           {/* Reading Interface Settings Link */}
-          <Pressable onPress={() => router.push("/(guardian)/display-settings" as any)}>
+          <Pressable
+            onPress={() => router.push("/(guardian)/display-settings" as any)}
+          >
             <Card className="border border-border bg-card active:bg-muted/5">
-                <CardHeader className="pb-2">
+              <CardHeader className="pb-2">
                 <View className="flex-row justify-between items-center">
-                    <View className="flex-row gap-2 items-center">
+                  <View className="flex-row gap-2 items-center">
                     <Palette size={20} className="text-primary" />
                     <CardTitle>Giao diện đọc của trẻ</CardTitle>
-                    </View>
-                    <Badge variant="secondary">
-                        <Text className="text-xs">Tùy chỉnh</Text>
-                    </Badge>
+                  </View>
+                  <Badge variant="secondary">
+                    <Text className="text-xs">Tùy chỉnh</Text>
+                  </Badge>
                 </View>
-                </CardHeader>
-                <CardContent className="gap-2">
+              </CardHeader>
+              <CardContent className="gap-2">
                 <Text className="text-sm text-muted-foreground">
-                    Điều chỉnh màu nền, cỡ chữ, phông chữ và bố cục để phù hợp với thị giác của trẻ.
+                  Điều chỉnh màu nền, cỡ chữ, phông chữ và bố cục để phù hợp với
+                  thị giác của trẻ.
                 </Text>
                 <View className="flex-row items-center gap-1 mt-1">
-                    <Text className="text-xs font-bold text-primary">Cấu hình ngay</Text>
-                    <ChevronRight size={14} className="text-primary" />
+                  <Text className="text-xs font-bold text-primary">
+                    Cấu hình ngay
+                  </Text>
+                  <ChevronRight size={14} className="text-primary" />
                 </View>
-                </CardContent>
+              </CardContent>
             </Card>
           </Pressable>
 
@@ -218,7 +223,7 @@ export default function SettingsScreen(): React.ReactElement {
                         acceptedLinks.map((link) => (
                           <View
                             key={link.linkId}
-                            className="flex-row justify-between items-center bg-accent/5 p-3 rounded-xl border border-accent/10"
+                            className="flex-row justify-between items-center bg-primary/5 p-3 rounded-xl border border-accent/10"
                           >
                             <View className="flex-1">
                               <Text

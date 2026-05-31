@@ -6,9 +6,10 @@ import {
 } from "@/src/hooks/useProgressQueries";
 import { useRouter } from "expo-router";
 import React from "react";
-import { ActivityIndicator, ScrollView, View } from "react-native";
+import { ScrollView, View } from "react-native";
 import { useAuthStore } from "../../store/useAuthStore";
 import { useFamilyStore } from "../../store/useFamilyStore";
+import { Skeleton } from "../ui/skeleton";
 import { Text } from "../ui/text";
 import RecentActivityList from "./RecentActivityListView";
 import StatCard from "./StatCard";
@@ -93,8 +94,26 @@ export default function GuardianDashboard() {
         contentContainerClassName="gap-4 py-6"
       >
         {isLoading ? (
-          <View className="py-10">
-            <ActivityIndicator size="small" color="#FF6B00" />
+          <View className="gap-4">
+            <View className="flex-row flex-wrap gap-3">
+              <Skeleton className="h-28 flex-1 rounded-2xl" />
+              <Skeleton className="h-28 flex-1 rounded-2xl" />
+              <Skeleton className="h-28 flex-1 rounded-2xl" />
+            </View>
+
+            <View className="gap-3">
+              <Skeleton className="h-5 w-48 rounded-full" />
+              <Skeleton className="h-56 w-full rounded-2xl" />
+            </View>
+
+            <View className="gap-3">
+              <Skeleton className="h-5 w-40 rounded-full" />
+              <View className="gap-3">
+                <Skeleton className="h-20 w-full rounded-2xl" />
+                <Skeleton className="h-20 w-full rounded-2xl" />
+                <Skeleton className="h-20 w-full rounded-2xl" />
+              </View>
+            </View>
           </View>
         ) : (
           <>
