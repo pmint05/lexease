@@ -77,11 +77,11 @@ export const ReadingBottomBar = ({
             className="size-14 rounded-full"
           >
             {isFinished ? (
-              <RotateCcw className="text-foreground size-6" />
+              <RotateCcw className="text-primary-foreground size-6" />
             ) : isPlaying ? (
-              <Pause className="text-foreground size-6" />
+              <Pause className="text-primary-foreground size-6" />
             ) : (
-              <Play className="text-foreground size-6" />
+              <Play className="text-primary-foreground size-6" />
             )}
           </Button>
 

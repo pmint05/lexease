@@ -56,11 +56,7 @@ export default function GuardianDashboard() {
     () => ({
       totalTimeMin: summaryQuery.data?.totalPracticeMinutes ?? 0,
       booksCompleted: summaryQuery.data?.completedSessionsCount ?? 0,
-      lastSessionDate: sessionsQuery.data?.[0]?.completedAt
-        ? new Date(sessionsQuery.data[0].completedAt).toLocaleDateString(
-            "vi-VN",
-          )
-        : "—",
+      totalSesions: (summaryQuery.data?.sessionsCount ?? 0).toString(),
     }),
     [summaryQuery.data, sessionsQuery.data],
   );
@@ -119,19 +115,19 @@ export default function GuardianDashboard() {
           <>
             <View className="flex-row flex-wrap gap-3">
               <StatCard
-                title="Tổng thời gian"
-                value={`${stats.totalTimeMin} phút`}
-                subtitle="Tổng học"
+                title="Tổng"
+                value={stats.totalSesions}
+                subtitle="Phiên luyện tập"
               />
               <StatCard
-                title="Sách hoàn thành"
+                title="Đã hoàn thành"
                 value={`${stats.booksCompleted}`}
-                subtitle="Số buổi hoàn thành"
+                subtitle="Phiên luyện tập"
               />
               <StatCard
-                title="Phiên gần nhất"
-                value={stats.lastSessionDate}
-                subtitle="Ngày luyện tập"
+                title="Tổng"
+                value={`${stats.totalTimeMin} phút`}
+                subtitle="Luyện tập"
               />
             </View>
 

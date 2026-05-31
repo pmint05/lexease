@@ -32,6 +32,7 @@ interface RecordingTileProps {
   showTitle?: boolean; // Hiển thị tên sách nếu cần (ví dụ trong trang Lịch sử)
   showRenameAction?: boolean;
   showCreateDate?: boolean;
+  showConfirmDelete?: boolean;
   onPlay: (recording: Recording) => void;
   onDelete?: (recordingId: string) => void;
   onRename?: (recordingId: string, newTitle: string) => void;
@@ -42,6 +43,7 @@ export const RecordingTile = ({
   showTitle = false,
   showRenameAction = true,
   showCreateDate = false,
+  showConfirmDelete = true,
   onPlay,
   onDelete,
   onRename,
@@ -50,22 +52,24 @@ export const RecordingTile = ({
   const renameInputRef = useRef<TextInput>(null);
   const [isRenameOpen, setIsRenameOpen] = useState(false);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
-  const [draftTitle, setDraftTitle] = useState(recording.bookTitle);
+  const [draftTitle, setDraftTitle] = useState(recording.bookTitle ?? "");
 
   const canSaveRename = useMemo(() => {
+    const currentTitle = draftTitle ?? "";
+    const originalTitle = recording.bookTitle ?? "";
     return (
-      draftTitle.trim().length > 0 && draftTitle.trim() !== recording.bookTitle
+      currentTitle.trim().length > 0 && currentTitle.trim() !== originalTitle
     );
   }, [draftTitle, recording.bookTitle]);
 
   const openRenameDialog = () => {
     swipeableRef.current?.close?.();
-    setDraftTitle(recording.bookTitle);
+    setDraftTitle(recording.bookTitle ?? "");
     setIsRenameOpen(true);
   };
 
   const handleSaveRename = () => {
-    const nextTitle = draftTitle.trim();
+    const nextTitle = (draftTitle ?? "").trim();
     if (!nextTitle || nextTitle === recording.bookTitle) return;
     onRename?.(recording.id, nextTitle);
     setIsRenameOpen(false);
@@ -73,8 +77,12 @@ export const RecordingTile = ({
   };
 
   const handleDelete = () => {
+    if (showConfirmDelete) {
+      setIsDeleteConfirmOpen(true);
+    } else {
+      onDelete?.(recording.id);
+    }
     swipeableRef.current?.close?.();
-    setIsDeleteConfirmOpen(true);
   };
 
   const confirmDelete = () => {
@@ -149,35 +157,37 @@ export const RecordingTile = ({
         </Pressable>
       </ReanimatedSwipeable>
 
-      <AlertDialog
-        open={isDeleteConfirmOpen}
-        onOpenChange={setIsDeleteConfirmOpen}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Xóa bản ghi?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Hành động này không thể hoàn tác. Bạn có chắc muốn xóa bản ghi này
-              không?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
+      {showConfirmDelete && (
+        <AlertDialog
+          open={isDeleteConfirmOpen}
+          onOpenChange={setIsDeleteConfirmOpen}
+        >
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Xóa bản ghi?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Hành động này không thể hoàn tác. Bạn có chắc muốn xóa bản ghi
+                này không?
+              </AlertDialogDescription>
+            </AlertDialogHeader>
 
-          <AlertDialogFooter>
-            <AlertDialogCancel asChild>
-              <Button>
-                <Text className="text-sm font-semibold text-foreground">
-                  Hủy
-                </Text>
-              </Button>
-            </AlertDialogCancel>
-            <AlertDialogAction onPress={confirmDelete} asChild>
-              <Button variant="destructive">
-                <Text className="text-sm font-semibold text-white">Xóa</Text>
-              </Button>
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+            <AlertDialogFooter>
+              <AlertDialogCancel asChild>
+                <Button>
+                  <Text className="text-sm font-semibold text-foreground">
+                    Hủy
+                  </Text>
+                </Button>
+              </AlertDialogCancel>
+              <AlertDialogAction onPress={confirmDelete} asChild>
+                <Button variant="destructive">
+                  <Text className="text-sm font-semibold text-white">Xóa</Text>
+                </Button>
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      )}
 
       {showRenameAction ? (
         <Dialog open={isRenameOpen} onOpenChange={setIsRenameOpen}>

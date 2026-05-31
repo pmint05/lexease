@@ -12,6 +12,18 @@ export const tokenizeText = (text: string): string[] => {
   return Array.from(text.matchAll(createWordPattern()), (match) => match[0]);
 };
 
+/**
+ * Clean a word for comparison by removing punctuation and converting to lowercase.
+ */
+export const normalizeWord = (word: string): string => {
+  return word
+    .toLowerCase()
+    .normalize("NFC")
+    .replace(/[.,/#!$%^&*;:{}=\-_`~()]/g, "") // Common punctuation
+    .replace(/[\u2000-\u206F\u2E00-\u2E7F\\'!"#$%&()*+,\-./:;<=>?@[\]^_`{|}~]/g, "") // Extended punctuation
+    .trim();
+};
+
 export const buildReadingTextTokens = (text: string): ReadingTextToken[] => {
   const tokens: ReadingTextToken[] = [];
   const chunks = Array.from(text.matchAll(/\S+/g));

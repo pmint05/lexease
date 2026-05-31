@@ -1,26 +1,39 @@
-import { Text } from "@/src/components/ui/text";
-import * as FileSystem from "expo-file-system/legacy";
-import { Headphones, Search, SlidersHorizontal } from "lucide-react-native";
-import React, { useMemo, useState } from "react";
-import { Alert, FlatList, Platform, View } from "react-native";
-
 import { AudioPlaybackModal } from "@/src/components/child/AudioPlaybackModal";
 import {
-    HistoryFilterSheet,
-    type HistoryPeriodFilter,
-    type HistorySortOption,
+  HistoryFilterSheet,
+  type HistoryPeriodFilter,
+  type HistorySortOption,
 } from "@/src/components/child/HistoryFilterSheet";
-import { RecordingTile } from "@/src/components/child/RecordingTile";
 import { Button } from "@/src/components/ui/button";
+import { Card, CardContent } from "@/src/components/ui/card";
 import { Icon } from "@/src/components/ui/icon";
 import { Input } from "@/src/components/ui/input";
-import { Recording } from "@/src/core/types";
+import { Skeleton } from "@/src/components/ui/skeleton";
+import { Text } from "@/src/components/ui/text";
+import { getApiBaseUrl } from "@/src/data/api/apiClient";
+import { progressApi } from "@/src/data/api/progressApi";
+import { useProgressSessionsQuery } from "@/src/hooks/useProgressQueries";
+import { cn } from "@/src/lib/utils";
 import { useAuthStore } from "@/src/store/useAuthStore";
-import { useRecordingStore } from "@/src/store/useRecordingStore";
+import { formatReadingTime } from "@/src/utils/formatters";
+import {
+  BookOpen,
+  Headphones,
+  Mic,
+  Play,
+  Search,
+  SlidersHorizontal,
+  Trophy,
+} from "lucide-react-native";
+import React, { useMemo, useState } from "react";
+import { ActivityIndicator, FlatList, Pressable, View } from "react-native";
 
 export default function HistoryScreen(): React.ReactElement {
   const { user } = useAuthStore();
-  const { recordings, removeRecording } = useRecordingStore();
+  const childId = user?.id ?? "";
+
+  const { data: sessions = [], isLoading } = useProgressSessionsQuery(childId);
+
   const [searchQuery, setSearchQuery] = useState("");
   const [periodFilter, setPeriodFilter] = useState<HistoryPeriodFilter>("all");
   const [sortOption, setSortOption] = useState<HistorySortOption>("newest");
@@ -28,76 +41,96 @@ export default function HistoryScreen(): React.ReactElement {
 
   const [playbackUri, setPlaybackUri] = useState<string | null>(null);
   const [playbackTitle, setPlaybackTitle] = useState("");
-  const [selectedRecordingId, setSelectedRecordingId] = useState<string | null>(
-    null,
-  );
-  const [playbackMeteringData, setPlaybackMeteringData] = useState<
-    number[] | undefined
-  >([]);
   const [isPlaybackOpen, setIsPlaybackOpen] = useState(false);
+  const [isFetchingAudio, setIsFetchingAudio] = useState(false);
 
   const handlePlaybackOpenChange = (nextOpen: boolean) => {
     setIsPlaybackOpen(nextOpen);
-
     if (!nextOpen) {
       setPlaybackUri(null);
       setPlaybackTitle("");
-      setSelectedRecordingId(null);
-      setPlaybackMeteringData([]);
     }
   };
 
-  const filteredRecordings = useMemo<Recording[]>(() => {
+  const fixAudioUrl = (url?: string | null): string => {
+    if (!url) return "";
+    const baseUrl = getApiBaseUrl();
+    try {
+      const apiOrigin = new URL(baseUrl).origin;
+      if (url.includes("localhost:8080")) {
+        return url.replace("http://localhost:8080", apiOrigin);
+      }
+    } catch (e) {
+      // Ignore
+    }
+    return url;
+  };
+
+  const handleOpenPlayback = async (sessionId: string, bookTitle: string) => {
+    try {
+      setIsFetchingAudio(true);
+      const detail = await progressApi.getSessionDetail(childId, sessionId);
+      const recording = detail.recordings[0]; // Play the first recording available
+
+      if (!recording || !recording.audioUrl) {
+        alert("Buổi học này không có bản ghi âm.");
+        return;
+      }
+
+      setPlaybackUri(fixAudioUrl(recording.audioUrl));
+      setPlaybackTitle(bookTitle);
+      setIsPlaybackOpen(true);
+    } catch (error) {
+      console.error("Error fetching recording:", error);
+    } finally {
+      setIsFetchingAudio(false);
+    }
+  };
+
+  const filteredSessions = useMemo(() => {
     const now = Date.now();
     const normalizedQuery = searchQuery.trim().toLowerCase();
 
-    const filtered = recordings
-      .filter((recording) => recording.childId === user?.id)
-      .filter((recording) => {
-        if (normalizedQuery.length > 0) {
-          const title = recording.bookTitle.toLowerCase();
-          if (!title.includes(normalizedQuery)) {
-            return false;
-          }
-        }
+    let filtered = sessions.filter((s) => {
+      if (normalizedQuery.length > 0) {
+        if (!s.storyTitle.toLowerCase().includes(normalizedQuery)) return false;
+      }
 
-        if (periodFilter === "all") {
-          return true;
-        }
+      if (periodFilter === "all") return true;
 
-        const ageMs = now - new Date(recording.createdAt).getTime();
-        const limitMs =
-          periodFilter === "7d"
-            ? 7 * 24 * 60 * 60 * 1000
-            : 30 * 24 * 60 * 60 * 1000;
+      const ageMs = now - new Date(s.startedAt).getTime();
+      const limitMs =
+        periodFilter === "7d"
+          ? 7 * 24 * 60 * 60 * 1000
+          : 30 * 24 * 60 * 60 * 1000;
 
-        return ageMs <= limitMs;
-      });
+      return ageMs <= limitMs;
+    });
 
     return filtered.sort((left, right) => {
       switch (sortOption) {
         case "oldest":
           return (
-            new Date(left.createdAt).getTime() -
-            new Date(right.createdAt).getTime()
+            new Date(left.startedAt).getTime() -
+            new Date(right.startedAt).getTime()
           );
         case "longest":
-          return (right.durationMs ?? 0) - (left.durationMs ?? 0);
+          return (right.elapsedMs ?? 0) - (left.elapsedMs ?? 0);
         case "shortest":
-          return (left.durationMs ?? 0) - (right.durationMs ?? 0);
+          return (left.elapsedMs ?? 0) - (right.elapsedMs ?? 0);
         case "title-asc":
-          return left.bookTitle.localeCompare(right.bookTitle, "vi-VN");
+          return left.storyTitle.localeCompare(right.storyTitle, "vi-VN");
         case "title-desc":
-          return right.bookTitle.localeCompare(left.bookTitle, "vi-VN");
+          return right.storyTitle.localeCompare(left.storyTitle, "vi-VN");
         case "newest":
         default:
           return (
-            new Date(right.createdAt).getTime() -
-            new Date(left.createdAt).getTime()
+            new Date(right.startedAt).getTime() -
+            new Date(left.startedAt).getTime()
           );
       }
     });
-  }, [periodFilter, recordings, searchQuery, sortOption, user?.id]);
+  }, [sessions, searchQuery, periodFilter, sortOption]);
 
   const hasActiveFilters =
     searchQuery.trim().length > 0 ||
@@ -110,96 +143,22 @@ export default function HistoryScreen(): React.ReactElement {
     setSortOption("newest");
   };
 
-  const handleOpenPlayback = async (recording: Recording) => {
-    try {
-      if (Platform.OS === "web") {
-        const webUri = (recording as any).webUri ?? recording.filePath;
-        if (!webUri) {
-          Alert.alert(
-            "Lỗi tập tin",
-            "Không tìm thấy đường dẫn bản ghi trên web.",
-          );
-          return;
-        }
-
-        let ok = false;
-        try {
-          const head = await fetch(webUri, { method: "HEAD" });
-          ok = head.ok;
-        } catch {
-          try {
-            const get = await fetch(webUri);
-            ok = get.ok;
-          } catch {
-            ok = false;
-          }
-        }
-
-        if (!ok) {
-          Alert.alert(
-            "Lỗi tập tin",
-            "Không thể truy cập file âm thanh trên web. Hãy kiểm tra file hoặc dùng thiết bị thật để phát lại.",
-          );
-          return;
-        }
-
-        setPlaybackUri(webUri);
-        setPlaybackTitle(recording.bookTitle);
-        setSelectedRecordingId(recording.id);
-        setPlaybackMeteringData(recording.meteringData);
-        setIsPlaybackOpen(true);
-        return;
-      }
-
-      const fileInfo = await FileSystem.getInfoAsync(recording.filePath);
-
-      if (!fileInfo.exists) {
-        Alert.alert(
-          "Lỗi tập tin",
-          "Bản ghi âm này không còn tồn tại trên thiết bị. Bé có muốn xóa thông tin bản ghi này không?",
-          [
-            { text: "Để sau", style: "cancel" },
-            {
-              text: "Xóa ngay",
-              style: "destructive",
-              onPress: () => removeRecording(recording.id),
-            },
-          ],
-        );
-        return;
-      }
-
-      setPlaybackUri(recording.filePath);
-      setPlaybackTitle(recording.bookTitle);
-      setSelectedRecordingId(recording.id);
-      setPlaybackMeteringData(recording.meteringData);
-      setIsPlaybackOpen(true);
-    } catch (error) {
-      console.error("Error checking file:", error);
-      Alert.alert("Lỗi", "Không thể kiểm tra tập tin âm thanh.");
-    }
-  };
-
   return (
     <View className="flex-1 bg-background px-4">
       <FlatList
-        data={filteredRecordings}
-        keyExtractor={(item) => item.id}
+        data={filteredSessions}
+        keyExtractor={(item) => item.sessionId}
         contentContainerStyle={{ paddingTop: 16, paddingBottom: 100 }}
         ListHeaderComponent={
           <View className="mb-4 gap-4">
             <View className="gap-2">
-              <Text className="text-2xl font-bold">Lịch sử ghi âm</Text>
+              <Text className="text-2xl font-bold">Lịch sử buổi học</Text>
               <Text className="text-sm text-muted-foreground">
-                Tìm nhanh bản ghi theo tên sách, khoảng thời gian hoặc cách sắp
-                xếp.
+                Xem lại những bài bé đã đọc và nghe lại giọng đọc của mình nhé!
               </Text>
             </View>
 
             <View className="gap-2">
-              <Text className="text-sm font-medium text-muted-foreground">
-                Tìm kiếm
-              </Text>
               <View className="flex-row items-center gap-2">
                 <View className="relative flex-1">
                   <View className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2">
@@ -212,7 +171,7 @@ export default function HistoryScreen(): React.ReactElement {
                   <Input
                     value={searchQuery}
                     onChangeText={setSearchQuery}
-                    placeholder="Tìm theo tên sách"
+                    placeholder="Tìm theo tên truyện"
                     autoCapitalize="none"
                     autoCorrect={false}
                     className="pl-10"
@@ -230,37 +189,38 @@ export default function HistoryScreen(): React.ReactElement {
               </View>
 
               <View className="flex-row items-center justify-between">
-                <Text className="text-sm text-muted-foreground">
-                  {filteredRecordings.length} bản ghi
+                <Text className="text-sm text-muted-foreground font-medium">
+                  {filteredSessions.length} buổi học
                 </Text>
-                {hasActiveFilters ? (
-                  <Text className="text-sm text-muted-foreground">
-                    Đang áp dụng bộ lọc
-                  </Text>
-                ) : null}
               </View>
             </View>
           </View>
         }
         ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
         renderItem={({ item }) => (
-          <RecordingTile
-            recording={item}
-            showTitle={true}
-            showCreateDate={true}
-            onPlay={handleOpenPlayback}
-            onDelete={removeRecording}
+          <SessionHistoryCard
+            session={item}
+            onPlay={() => handleOpenPlayback(item.sessionId, item.storyTitle)}
+            isFetchingAudio={isFetchingAudio}
           />
         )}
         ListEmptyComponent={
-          <View className="py-10 items-center gap-2">
-            <Headphones size={48} color="#9CA3AF" />
-            <Text className="text-muted-foreground text-center">
-              {hasActiveFilters
-                ? "Không tìm thấy bản ghi phù hợp với bộ lọc hiện tại."
-                : "Chưa có ghi âm nào. Hãy bắt đầu đọc sách để lưu giữ giọng đọc của bé nhé!"}
-            </Text>
-          </View>
+          isLoading ? (
+            <View className="gap-3">
+              <Skeleton className="h-24 w-full rounded-2xl" />
+              <Skeleton className="h-24 w-full rounded-2xl" />
+              <Skeleton className="h-24 w-full rounded-2xl" />
+            </View>
+          ) : (
+            <View className="py-10 items-center gap-2">
+              <Headphones size={48} color="#9CA3AF" />
+              <Text className="text-muted-foreground text-center">
+                {hasActiveFilters
+                  ? "Không tìm thấy buổi học nào phù hợp."
+                  : "Bé chưa có buổi học nào. Hãy bắt đầu đọc truyện ngay nhé!"}
+              </Text>
+            </View>
+          )
         }
         showsVerticalScrollIndicator={false}
       />
@@ -269,10 +229,20 @@ export default function HistoryScreen(): React.ReactElement {
         <AudioPlaybackModal
           uri={playbackUri}
           title={playbackTitle}
-          meteringData={playbackMeteringData}
           open={isPlaybackOpen}
           onOpenChange={handlePlaybackOpenChange}
         />
+      )}
+
+      {isFetchingAudio && (
+        <View className="absolute inset-0 !bg-black/50 items-center justify-center pointer-events-none">
+          <View className="bg-card p-4 rounded-2xl shadow-lg border border-border items-center">
+            <ActivityIndicator color="#6366F1" />
+            <Text className="text-xs font-medium mt-2">
+              Đang tải âm thanh...
+            </Text>
+          </View>
+        </View>
       )}
 
       <HistoryFilterSheet
@@ -281,12 +251,89 @@ export default function HistoryScreen(): React.ReactElement {
         searchQuery={searchQuery}
         periodFilter={periodFilter}
         sortOption={sortOption}
-        filteredCount={filteredRecordings.length}
+        filteredCount={filteredSessions.length}
         hasActiveFilters={hasActiveFilters}
         onClearFilters={clearFilters}
         onPeriodChange={setPeriodFilter}
         onSortChange={setSortOption}
       />
     </View>
+  );
+}
+
+function SessionHistoryCard({
+  session,
+  onPlay,
+  isFetchingAudio,
+}: {
+  session: any;
+  onPlay: () => void;
+  isFetchingAudio: boolean;
+}) {
+  const accuracy = Math.round((session.latestAccuracy ?? 0) * 100);
+  const hasRecording = session.recordingCount > 0;
+
+  return (
+    <Card className="overflow-hidden border-border bg-card active:bg-muted/5 py-0">
+      <CardContent className="p-0">
+        <View className="flex-row items-center p-4 gap-4">
+          {/* Icon/Cover Placeholder */}
+          <View className="size-14 rounded-2xl bg-primary/10 items-center justify-center">
+            <BookOpen size={28} className="text-primary" />
+          </View>
+
+          {/* Info */}
+          <View className="flex-1">
+            <Text
+              className="font-bold text-lg text-foreground"
+              numberOfLines={1}
+            >
+              {session.storyTitle}
+            </Text>
+            <View className="flex-row items-center gap-3 mt-0.5">
+              <View className="flex-row items-center gap-1">
+                <Trophy size={12} className="text-accent" />
+                <Text className="text-xs font-bold text-accent">
+                  {accuracy}%
+                </Text>
+              </View>
+              <View className="flex-row items-center gap-1">
+                <Mic size={12} className="text-muted-foreground" />
+                <Text className="text-xs text-muted-foreground">
+                  {session.recordingCount} bản ghi
+                </Text>
+              </View>
+              <Text className="text-[10px] text-muted-foreground">•</Text>
+              <Text className="text-xs text-muted-foreground">
+                {formatReadingTime(session.elapsedMs)}
+              </Text>
+            </View>
+            <Text className="text-[10px] text-muted-foreground mt-1 uppercase font-bold">
+              {new Date(session.startedAt).toLocaleDateString("vi-VN")} -{" "}
+              {new Date(session.startedAt).toLocaleTimeString("vi-VN", {
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+            </Text>
+          </View>
+
+          {/* Action */}
+          {hasRecording ? (
+            <Pressable
+              onPress={onPlay}
+              disabled={isFetchingAudio}
+              className={cn(
+                "size-10 rounded-full items-center justify-center border border-primary/20 bg-primary/5",
+                isFetchingAudio && "opacity-50",
+              )}
+            >
+              <Play size={20} fill="#6366F1" className="text-primary ml-0.5" />
+            </Pressable>
+          ) : (
+            <></>
+          )}
+        </View>
+      </CardContent>
+    </Card>
   );
 }

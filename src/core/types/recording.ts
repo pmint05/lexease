@@ -17,6 +17,21 @@ export type RecordingStatus = "READY" | "DELETED";
 
 export type EvaluationStatus = "PENDING" | "PROCESSING" | "DONE" | "FAILED";
 
+export interface EvaluationWord {
+  expected: string;
+  heard: string | null;
+  correct: boolean;
+  errorType: "missing" | "substitution" | "insertion" | "correct" | string;
+  wordIndex: number;
+  confidence: number;
+}
+
+export interface EvaluationScores {
+  pace?: number;
+  fluency?: number;
+  accuracy?: number;
+}
+
 export interface EvaluationResponse {
   id: string;
   recordingId: string;
@@ -27,8 +42,8 @@ export interface EvaluationResponse {
   providerJobId?: string;
   heardText?: string;
   summary?: string;
-  scores?: Record<string, unknown>;
-  words?: Record<string, unknown>[];
+  scores?: EvaluationScores;
+  words?: EvaluationWord[];
   difficultWords?: string[];
   errorMessage?: string;
   createdAt?: string;
@@ -50,4 +65,5 @@ export interface RecordingResponse {
   createdAt?: string;
   updatedAt?: string;
   evaluation?: EvaluationResponse;
+  meteringData?: number[];
 }

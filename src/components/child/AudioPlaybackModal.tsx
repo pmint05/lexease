@@ -42,20 +42,20 @@ interface AudioPlaybackModalProps {
   onOpenChange: (open: boolean) => void;
 }
 
+const EMPTY_METERING: number[] = [];
+
 export const AudioPlaybackModal = ({
   uri,
   title,
-  meteringData = [],
+  meteringData = EMPTY_METERING,
   open,
   onOpenChange,
 }: AudioPlaybackModalProps): React.ReactElement => {
   const SPEED_OPTIONS = [0.75, 1, 1.25, 1.5];
+  
   const player = useAudioPlayer(uri);
   const status = useAudioPlayerStatus(player);
   const [speed, setSpeed] = useState(1.0);
-  const [localMetering, setLocalMetering] = useState<number[] | undefined>(
-    undefined,
-  );
 
   const handleTogglePlay = () => {
     if (status.playing) {
@@ -95,21 +95,12 @@ export const AudioPlaybackModal = ({
     player.seekTo(nextTime);
   };
 
+  // Pause when closing
   useEffect(() => {
-    if (open && uri) {
-      player.replace(uri);
-
-      // If on web and no metering provided, compute from audio blob
-      if (Platform.OS === "web" && !hasUsefulMetering(meteringData)) {
-        (async () => {
-          const computed = await fetchAndComputeMetering(uri as string, 120);
-          if (computed && computed.length > 0) setLocalMetering(computed);
-        })();
-      }
-    } else {
+    if (!open) {
       player.pause();
     }
-  }, [open, uri, player, meteringData]);
+  }, [open, player]);
 
   const progress =
     Number.isFinite(status.duration) &&
@@ -194,9 +185,9 @@ export const AudioPlaybackModal = ({
 
               <Button variant="default" size="icon" onPress={handleTogglePlay}>
                 {status.playing ? (
-                  <Pause className="size-4 text-foreground" />
+                  <Pause className="size-4 text-primary-foreground" />
                 ) : (
-                  <Play className="size-4 text-foreground" />
+                  <Play className="size-4 text-primary-foreground" />
                 )}
               </Button>
 

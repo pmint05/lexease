@@ -32,7 +32,13 @@ export default function RangeSelector({ className }: { className?: string }) {
           className="px-3 h-8 rounded-lg"
           isFirst
         >
-          <Text className="font-bold">Tuần</Text>
+          <Text
+            className={cn("font-bold", {
+              "text-primary-foreground transition": range === "week",
+            })}
+          >
+            Tuần
+          </Text>
         </ToggleGroupItem>
         <ToggleGroupItem
           size="sm"
@@ -40,7 +46,13 @@ export default function RangeSelector({ className }: { className?: string }) {
           className="px-3 h-8 rounded-lg"
           isLast
         >
-          <Text className="font-bold">Tháng</Text>
+          <Text
+            className={cn("font-bold", {
+              "text-primary-foreground transition": range === "month",
+            })}
+          >
+            Tháng
+          </Text>
         </ToggleGroupItem>
       </ToggleGroup>
     </View>

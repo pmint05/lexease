@@ -1,10 +1,11 @@
+import { AudioPlaybackModal } from "@/src/components/child/AudioPlaybackModal";
 import { RecordingTile } from "@/src/components/child/RecordingTile";
 import { Button } from "@/src/components/shared/Button";
 import { Badge } from "@/src/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/src/components/ui/card";
 import { Skeleton } from "@/src/components/ui/skeleton";
 import { Text } from "@/src/components/ui/text";
-import { useAudioRecording } from "@/src/hooks/useAudioRecording";
+import { getApiBaseUrl } from "@/src/data/api/apiClient";
 import { useProgressSessionDetailQuery } from "@/src/hooks/useProgressQueries";
 import { cn } from "@/src/lib/utils";
 import { useAuthStore } from "@/src/store/useAuthStore";
@@ -21,6 +22,7 @@ import {
   Trophy,
   XCircle,
 } from "lucide-react-native";
+import { useState } from "react";
 import { ScrollView, View } from "react-native";
 
 export default function SessionDetailScreen(): React.ReactElement {
@@ -37,10 +39,46 @@ export default function SessionDetailScreen(): React.ReactElement {
     selectedChildId ?? "",
     id ?? "",
   );
-  const { playbackRecording } = useAudioRecording();
+
+  const [playbackUri, setPlaybackUri] = useState<string | null>(null);
+  const [playbackTitle, setPlaybackTitle] = useState("");
+  const [playbackMeteringData, setPlaybackMeteringData] = useState<
+    number[] | undefined
+  >([]);
+  const [isPlaybackOpen, setIsPlaybackOpen] = useState(false);
 
   const session = data?.session;
   const recordings = data?.recordings ?? [];
+
+  const handlePlaybackOpenChange = (nextOpen: boolean) => {
+    setIsPlaybackOpen(nextOpen);
+    if (!nextOpen) {
+      setPlaybackUri(null);
+      setPlaybackTitle("");
+      setPlaybackMeteringData([]);
+    }
+  };
+
+  const handleOpenPlayback = (recording: any) => {
+    setPlaybackUri(recording.filePath);
+    setPlaybackTitle(recording.bookTitle);
+    setPlaybackMeteringData(recording.meteringData);
+    setIsPlaybackOpen(true);
+  };
+
+  const fixAudioUrl = (url?: string | null): string => {
+    if (!url) return "";
+    const baseUrl = getApiBaseUrl();
+    try {
+      const apiOrigin = new URL(baseUrl).origin;
+      if (url.includes("localhost:8080")) {
+        return url.replace("http://localhost:8080", apiOrigin);
+      }
+    } catch (e) {
+      // Ignore
+    }
+    return url;
+  };
 
   if (isLoading) {
     return (
@@ -89,7 +127,11 @@ export default function SessionDetailScreen(): React.ReactElement {
         <Button
           variant="ghost"
           size="icon"
-          onPress={() => router.back()}
+          onPress={() =>
+            router.canGoBack()
+              ? router.back()
+              : router.push("/(guardian)/(tabs)/dashboard")
+          }
           className="rounded-full bg-muted/30"
         >
           <ChevronLeft size={24} className="text-foreground" />
@@ -115,17 +157,26 @@ export default function SessionDetailScreen(): React.ReactElement {
                     {session.storyTitle}
                   </Text>
                 </View>
-                <Badge
-                  variant={
-                    session.status === "COMPLETED" ? "default" : "secondary"
-                  }
-                >
-                  <Text className="text-[10px] font-bold">
-                    {session.status === "COMPLETED"
-                      ? "HOÀN THÀNH"
-                      : "CHƯA XONG"}
-                  </Text>
-                </Badge>
+                <View className="items-end gap-1">
+                  <Badge
+                    variant={
+                      session.status === "COMPLETED" ? "default" : "secondary"
+                    }
+                  >
+                    <Text className="text-[10px] font-bold">
+                      {session.status === "COMPLETED"
+                        ? "HOÀN THÀNH"
+                        : "CHƯA XONG"}
+                    </Text>
+                  </Badge>
+                  {session.latestEvaluationStatus && (
+                    <Badge variant="outline" className="border-primary/30">
+                      <Text className="text-[8px] font-medium text-primary">
+                        AI: {session.latestEvaluationStatus}
+                      </Text>
+                    </Badge>
+                  )}
+                </View>
               </View>
             </CardHeader>
             <CardContent>
@@ -143,6 +194,11 @@ export default function SessionDetailScreen(): React.ReactElement {
                       hour: "2-digit",
                       minute: "2-digit",
                     })}
+                  </Text>
+                </View>
+                <View className="flex-row items-center gap-1.5">
+                  <Text className="text-sm text-muted-foreground font-medium">
+                    Từ: {session.currentWordIndex}
                   </Text>
                 </View>
               </View>
@@ -176,33 +232,80 @@ export default function SessionDetailScreen(): React.ReactElement {
               <View className="flex-row items-center gap-2">
                 <Mic size={20} className="text-primary" />
                 <Text className="text-lg font-bold text-foreground">
-                  Các bản ghi âm ({recordings.length})
+                  Các bản ghi âm ({session.recordingCount ?? recordings.length})
                 </Text>
               </View>
             </View>
 
             {recordings.length > 0 ? (
               recordings.map((recording) => (
-                <RecordingTile
-                  key={recording.id}
-                  recording={
-                    {
-                      id: recording.id,
-                      bookId: session.storyId,
-                      childId: recording.childId,
-                      title: recording?.createdAt
-                        ? `Bản ghi ${new Date(recording.createdAt).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })}`
-                        : "Bản ghi chưa đặt tên",
-                      filePath: recording.audioUrl,
-                      durationMs: recording.durationMs,
-                      createdAt: recording.createdAt,
-                      accuracy: recording.evaluation?.scores?.accuracy ?? 0,
-                    } as any
-                  }
-                  onPlay={async (item) => {
-                    await playbackRecording(item.filePath);
-                  }}
-                />
+                <View key={recording.id} className="gap-2">
+                  <RecordingTile
+                    recording={
+                      {
+                        id: recording.id,
+                        bookId: session.storyId,
+                        childId: recording.childId,
+                        bookTitle: session.storyTitle || "LexEase Story",
+                        filePath: fixAudioUrl(recording.audioUrl),
+                        durationMs: recording.durationMs,
+                        createdAt: recording.createdAt,
+                        accuracy: recording.evaluation?.scores?.accuracy ?? 0,
+                        meteringData: recording.meteringData,
+                      } as any
+                    }
+                    onPlay={handleOpenPlayback}
+                  />
+                  {recording.evaluation && (
+                    <Card className="border-l-4 border-l-primary/40 bg-muted/5 border-border">
+                      <CardContent className="p-3">
+                        {recording.evaluation.summary && (
+                          <View className="mb-2">
+                            <Text className="text-xs font-bold text-primary mb-0.5">
+                              Nhận xét AI:
+                            </Text>
+                            <Text className="text-foreground italic">
+                              "{recording.evaluation.summary}"
+                            </Text>
+                          </View>
+                        )}
+
+                        <View className="flex-row flex-wrap gap-1 mt-1">
+                          {recording.evaluation.words?.map((wordData, wIdx) => {
+                            const isCorrect = wordData.correct;
+                            const isMissing = wordData.errorType === "missing";
+                            return (
+                              <Text
+                                key={wIdx}
+                                className={cn(
+                                  isCorrect
+                                    ? "text-emerald-600"
+                                    : isMissing
+                                      ? "text-muted-foreground line-through"
+                                      : "text-amber-600 font-bold",
+                                )}
+                              >
+                                {wordData.expected}
+                              </Text>
+                            );
+                          })}
+                        </View>
+
+                        {recording.evaluation.difficultWords &&
+                          recording.evaluation.difficultWords.length > 0 && (
+                            <View className="flex-row gap-2 mt-2">
+                              <Text className="text-amber-700 font-bold whitespace-nowrap">
+                                Từ khó:
+                              </Text>
+                              <Text className="text-amber-700 font-medium">
+                                {recording.evaluation.difficultWords.join(", ")}
+                              </Text>
+                            </View>
+                          )}
+                      </CardContent>
+                    </Card>
+                  )}
+                </View>
               ))
             ) : (
               <Card className="p-10 items-center border-dashed">
@@ -216,26 +319,18 @@ export default function SessionDetailScreen(): React.ReactElement {
               </Card>
             )}
           </View>
-
-          {/* Summary/Feedback */}
-          <Card className="bg-muted/10 border-border p-4">
-            <Text className="font-bold text-foreground mb-2">
-              Đánh giá hệ thống
-            </Text>
-            <View className="gap-2">
-              <FeedbackRow
-                label="Độ trôi chảy"
-                score={session.latestAccuracy ?? 0}
-              />
-              <Text className="text-sm text-muted-foreground leading-5 mt-1">
-                {accuracy > 80
-                  ? "Bé đọc rất tốt và trôi chảy. Hãy duy trì phong độ này nhé!"
-                  : "Bé còn vấp ở một số từ khó. Bạn có thể nghe lại các bản ghi âm để hỗ trợ con."}
-              </Text>
-            </View>
-          </Card>
         </View>
       </ScrollView>
+
+      {(isPlaybackOpen || playbackUri) && (
+        <AudioPlaybackModal
+          uri={playbackUri}
+          title={playbackTitle}
+          meteringData={playbackMeteringData}
+          open={isPlaybackOpen}
+          onOpenChange={handlePlaybackOpenChange}
+        />
+      )}
     </View>
   );
 }

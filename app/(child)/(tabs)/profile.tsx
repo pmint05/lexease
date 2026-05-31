@@ -12,15 +12,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@/src/components/ui/card";
-import { Separator } from "@/src/components/ui/separator";
+import { Skeleton } from "@/src/components/ui/skeleton";
 import { Text } from "@/src/components/ui/text";
 import {
   useAcceptChildLinkMutation,
   useGuardianChildLinksQuery,
   useRejectChildLinkMutation,
 } from "@/src/hooks/useFamilyQueries";
+import { useProgressSummaryQuery } from "@/src/hooks/useProgressQueries";
 import { useAuthStore } from "@/src/store/useAuthStore";
-import { useLearningStore } from "@/src/store/useLearningStore";
 import { useThemeStore } from "@/src/store/useThemeStore";
 import { useRouter } from "expo-router";
 import {
@@ -48,7 +48,7 @@ import { ActivityIndicator, ScrollView, View } from "react-native";
 export default function ProfileScreen(): React.ReactElement {
   const router = useRouter();
   const { user, logout } = useAuthStore();
-  const { sessions } = useLearningStore();
+  const summaryQuery = useProgressSummaryQuery(user?.id ?? "");
 
   const linksQuery = useGuardianChildLinksQuery();
   const acceptMutation = useAcceptChildLinkMutation();
@@ -68,27 +68,13 @@ export default function ProfileScreen(): React.ReactElement {
     router.replace("/(auth)/login");
   };
 
-  const statistics = useMemo(() => {
-    const totalMinutes = Math.round(
-      sessions.reduce((sum, s) => sum + s.durationMs, 0) / 60000,
-    );
-    const booksRead = new Set(sessions.map((s) => s.bookId)).size;
-
-    return {
-      totalMinutes,
-      booksRead,
-      totalSessions: sessions.length,
-    };
-  }, [sessions]);
-
   const pendingInvitations = useMemo(() => {
     return (linksQuery.data ?? []).filter(
       (link) => link.status === "PENDING" && link.childId === user?.id,
     );
   }, [linksQuery.data, user?.id]);
 
-  // Giả lập điểm thưởng (trong thực tế sẽ lấy từ User object)
-  const userPoints = user?.points ?? 1250;
+  const summary = summaryQuery.data;
 
   return (
     <View className="flex-1 bg-background">
@@ -214,53 +200,43 @@ export default function ProfileScreen(): React.ReactElement {
 
           {/* Stats Row */}
           <View className="mt-6 flex-row gap-3">
-            <Card className="flex-1 p-3 items-center">
+            <Card className="flex-1 p-3 items-center gap-0">
               <Text className="text-xs text-muted-foreground uppercase font-bold tracking-wider">
                 Sách
               </Text>
-              <Text className="text-2xl font-extrabold text-foreground mt-1">
-                {statistics.booksRead}
-              </Text>
+              {summaryQuery.isLoading ? (
+                <Skeleton className="h-8 w-10 mt-1" />
+              ) : (
+                <Text className="text-2xl font-extrabold text-foreground mt-1">
+                  {summary?.completedSessionsCount ?? 0}
+                </Text>
+              )}
             </Card>
-            <Card className="flex-1 p-3 items-center">
+            <Card className="flex-1 p-3 items-center gap-0">
               <Text className="text-xs text-muted-foreground uppercase font-bold tracking-wider">
                 Phút
               </Text>
-              <Text className="text-2xl font-extrabold text-foreground mt-1">
-                {statistics.totalMinutes}
-              </Text>
+              {summaryQuery.isLoading ? (
+                <Skeleton className="h-8 w-10 mt-1" />
+              ) : (
+                <Text className="text-2xl font-extrabold text-foreground mt-1">
+                  {summary?.totalPracticeMinutes ?? 0}
+                </Text>
+              )}
             </Card>
-            <Card className="flex-1 p-3 items-center">
+            <Card className="flex-1 p-3 items-center gap-0">
               <Text className="text-xs text-muted-foreground uppercase font-bold tracking-wider">
                 Phiên
               </Text>
-              <Text className="text-2xl font-extrabold text-foreground mt-1">
-                {statistics.totalSessions}
-              </Text>
+              {summaryQuery.isLoading ? (
+                <Skeleton className="h-8 w-10 mt-1" />
+              ) : (
+                <Text className="text-2xl font-extrabold text-foreground mt-1">
+                  {summary?.sessionsCount ?? 0}
+                </Text>
+              )}
             </Card>
           </View>
-
-          {/* Points */}
-          <Card className="mt-4 p-4">
-            <View className="flex-row justify-between items-center">
-              <View>
-                <Text className="text-sm font-medium text-primary">
-                  Điểm thưởng
-                </Text>
-                <Text className="text-3xl font-black text-primary mt-1">
-                  {userPoints.toLocaleString()} Xu
-                </Text>
-              </View>
-              <Badge className="bg-primary/20 border-primary/30">
-                <Text className="text-primary font-bold">Hạng: Khám phá</Text>
-              </Badge>
-            </View>
-            <Separator className="my-4 bg-primary/10" />
-            <Text className="text-sm text-muted-foreground leading-5">
-              Tuyệt vời! Hãy đọc thêm nhiều truyện hay để nhận thêm nhiều Xu và
-              huy hiệu mới nhé!
-            </Text>
-          </Card>
 
           {/* Actions */}
           <View className="mt-4 gap-4">
