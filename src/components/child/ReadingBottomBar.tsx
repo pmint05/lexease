@@ -74,7 +74,7 @@ export const ReadingBottomBar = ({
             size="icon"
             variant="default"
             onPress={isFinished ? onRepeat : onTogglePlay}
-            className="size-14 rounded-full"
+            className="size-14 text-primary-foreground rounded-full"
           >
             {isFinished ? (
               <RotateCcw className="text-primary-foreground size-6" />

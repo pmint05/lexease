@@ -1,5 +1,6 @@
 import { useFocusEffect } from "@react-navigation/native";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import { CheckCheck } from "lucide-react-native";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { BackHandler, ScrollView, View } from "react-native";
 
@@ -80,6 +81,7 @@ export default function ReadingScreen(): React.ReactElement {
   // UI State
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isExitAlertOpen, setIsExitAlertOpen] = useState(false);
+  const [isShowingFinishAnim, setIsShowingFinishAnim] = useState(false);
 
   const sessionStartRef = useRef(0);
   const sessionLoggedRef = useRef(false);
@@ -417,12 +419,24 @@ export default function ReadingScreen(): React.ReactElement {
     completedBackendRef.current = true;
     const finishSession = async (): Promise<void> => {
       try {
+        // Initial delay before showing dialog (1.5s)
+        await new Promise((resolve) => setTimeout(resolve, 1500));
+
+        // Show congratulatory dialog
+        setIsShowingFinishAnim(true);
+
         if (isRecording) {
           await stopAndSaveRecording();
         }
 
         syncProgress(true);
-        await completeSessionMutation.mutateAsync(activeSession.sessionId);
+
+        // Parallelize backend call and second delay while dialog is shown
+        await Promise.all([
+          completeSessionMutation.mutateAsync(activeSession.sessionId),
+          new Promise((resolve) => setTimeout(resolve, 2500)), // Another 1.5s for child to see dialog
+        ]);
+
         finalizeSession();
         router.replace({
           pathname: "/(child)/reading/result",
@@ -433,6 +447,7 @@ export default function ReadingScreen(): React.ReactElement {
         });
       } catch (error) {
         completedBackendRef.current = false;
+        setIsShowingFinishAnim(false);
         console.error("Unable to complete reading session:", error);
       }
     };
@@ -553,6 +568,27 @@ export default function ReadingScreen(): React.ReactElement {
           onOpenChange={setIsSettingsOpen}
         />
       )}
+
+      {/* Finishing Congratulation Dialog */}
+      <AlertDialog
+        open={isShowingFinishAnim}
+        onOpenChange={setIsShowingFinishAnim}
+      >
+        <AlertDialogContent className="items-center py-10">
+          <View className="bg-primary/10 p-6 rounded-full">
+            <CheckCheck className="text-primary size-12" strokeWidth={3} />
+          </View>
+          <AlertDialogHeader className="items-center">
+            <AlertDialogTitle className="text-2xl font-black text-primary text-center">
+              TUYỆT VỜI!
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-lg font-medium text-center mt-2">
+              Bé đã đọc xong toàn bộ bài đọc rồi đấy. Đang chuẩn bị kết quả cho
+              bé nhé!
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+        </AlertDialogContent>
+      </AlertDialog>
     </View>
   );
 }
