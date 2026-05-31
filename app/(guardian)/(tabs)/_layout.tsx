@@ -6,6 +6,7 @@ import {
   BarChart3,
   CalendarClock,
   LayoutDashboard,
+  Library,
   Settings,
 } from "lucide-react-native";
 import React from "react";
@@ -26,7 +27,7 @@ export default function GuardianTabsLayout(): React.ReactElement {
           backgroundColor: theme.background,
           borderBottomWidth: 1,
           borderBottomColor: theme.border,
-          height: 64, // Slightly taller to accommodate selector items comfortably
+          height: 100, // Sufficient height for ChildSelector and RangeSelector
         },
         headerTitle: "",
         headerLeft: () => (
@@ -66,6 +67,15 @@ export default function GuardianTabsLayout(): React.ReactElement {
             <LayoutDashboard color={color} size={size} />
           ),
           tabBarLabel: "Tổng Quan",
+        }}
+      />
+      <Tabs.Screen
+        name="library"
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <Library color={color} size={size} />
+          ),
+          tabBarLabel: "Thư Viện",
         }}
       />
       <Tabs.Screen

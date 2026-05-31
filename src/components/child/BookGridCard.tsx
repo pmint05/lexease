@@ -14,10 +14,7 @@ export const BookGridCard = ({
   onPress,
 }: BookGridCardProps): React.ReactElement => {
   return (
-    <Pressable
-      onPress={() => onPress(book.id)}
-      style={{ width: "48.5%", marginBottom: 12 }}
-    >
+    <Pressable onPress={() => onPress(book.id)}>
       <Card className="overflow-hidden p-0 gap-3">
         <Image
           source={{ uri: book.coverUrl }}

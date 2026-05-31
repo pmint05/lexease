@@ -116,9 +116,16 @@ export default function GuardianBookDetailScreen(): React.ReactElement {
   if (!book) {
     return (
       <View className="flex-1 justify-center items-center p-4 bg-background">
-        <Text className="text-muted-foreground">Không tìm thấy sách.</Text>
-        <Button className="mt-4" onPress={() => router.back()}>
-          Quay lại
+        <ActivityIndicator size="large" color="#FF6B00" />
+        <Text className="text-muted-foreground mt-4 italic text-center">
+          Đang tìm kiếm thông tin truyện...
+        </Text>
+        <Button
+          className="mt-6 px-8 rounded-full"
+          variant="outline"
+          onPress={() => router.back()}
+        >
+          <Text>Quay lại thư viện</Text>
         </Button>
       </View>
     );
@@ -224,7 +231,7 @@ export default function GuardianBookDetailScreen(): React.ReactElement {
           {/* Reading Sessions */}
           <View className="gap-3">
             <Text className="text-lg font-bold ml-1">Lịch sử luyện tập</Text>
-            <Card className="border-border">
+            <Card className="border-border p-0">
               <View className="p-2">
                 {bookSessions.length > 0 ? (
                   bookSessions.map((session, index) => (

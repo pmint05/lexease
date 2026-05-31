@@ -56,17 +56,24 @@ export const formatDateTime = (isoString: string): string => {
  *  - 1000 -> "1 giây"
  *  - 0 -> "0 giây"
  */
-export const formatDurationMs = (ms: number): string => {
+export const formatDurationMs = (
+  ms: number,
+  isShort: boolean = false,
+): string => {
   const totalSeconds = Math.floor(ms / 1000);
   const hours = Math.floor(totalSeconds / 3600);
   const minutes = Math.floor((totalSeconds % 3600) / 60);
   const seconds = totalSeconds % 60;
 
-  const parts: string[] = [];
-  if (hours > 0) parts.push(`${hours} giờ`);
-  if (minutes > 0) parts.push(`${minutes} phút`);
-  if (seconds > 0) parts.push(`${seconds} giây`);
+  const hourUnit = isShort ? "h" : " giờ";
+  const minuteUnit = isShort ? "p" : " phút";
+  const secondUnit = isShort ? "s" : " giây";
 
-  if (parts.length === 0) return `0 phút`;
+  const parts: string[] = [];
+  if (hours > 0) parts.push(`${hours}${hourUnit}`);
+  if (minutes > 0) parts.push(`${minutes}${minuteUnit}`);
+  if (seconds > 0) parts.push(`${seconds}${secondUnit}`);
+
+  if (parts.length === 0) return `0${minuteUnit}`;
   return parts.join(" ");
 };
