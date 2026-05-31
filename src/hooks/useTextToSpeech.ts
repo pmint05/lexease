@@ -178,7 +178,11 @@ export const useTextToSpeech = ({
         ) {
           finishTimeoutRef.current = setTimeout(() => {
             clearTimer();
-            player.pause();
+            try {
+              player.pause();
+            } catch (e) {
+              // Silently ignore
+            }
             setIsPlaying(false);
             onFinishRef.current?.();
           }, 300);
@@ -231,8 +235,12 @@ export const useTextToSpeech = ({
     playRequestIdRef.current += 1;
     clearTimer();
     Speech.stop();
-    player.pause();
-    player.seekTo(0).catch(() => undefined);
+    try {
+      player.pause();
+      player.seekTo(0).catch(() => undefined);
+    } catch (e) {
+      // Silently ignore
+    }
     setIsPlaying(false);
   }, [clearTimer, player]);
 
@@ -248,7 +256,11 @@ export const useTextToSpeech = ({
     playRequestIdRef.current += 1;
     clearTimer();
     Speech.stop();
-    player.pause();
+    try {
+      player.pause();
+    } catch (e) {
+      // Ignore
+    }
     activeAudioUrlRef.current = null;
     setPlaybackAudioUrl(null);
     setIsPlaying(false);
@@ -331,7 +343,11 @@ export const useTextToSpeech = ({
       playRequestIdRef.current = requestId;
       clearTimer();
       Speech.stop();
-      player.pause();
+      try {
+        player.pause();
+      } catch (e) {
+        // Already released or invalid
+      }
       onWordBoundaryRef.current?.(startIndex);
 
       const wordsToSpeak = words.slice(startIndex);
@@ -361,7 +377,7 @@ export const useTextToSpeech = ({
           await waitForPlayerLoaded(requestId);
           if (playRequestIdRef.current !== requestId) return;
           if (!player.isLoaded) {
-            console.warn("Backend TTS audio is still loading; attempting playback");
+            // Wait silently
           }
 
           const normalizedTimings = normalizeWordTimings(
@@ -433,7 +449,11 @@ export const useTextToSpeech = ({
       playRequestIdRef.current += 1;
       clearTimer();
       Speech.stop();
-      player.pause();
+      try {
+        player.pause();
+      } catch (e) {
+        // Ignore unmount error
+      }
     };
   }, [clearTimer, player]);
 

@@ -437,7 +437,21 @@ export default function ReadingScreen(): React.ReactElement {
           new Promise((resolve) => setTimeout(resolve, 2500)), // Another 1.5s for child to see dialog
         ]);
 
+        // 1. Hide dialog first
+        setIsShowingFinishAnim(false);
+        // 2. Small delay to let dialog hide smoothly
+        await new Promise((resolve) => setTimeout(resolve, 300));
+
+        // 3. Stop audio BEFORE navigation
+        try {
+          stop();
+        } catch (e) {
+          // Ignore
+        }
+
         finalizeSession();
+        
+        // 4. Navigate
         router.replace({
           pathname: "/(child)/reading/result",
           params: {

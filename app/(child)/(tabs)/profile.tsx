@@ -19,6 +19,7 @@ import {
   useGuardianChildLinksQuery,
   useRejectChildLinkMutation,
 } from "@/src/hooks/useFamilyQueries";
+import { useNotificationService } from "@/src/hooks/useNotificationService";
 import { useProgressSummaryQuery } from "@/src/hooks/useProgressQueries";
 import { useAuthStore } from "@/src/store/useAuthStore";
 import { useThemeStore } from "@/src/store/useThemeStore";
@@ -34,7 +35,7 @@ import {
   UserX,
 } from "lucide-react-native";
 import React, { useMemo } from "react";
-import { ActivityIndicator, ScrollView, View } from "react-native";
+import { ActivityIndicator, Alert, ScrollView, View } from "react-native";
 
 /**
  * Child Profile Screen
@@ -75,6 +76,7 @@ export default function ProfileScreen(): React.ReactElement {
   }, [linksQuery.data, user?.id]);
 
   const summary = summaryQuery.data;
+  const { sendTestNotification, requestPermissions } = useNotificationService();
 
   return (
     <View className="flex-1 bg-background">
@@ -242,6 +244,29 @@ export default function ProfileScreen(): React.ReactElement {
           <View className="mt-4 gap-4">
             <Text className="font-bold text-lg ml-1">Cài đặt & Tài khoản</Text>
             <ThemeToggle />
+
+            <Button
+              onPress={async () => {
+                const granted = await requestPermissions();
+                if (!granted) {
+                  Alert.alert("Thông báo", "Vui lòng cấp quyền thông báo trong cài đặt để nhận nhắc nhở học tập.");
+                }
+              }}
+              variant="outline"
+              className="w-full bg-primary/5 border-primary/20"
+            >
+              <Bell size={18} className="text-primary mr-2" />
+              <Text className="text-primary font-semibold">Cấu hình thông báo</Text>
+            </Button>
+
+            <Button
+              onPress={async () => {
+                await sendTestNotification();
+              }}
+              className="w-full"
+            >
+              <Text>Bấm để Test thông báo (5s sau)</Text>
+            </Button>
 
             <Button
               onPress={handleLogout}
