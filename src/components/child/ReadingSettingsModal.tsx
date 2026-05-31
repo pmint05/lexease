@@ -1,4 +1,5 @@
 import { Dialog, DialogContent, DialogTitle } from "@/src/components/ui/dialog";
+import { Switch } from "@/src/components/ui/switch";
 import { Text } from "@/src/components/ui/text";
 import { useReadingStore } from "@/src/store/useReadingStore";
 import { Minus, Plus } from "lucide-react-native";
@@ -15,7 +16,8 @@ export const ReadingSettingsModal = ({
   open,
   onOpenChange,
 }: ReadingSettingsModalProps): React.ReactElement | null => {
-  const { speed, setSpeed } = useReadingStore();
+  const { speed, setSpeed, isAutoScrollEnabled, setIsAutoScrollEnabled } =
+    useReadingStore();
 
   if (!open) return null;
 
@@ -33,7 +35,7 @@ export const ReadingSettingsModal = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="min-w-[300px]">
+      <DialogContent className="min-w-[300px] max-w-md w-full">
         <DialogTitle>
           <View className="gap-1">
             <Text className="text-xl font-black text-foreground">Cài đặt</Text>
@@ -42,7 +44,7 @@ export const ReadingSettingsModal = ({
             </Text>
           </View>
         </DialogTitle>
-        <View className="">
+        <View className="w-full">
           <View className="gap-4">
             <Text className="font-bold uppercase">Tốc độ Spotlight</Text>
 
@@ -83,6 +85,19 @@ export const ReadingSettingsModal = ({
                 <Plus className="text-foreground size-5" />
               </Button>
             </View>
+          </View>
+
+          <View className="flex-row items-center justify-between rounded-2xl border border-border bg-muted/20 px-4 py-3 mt-4">
+            <View className="flex-1 pr-3">
+              <Text className="font-bold uppercase">Tự động cuộn</Text>
+              <Text className="text-xs text-muted-foreground mt-1">
+                Giữ từ đang đọc ở giữa màn hình.
+              </Text>
+            </View>
+            <Switch
+              checked={isAutoScrollEnabled}
+              onCheckedChange={setIsAutoScrollEnabled}
+            />
           </View>
 
           <View className="mt-6 w-full">

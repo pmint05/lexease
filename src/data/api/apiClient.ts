@@ -93,6 +93,24 @@ export const apiClient: AxiosInstance = axios.create({
 });
 
 /**
+ * Token Refresh Queue Management
+ */
+let isRefreshing = false;
+let failedQueue: any[] = [];
+
+const processQueue = (error: any, token: string | null = null) => {
+  failedQueue.forEach((prom) => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(token);
+    }
+  });
+
+  failedQueue = [];
+};
+
+/**
  * Request Interceptor
  * Adds auth token to all requests
  */
@@ -109,7 +127,7 @@ apiClient.interceptors.request.use(
 
 /**
  * Response Interceptor
- * Handles errors and token refresh logic
+ * Handles errors and token refresh logic with queuing to prevent race conditions
  */
 apiClient.interceptors.response.use(
   (response) => response,
@@ -121,10 +139,26 @@ apiClient.interceptors.response.use(
       originalRequest &&
       !originalRequest._retry
     ) {
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        })
+          .then((token) => {
+            originalRequest.headers.Authorization = `Bearer ${token}`;
+            return apiClient(originalRequest);
+          })
+          .catch((err) => {
+            return Promise.reject(err);
+          });
+      }
+
       originalRequest._retry = true;
+      isRefreshing = true;
+
       const { refreshToken, setAuth, logout } = useAuthStore.getState();
 
       if (!refreshToken) {
+        isRefreshing = false;
         logout();
         return Promise.reject(error);
       }
@@ -142,12 +176,13 @@ apiClient.interceptors.response.use(
         const frontendRole = toFrontendRole(refreshResponse.data.user.role);
 
         if (!frontendRole) {
-          logout();
-          return Promise.reject(error);
+          throw new Error("Invalid role");
         }
 
+        const newToken = refreshResponse.data.accessToken;
+
         setAuth({
-          token: refreshResponse.data.accessToken,
+          token: newToken,
           refreshToken: refreshResponse.data.refreshToken,
           expiresIn: refreshResponse.data.expiresIn,
           user: {
@@ -159,9 +194,14 @@ apiClient.interceptors.response.use(
           },
         });
 
-        originalRequest.headers.Authorization = `Bearer ${refreshResponse.data.accessToken}`;
+        processQueue(null, newToken);
+        isRefreshing = false;
+
+        originalRequest.headers.Authorization = `Bearer ${newToken}`;
         return apiClient(originalRequest);
       } catch (refreshError) {
+        processQueue(refreshError, null);
+        isRefreshing = false;
         logout();
         return Promise.reject(refreshError);
       }

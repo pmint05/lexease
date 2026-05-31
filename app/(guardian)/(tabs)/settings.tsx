@@ -9,11 +9,6 @@ import {
 import { Input } from "@/src/components/ui/input";
 import { Separator } from "@/src/components/ui/separator";
 import { Text } from "@/src/components/ui/text";
-import {
-  useDisplaySettingsQuery,
-  useResetDisplaySettingsMutation,
-  useSaveDisplaySettingsMutation,
-} from "@/src/hooks/useDisplaySettingsQueries";
 import { useEffectiveTheme } from "@/src/hooks/useEffectiveTheme";
 import {
   useGuardianChildLinksQuery,
@@ -23,11 +18,11 @@ import {
 import { cn } from "@/src/lib/utils";
 import { useAuthStore } from "@/src/store/useAuthStore";
 import { useFamilyStore } from "@/src/store/useFamilyStore";
-import { useReadingStore } from "@/src/store/useReadingStore";
 import { useThemeStore, type ThemePref } from "@/src/store/useThemeStore";
 import { useRouter } from "expo-router";
 import {
   CheckCircle2,
+  ChevronRight,
   Clock,
   LogOut,
   Palette,
@@ -36,7 +31,7 @@ import {
   UserPlus,
 } from "lucide-react-native";
 import React, { useMemo, useState } from "react";
-import { ActivityIndicator, ScrollView, View } from "react-native";
+import { ActivityIndicator, Pressable, ScrollView, View } from "react-native";
 
 /**
  * Settings Screen
@@ -50,16 +45,6 @@ export default function SettingsScreen(): React.ReactElement {
   const selectedChildId = useFamilyStore((state) =>
     guardianId ? state.getSelectedChildId(guardianId) : null,
   );
-  const {
-    fontSize,
-    fontFamily,
-    backgroundColor,
-    textColor,
-    highlightBackgroundColor,
-    highlightTextColor,
-    lineHeight,
-    letterSpacing,
-  } = useReadingStore();
   const [childEmail, setChildEmail] = useState("");
   const linksQuery = useGuardianChildLinksQuery();
   const requestLinkMutation = useRequestChildLinkMutation();
@@ -72,11 +57,6 @@ export default function SettingsScreen(): React.ReactElement {
   const pendingLinks = useMemo(() => {
     return (linksQuery.data ?? []).filter((link) => link.status === "PENDING");
   }, [linksQuery.data]);
-
-  const targetChildId = selectedChildId ?? acceptedLinks[0]?.childId ?? "";
-  useDisplaySettingsQuery(targetChildId || undefined);
-  const saveSettingsMutation = useSaveDisplaySettingsMutation(targetChildId);
-  const resetSettingsMutation = useResetDisplaySettingsMutation(targetChildId);
 
   const handleRequestLink = (): void => {
     const trimmedEmail = childEmail.trim();
@@ -99,22 +79,6 @@ export default function SettingsScreen(): React.ReactElement {
     router.replace("/(auth)/login");
   };
 
-  const handleSaveCurrentSettings = (): void => {
-    if (!targetChildId) return;
-
-    saveSettingsMutation.mutate({
-      fontFamily,
-      fontSize,
-      lineHeight,
-      letterSpacing: fontSize > 0 ? letterSpacing / fontSize : 0.04,
-      backgroundColor,
-      textColor,
-      highlightBackgroundColor,
-      highlightTextColor,
-      themeName: "guardian-current",
-    });
-  };
-
   return (
     <View className="flex-1 bg-background px-4">
       <ScrollView showsVerticalScrollIndicator={false} className="pb-4">
@@ -124,43 +88,31 @@ export default function SettingsScreen(): React.ReactElement {
         </View>
 
         <View className="gap-4 mt-3 pb-8">
-          {/* Reading Interface Settings */}
-          <Card className="border border-border bg-card">
-            <CardHeader className="pb-2">
-              <View className="flex-row justify-between items-center">
-                <View className="flex-row gap-2 items-center">
-                  <Palette size={20} className="text-primary" />
-                  <CardTitle>Giao diện đọc của trẻ</CardTitle>
+          {/* Reading Interface Settings Link */}
+          <Pressable onPress={() => router.push("/(guardian)/display-settings" as any)}>
+            <Card className="border border-border bg-card active:bg-muted/5">
+                <CardHeader className="pb-2">
+                <View className="flex-row justify-between items-center">
+                    <View className="flex-row gap-2 items-center">
+                    <Palette size={20} className="text-primary" />
+                    <CardTitle>Giao diện đọc của trẻ</CardTitle>
+                    </View>
+                    <Badge variant="secondary">
+                        <Text className="text-xs">Tùy chỉnh</Text>
+                    </Badge>
                 </View>
-                <Badge variant="secondary">
-                  <Text className="text-xs">Tùy chỉnh</Text>
-                </Badge>
-              </View>
-            </CardHeader>
-            <CardContent className="gap-3">
-              <Text className="text-sm text-muted-foreground">
-                Điều chỉnh màu nền, cỡ chữ và font chữ để phù hợp với thị giác
-                của trẻ. Các thay đổi sẽ được áp dụng tự động xuống máy của trẻ.
-              </Text>
-              <View className="flex-row gap-2 mt-1">
-                <Button
-                  size="sm"
-                  disabled={!targetChildId || resetSettingsMutation.isPending}
-                  onPress={() => resetSettingsMutation.mutate()}
-                >
-                  <Text>Mặc định</Text>
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  disabled={!targetChildId || saveSettingsMutation.isPending}
-                  onPress={handleSaveCurrentSettings}
-                >
-                  <Text>Lưu hiện tại</Text>
-                </Button>
-              </View>
-            </CardContent>
-          </Card>
+                </CardHeader>
+                <CardContent className="gap-2">
+                <Text className="text-sm text-muted-foreground">
+                    Điều chỉnh màu nền, cỡ chữ, phông chữ và bố cục để phù hợp với thị giác của trẻ.
+                </Text>
+                <View className="flex-row items-center gap-1 mt-1">
+                    <Text className="text-xs font-bold text-primary">Cấu hình ngay</Text>
+                    <ChevronRight size={14} className="text-primary" />
+                </View>
+                </CardContent>
+            </Card>
+          </Pressable>
 
           {/* Child Account Management */}
           <Card className="border border-border bg-card">

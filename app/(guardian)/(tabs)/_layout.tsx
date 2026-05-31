@@ -27,7 +27,7 @@ export default function GuardianTabsLayout(): React.ReactElement {
           backgroundColor: theme.background,
           borderBottomWidth: 1,
           borderBottomColor: theme.border,
-          height: 100, // Sufficient height for ChildSelector and RangeSelector
+          height: 64, // Sufficient height for ChildSelector and RangeSelector
         },
         headerTitle: "",
         headerLeft: () => (

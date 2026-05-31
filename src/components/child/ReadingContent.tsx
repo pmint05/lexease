@@ -29,6 +29,7 @@ export const ReadingContent = ({
     highlightTextColor,
     letterSpacing,
     lineHeight,
+    isAutoScrollEnabled,
   } = useReadingStore();
 
   const scrollRef = useRef<ScrollView>(null);
@@ -39,7 +40,11 @@ export const ReadingContent = ({
 
   // Auto-scroll logic: Keep active word in center
   useEffect(() => {
-    if (isPlaying && wordLayouts.current[currentIndex] !== undefined) {
+    if (
+      isAutoScrollEnabled &&
+      isPlaying &&
+      wordLayouts.current[currentIndex] !== undefined
+    ) {
       isAutoScrolling.current = true;
       scrollRef.current?.scrollTo({
         y: wordLayouts.current[currentIndex] - 150, // Approx center
@@ -49,7 +54,7 @@ export const ReadingContent = ({
         isAutoScrolling.current = false;
       }, 500);
     }
-  }, [currentIndex, isPlaying]);
+  }, [currentIndex, isAutoScrollEnabled, isPlaying]);
 
   const handleScrollBeginDrag = () => {
     onManualScroll();

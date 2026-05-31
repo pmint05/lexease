@@ -27,6 +27,7 @@ export interface ReadingStoreState {
   // --- Preferences (Child/Persisted) ---
   speed: number;
   isTtsEnabled: boolean;
+  isAutoScrollEnabled: boolean;
 
   // --- Session State (Transient/Not Persisted) ---
   currentIndex: number;
@@ -41,6 +42,7 @@ export interface ReadingStoreState {
   // Preference actions
   setSpeed: (speed: number) => void;
   setIsTtsEnabled: (enabled: boolean) => void;
+  setIsAutoScrollEnabled: (enabled: boolean) => void;
 
   // Session actions
   setIndex: (index: number) => void;
@@ -65,6 +67,7 @@ const DEFAULT_VISUALS = {
 const DEFAULT_PREFERENCES = {
   speed: 1.0,
   isTtsEnabled: true,
+  isAutoScrollEnabled: true,
 };
 
 const INITIAL_SESSION = {
@@ -87,6 +90,8 @@ export const useReadingStore = create<ReadingStoreState>()(
       // Preferences
       setSpeed: (speed) => set({ speed: Math.min(Math.max(speed, 0.5), 2.0) }),
       setIsTtsEnabled: (enabled) => set({ isTtsEnabled: enabled }),
+      setIsAutoScrollEnabled: (enabled) =>
+        set({ isAutoScrollEnabled: enabled }),
 
       // Session
       setIndex: (index) => set({ currentIndex: index }),
@@ -118,6 +123,7 @@ export const useReadingStore = create<ReadingStoreState>()(
         highlightTextColor: state.highlightTextColor,
         speed: state.speed,
         isTtsEnabled: state.isTtsEnabled,
+        isAutoScrollEnabled: state.isAutoScrollEnabled,
       }),
     },
   ),

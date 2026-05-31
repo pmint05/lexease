@@ -1,4 +1,6 @@
+import { Switch } from "@/src/components/ui/switch";
 import { Text } from "@/src/components/ui/text";
+import { useReadingStore } from "@/src/store/useReadingStore";
 import { Mic, Pause, Play, SkipBack } from "lucide-react-native";
 import React from "react";
 import { View } from "react-native";
@@ -27,6 +29,13 @@ export const ReadingControls = ({
   onReset,
   onSpeedSelect,
 }: ReadingControlsProps): React.ReactElement => {
+  const isAutoScrollEnabled = useReadingStore(
+    (state) => state.isAutoScrollEnabled,
+  );
+  const setIsAutoScrollEnabled = useReadingStore(
+    (state) => state.setIsAutoScrollEnabled,
+  );
+
   return (
     <View className="gap-3">
       <View className="flex-row flex-wrap justify-center gap-2">
@@ -100,6 +109,21 @@ export const ReadingControls = ({
             </Button>
           ))}
         </View>
+      </View>
+
+      <View className="flex-row items-center justify-between rounded-2xl border border-border bg-card px-4 py-3">
+        <View className="flex-1 pr-3">
+          <Text className="text-sm font-semibold text-foreground">
+            Tự động cuộn văn bản
+          </Text>
+          <Text className="text-xs text-muted-foreground">
+            Tự đưa câu đang đọc vào giữa màn hình.
+          </Text>
+        </View>
+        <Switch
+          checked={isAutoScrollEnabled}
+          onCheckedChange={setIsAutoScrollEnabled}
+        />
       </View>
     </View>
   );
