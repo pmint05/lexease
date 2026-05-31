@@ -1,39 +1,38 @@
+import { Text } from "@/src/components/ui/text";
 import { useAuthStore } from "@/src/store/useAuthStore";
-import { useRouter } from "expo-router";
-import React, { useEffect } from "react";
-import { Text, YStack } from "tamagui";
+import { Redirect } from "expo-router";
+import React from "react";
+import { View } from "react-native";
 
 /**
  * Entry Point Screen
- * Redirects based on auth state and user role
- * - Not authenticated → (auth)/login
- * - Child user → (child)/library
- * - Guardian user → (guardian)/dashboard
+ * Uses declarative Redirect to avoid mounting race conditions
  */
 export default function IndexScreen(): React.ReactElement {
-  const router = useRouter();
-  const { token, role } = useAuthStore();
+  const { token, role, _hasHydrated } = useAuthStore();
 
-  useEffect(() => {
-    // Redirect based on auth state
-    if (!token) {
-      router.replace("/(auth)/login");
-    } else if (role === "child") {
-      router.replace("/(child)/(tabs)/library");
-    } else if (role === "guardian") {
-      router.replace("/(guardian)/(tabs)/dashboard");
-    }
-  }, [token, role, router]);
+  // Wait for hydration before making any redirection decisions
+  if (!_hasHydrated) {
+    return (
+      <View className="flex-1 justify-center items-center bg-background">
+        <Text>LexEase initializing...</Text>
+      </View>
+    );
+  }
 
-  // Show minimal UI while redirecting
-  return (
-    <YStack
-      flex={1}
-      justifyContent="center"
-      alignItems="center"
-      backgroundColor="$background"
-    >
-      <Text>Loading LexEase...</Text>
-    </YStack>
-  );
+  // Redirect based on auth state
+  if (!token) {
+    return <Redirect href="/(auth)/login" />;
+  }
+
+  if (role === "child") {
+    return <Redirect href="/(child)/(tabs)/library" />;
+  }
+
+  if (role === "guardian") {
+    return <Redirect href="/(guardian)/(tabs)/dashboard" />;
+  }
+
+  // Fallback
+  return <Redirect href="/(auth)/login" />;
 }

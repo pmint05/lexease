@@ -1,3 +1,4 @@
+import { User, UserRole } from "@/src/core/types/user";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
@@ -8,30 +9,35 @@ import { createJSONStorage, persist } from "zustand/middleware";
  * - User role (child/guardian)
  * - Auth token
  * - User profile
- * - Persisted via middleware (SecureStore/AsyncStorage)
+ * - Persisted via middleware
+ * - Hydration tracking
  */
-
-export interface User {
-  id: string;
-  email: string;
-  name: string;
-  role?: "child" | "guardian";
-}
 
 export interface AuthStoreState {
   // State
   token: string | null;
+  refreshToken: string | null;
+  expiresIn: number | null;
   user: User | null;
-  role: "child" | "guardian" | null;
+  role: UserRole | null;
   isLoading: boolean;
   error: string | null;
+  _hasHydrated: boolean;
 
   // Actions
+  setAuth: (payload: {
+    token: string;
+    user: User;
+    refreshToken?: string | null;
+    expiresIn?: number | null;
+  }) => void;
   setToken: (token: string | null) => void;
+  setRefreshToken: (refreshToken: string | null) => void;
   setUser: (user: User | null) => void;
-  setRole: (role: "child" | "guardian" | null) => void;
+  setRole: (role: UserRole | null) => void;
   setIsLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
+  setHasHydrated: (state: boolean) => void;
   logout: () => void;
 }
 
@@ -40,20 +46,36 @@ export const useAuthStore = create<AuthStoreState>()(
     (set) => ({
       // Initial state
       token: null,
+      refreshToken: null,
+      expiresIn: null,
       user: null,
       role: null,
       isLoading: false,
       error: null,
+      _hasHydrated: false,
 
       // Actions
+      setAuth: ({ token, user, refreshToken, expiresIn }) =>
+        set({
+          token,
+          refreshToken: refreshToken ?? null,
+          expiresIn: expiresIn ?? null,
+          user,
+          role: user.role,
+          error: null,
+        }),
       setToken: (token) => set({ token }),
-      setUser: (user) => set({ user }),
+      setRefreshToken: (refreshToken) => set({ refreshToken }),
+      setUser: (user) => set({ user, role: user?.role ?? null }),
       setRole: (role) => set({ role }),
       setIsLoading: (loading) => set({ isLoading: loading }),
       setError: (error) => set({ error }),
+      setHasHydrated: (state) => set({ _hasHydrated: state }),
       logout: () =>
         set({
           token: null,
+          refreshToken: null,
+          expiresIn: null,
           user: null,
           role: null,
           error: null,
@@ -62,6 +84,9 @@ export const useAuthStore = create<AuthStoreState>()(
     {
       name: "lexease-auth",
       storage: createJSONStorage(() => AsyncStorage),
+      onRehydrateStorage: () => (state) => {
+        state?.setHasHydrated(true);
+      },
     },
   ),
 );

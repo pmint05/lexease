@@ -1,43 +1,39 @@
-import { Tabs } from "expo-router";
+import LoadingScreen from "@/src/components/feedback/loading-screen";
+import { useAuthStore } from "@/src/store/useAuthStore";
+import { Redirect, Stack } from "expo-router";
 import React from "react";
 
 /**
  * Child Route Group Layout
- * Bottom-tabs navigation for child user:
- * - Library: Browse and select books
- * - History: View past recordings and reading history
- * (Full-screen reading route is outside tabs)
+ * Protects child routes from unauthorized access
  */
 export default function ChildLayout(): React.ReactElement {
+  const { token, role, _hasHydrated } = useAuthStore();
+
+  if (!_hasHydrated) return <LoadingScreen />;
+
+  // Protect route
+  if (!token || role !== "child") {
+    return <Redirect href="/(auth)/login" />;
+  }
+
   return (
-    <Tabs
+    <Stack
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: "#4CAF50",
-        tabBarInactiveTintColor: "#9E9E9E",
-        tabBarStyle: {
-          backgroundColor: "#FFF8F0",
-          borderTopColor: "#E0E0E0",
-          minHeight: 60,
-        },
+        animation: "none",
       }}
     >
-      <Tabs.Screen
-        name="(tabs)"
+      <Stack.Screen name="(tabs)" />
+      <Stack.Screen name="reading/[id]" />
+      <Stack.Screen
+        name="reading/result"
         options={{
-          title: "Library",
-          tabBarLabel: "Library",
-          headerShown: false,
+          animation: "fade",
+          gestureEnabled: false,
         }}
       />
-      <Tabs.Screen
-        name="reading/[id]"
-        options={{
-          title: "Reading",
-          href: null, // Hidden from tab bar
-          headerShown: false,
-        }}
-      />
-    </Tabs>
+      <Stack.Screen name="book/[id]" />
+    </Stack>
   );
 }

@@ -1,105 +1,133 @@
-import { useAuthStore } from "@/src/store/useAuthStore";
+import { Button } from "@/src/components/shared/Button";
+import { FormField } from "@/src/components/shared/FormField";
+import { Card } from "@/src/components/ui/card";
+import { Text } from "@/src/components/ui/text";
+import { LoginInput, LoginSchema } from "@/src/core/schemas/auth";
+import { useLoginMutation } from "@/src/hooks/useAuthQueries";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
-import { Button, Form, Input, Text, YStack } from "tamagui";
+import React from "react";
+import { useForm } from "react-hook-form";
+import { KeyboardAvoidingView, Platform, ScrollView, View } from "react-native";
 
 /**
  * Login Screen
- * Email/password authentication
- * Routes to role-selection on success
+ * Redesigned for mobile-first, dyslexia-friendly, and push-to-bottom layout
  */
-export default function LoginScreen(): React.ReactElement {
+export default function LoginScreen() {
   const router = useRouter();
-  const { setToken, setUser } = useAuthStore();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const { mutate: login, isPending, data: loginResult } = useLoginMutation();
 
-  const handleLogin = async () => {
-    if (!email || !password) {
-      setError("Please enter email and password");
-      return;
-    }
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginInput>({
+    resolver: zodResolver(LoginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
 
-    setLoading(true);
-    try {
-      // TODO: Replace with actual API call
-      // For now, mock login success
-      setToken("mock-token-" + Date.now());
-      setUser({
-        id: "user-1",
-        email,
-        name: "Test User",
-      });
-
-      // Navigate to role selection
-      router.push("/(auth)/role-selection");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Login failed");
-    } finally {
-      setLoading(false);
-    }
+  const onLogin = (data: LoginInput) => {
+    login(data, {
+      onSuccess: (result) => {
+        if (!result.success) {
+          // Handle logic error if needed, but useMutation already handles state
+        }
+      },
+    });
   };
 
   return (
-    <YStack
-      flex={1}
-      justifyContent="center"
-      alignItems="center"
-      padding="$4"
-      backgroundColor="$background"
-      gap="$4"
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={{ flex: 1 }}
     >
-      <Text
-        fontSize="$8"
-        fontWeight="bold"
-        accessibilityRole="header"
-        accessibilityLabel="LexEase login"
+      <ScrollView
+        contentContainerStyle={{ flexGrow: 1 }}
+        bounces={false}
+        className="bg-background"
       >
-        LexEase
-      </Text>
+        <View className="flex-1 justify-between">
+          <View className="flex-1 items-center justify-center px-6">
+            <Text variant="h1" className="text-primary text-center">
+              LexEase
+            </Text>
+            <Text className="mt-2 text-center text-lg text-muted-foreground">
+              Hỗ trợ bé đọc sách mỗi ngày
+            </Text>
+          </View>
 
-      <Form gap="$3" width="100%" maxWidth={300}>
-        <Input
-          placeholder="Email"
-          value={email}
-          onChangeText={setEmail}
-          keyboardType="email-address"
-          size="$4"
-          accessible
-          accessibilityLabel="Email input"
-          accessibilityRole="text"
-        />
+          <Card className="rounded-t-3xl rounded-b-none border-b-0 px-6 py-6">
+            <View className="gap-5">
+              <View className="gap-1">
+                <Text className="text-3xl font-bold text-foreground">
+                  Đăng nhập
+                </Text>
+                <Text className="text-muted-foreground">
+                  Chào mừng bạn quay trở lại
+                </Text>
+              </View>
 
-        <Input
-          placeholder="Password"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-          size="$4"
-          accessible
-          accessibilityLabel="Password input"
-          accessibilityRole="text"
-        />
+              <View className="gap-4">
+                <FormField
+                  label="Email"
+                  name="email"
+                  control={control}
+                  placeholder="name@example.com"
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  error={errors.email?.message}
+                />
 
-        {error ? (
-          <Text color="$red10" fontSize="$2">
-            {error}
-          </Text>
-        ) : null}
+                <FormField
+                  label="Mật khẩu"
+                  name="password"
+                  control={control}
+                  placeholder="••••••••"
+                  secureTextEntry
+                  error={errors.password?.message}
+                />
 
-        <Button
-          onPress={handleLogin}
-          disabled={loading}
-          size="$5"
-          accessible
-          accessibilityRole="button"
-          accessibilityLabel="Login button"
-        >
-          {loading ? "Logging in..." : "Login"}
-        </Button>
-      </Form>
-    </YStack>
+                <View className="items-end">
+                  <Text
+                    className="text-sm font-bold text-primary"
+                    onPress={() => router.push("/(auth)/forgot-password")}
+                  >
+                    Quên mật khẩu?
+                  </Text>
+                </View>
+
+                <Button
+                  onPress={handleSubmit(onLogin)}
+                  disabled={isPending}
+                  size="large"
+                  uiVariant="primary"
+                >
+                  {isPending ? "Đang xử lý..." : "Đăng nhập"}
+                </Button>
+                {loginResult?.success === false && loginResult.error ? (
+                  <Text className="text-center text-sm text-destructive">
+                    {loginResult.error}
+                  </Text>
+                ) : null}
+              </View>
+
+              <Text className="mt-2 text-center text-sm text-muted-foreground">
+                Chưa có tài khoản?{" "}
+                <Text
+                  className="font-bold text-primary"
+                  onPress={() => router.push("/(auth)/register")}
+                >
+                  Đăng ký ngay
+                </Text>
+              </Text>
+            </View>
+          </Card>
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }

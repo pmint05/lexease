@@ -1,35 +1,110 @@
-import { Stack } from "expo-router";
+import ChildSelector from "@/src/components/guardian/ChildSelector";
+import RangeSelector from "@/src/components/guardian/RangeSelector";
+import { useEffectiveTheme } from "@/src/hooks/useEffectiveTheme";
+import { Tabs } from "expo-router";
+import {
+  BarChart3,
+  CalendarClock,
+  LayoutDashboard,
+  Library,
+  Settings,
+} from "lucide-react-native";
 import React from "react";
+import { View } from "react-native";
 
 /**
  * Guardian Tabs Layout
- * Manages dashboard, config, and scheduler tabs
+ * Manages dashboard, reports, scheduler, and settings tabs
  */
 export default function GuardianTabsLayout(): React.ReactElement {
+  const { theme } = useEffectiveTheme();
+
   return (
-    <Stack
+    <Tabs
       screenOptions={{
-        headerShown: false,
+        headerShown: true,
+        headerStyle: {
+          backgroundColor: theme.background,
+          borderBottomWidth: 1,
+          borderBottomColor: theme.border,
+          height: 64, // Sufficient height for ChildSelector and RangeSelector
+        },
+        headerTitle: "",
+        headerLeft: () => (
+          <View style={{ paddingLeft: 16 }}>
+            <ChildSelector />
+          </View>
+        ),
+        headerRight: () => (
+          <View style={{ paddingRight: 16 }}>
+            <RangeSelector />
+          </View>
+        ),
+        headerShadowVisible: false,
+        tabBarStyle: {
+          backgroundColor: theme.card,
+          borderTopWidth: 1,
+          borderTopColor: theme.border,
+          height: 72,
+          elevation: 0,
+          shadowOpacity: 0,
+        },
+        tabBarItemStyle: {
+          paddingVertical: 8,
+        },
+        tabBarActiveTintColor: theme.primary,
+        tabBarInactiveTintColor: theme.mutedForeground,
+        tabBarLabelStyle: {
+          fontFamily: "Lexend-Medium",
+          fontSize: 11,
+        },
       }}
     >
-      <Stack.Screen
+      <Tabs.Screen
         name="dashboard"
         options={{
-          title: "Dashboard",
+          tabBarIcon: ({ color, size }) => (
+            <LayoutDashboard color={color} size={size} />
+          ),
+          tabBarLabel: "Tổng Quan",
         }}
       />
-      <Stack.Screen
-        name="config"
+      <Tabs.Screen
+        name="report"
         options={{
-          title: "Customizer",
+          tabBarIcon: ({ color, size }) => (
+            <BarChart3 color={color} size={size} />
+          ),
+          tabBarLabel: "Báo Cáo",
         }}
       />
-      <Stack.Screen
+      <Tabs.Screen
         name="scheduler"
         options={{
-          title: "Scheduler",
+          tabBarIcon: ({ color, size }) => (
+            <CalendarClock color={color} size={size} />
+          ),
+          tabBarLabel: "Lịch Học",
         }}
       />
-    </Stack>
+      <Tabs.Screen
+        name="library"
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <Library color={color} size={size} />
+          ),
+          tabBarLabel: "Thư Viện",
+        }}
+      />
+      <Tabs.Screen
+        name="settings"
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <Settings color={color} size={size} />
+          ),
+          tabBarLabel: "Cài Đặt",
+        }}
+      />
+    </Tabs>
   );
 }

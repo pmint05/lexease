@@ -130,12 +130,13 @@ LexEase/
 
 ```
 app/
-├── _layout.tsx               # Root layout with TamagiProvider, QueryClientProvider, Zustand hydration
-├── index.tsx                 # Entry point (redirect to login or child/guardian workspace)
+├── _layout.tsx               # Root layout with TamagiProvider, QueryClientProvider, Zustand hydration + Auth Guard
+├── index.tsx                 # Entry point (Placeholder, redirection handled by guard)
 ├── (auth)/
 │   ├── _layout.tsx           # Auth stack layout
 │   ├── login.tsx             # Email/password login
-│   └── role-selection.tsx    # Child/Guardian role picker
+│   ├── register.tsx          # Account creation + role selection
+│   └── forgot-password.tsx   # Password recovery request
 ├── (child)/
 │   ├── _layout.tsx           # Child bottom-tabs: [Library, Reading, History]
 │   ├── (tabs)/

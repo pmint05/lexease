@@ -27,7 +27,7 @@ import { runOnJS, SharedValue, useSharedValue } from "react-native-reanimated";
  * const { audioPosition, highlightProgress, currentIndex } = useAudioSync({
  *   wordTimestamps: [0, 1000, 2000, 3000],
  *   isPlaying: true,
- *   speed: 'hare',
+ *   speed: 1.5,
  * });
  *
  * // Use currentIndex for conditional rendering
@@ -45,7 +45,7 @@ import { runOnJS, SharedValue, useSharedValue } from "react-native-reanimated";
 export interface UseAudioSyncProps {
   wordTimestamps: number[]; // Word start times in milliseconds
   isPlaying: boolean;
-  speed: "turtle" | "hare";
+  speed: number;
 }
 
 export interface UseAudioSyncReturn {
