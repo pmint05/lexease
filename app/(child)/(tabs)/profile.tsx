@@ -36,7 +36,7 @@ import {
   UserX,
 } from "lucide-react-native";
 import React, { useMemo } from "react";
-import { ActivityIndicator, ScrollView, View } from "react-native";
+import { ActivityIndicator, Alert, ScrollView, View } from "react-native";
 
 /**
  * Child Profile Screen
@@ -246,18 +246,23 @@ export default function ProfileScreen(): React.ReactElement {
             <Text className="font-bold text-lg ml-1">Cài đặt & Tài khoản</Text>
             <ThemeToggle />
 
-            {/* <Button
+            <Button
               onPress={async () => {
                 const granted = await requestPermissions();
                 if (!granted) {
-                  Alert.alert("Thông báo", "Vui lòng cấp quyền thông báo trong cài đặt để nhận nhắc nhở học tập.");
+                  Alert.alert(
+                    "Thông báo",
+                    "Vui lòng cấp quyền thông báo trong cài đặt để nhận nhắc nhở học tập.",
+                  );
                 }
               }}
               variant="outline"
               className="w-full bg-primary/5 border-primary/20"
             >
               <Bell size={18} className="text-primary mr-2" />
-              <Text className="text-primary font-semibold">Cấu hình thông báo</Text>
+              <Text className="text-primary font-semibold">
+                Cấu hình thông báo
+              </Text>
             </Button>
 
             <Button
@@ -267,7 +272,7 @@ export default function ProfileScreen(): React.ReactElement {
               className="w-full"
             >
               <Text>Bấm để Test thông báo (5s sau)</Text>
-            </Button> */}
+            </Button>
 
             <Button
               onPress={handleLogout}

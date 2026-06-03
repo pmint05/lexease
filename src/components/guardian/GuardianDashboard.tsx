@@ -14,13 +14,16 @@ import { Text } from "../ui/text";
 import RecentActivityList from "./RecentActivityListView";
 import StatCard from "./StatCard";
 import WeeklyActivityChart from "./WeeklyActivityChart";
+import { getChildDisplayName } from "@/src/utils/formatters";
 
 export default function GuardianDashboard() {
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
   const guardianId = user?.id ?? null;
 
-  const getSelectedChildId = useFamilyStore((s) => s.getSelectedChildId);
+  const selectedChildId = useFamilyStore((s) =>
+    guardianId ? s.selectedChildByGuardian[guardianId] : null,
+  );
   const setSelectedChild = useFamilyStore((s) => s.setSelectedChild);
   const linksQuery = useGuardianChildLinksQuery();
 
@@ -33,12 +36,10 @@ export default function GuardianDashboard() {
       )
       .map((link) => ({
         childId: link.childId,
-        childName:
-          link.childEmail?.split("@")[0] || `Bé ${link.childId.slice(0, 4)}`,
+        childName: getChildDisplayName(link),
       }));
   }, [guardianId, linksQuery.data]);
 
-  const selectedChildId = guardianId ? getSelectedChildId(guardianId) : null;
   const targetChildId = selectedChildId ?? children[0]?.childId ?? "";
 
   const sessionsQuery = useProgressSessionsQuery(targetChildId);

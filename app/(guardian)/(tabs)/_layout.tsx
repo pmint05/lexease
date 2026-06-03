@@ -12,6 +12,18 @@ import {
 import React from "react";
 import { View } from "react-native";
 
+const GuardianHeaderLeft = () => (
+  <View style={{ paddingLeft: 16 }}>
+    <ChildSelector />
+  </View>
+);
+
+const GuardianHeaderRight = () => (
+  <View style={{ paddingRight: 16 }}>
+    <RangeSelector />
+  </View>
+);
+
 /**
  * Guardian Tabs Layout
  * Manages dashboard, reports, scheduler, and settings tabs
@@ -30,16 +42,8 @@ export default function GuardianTabsLayout(): React.ReactElement {
           height: 64, // Sufficient height for ChildSelector and RangeSelector
         },
         headerTitle: "",
-        headerLeft: () => (
-          <View style={{ paddingLeft: 16 }}>
-            <ChildSelector />
-          </View>
-        ),
-        headerRight: () => (
-          <View style={{ paddingRight: 16 }}>
-            <RangeSelector />
-          </View>
-        ),
+        headerLeft: GuardianHeaderLeft,
+        headerRight: GuardianHeaderRight,
         headerShadowVisible: false,
         tabBarStyle: {
           backgroundColor: theme.card,

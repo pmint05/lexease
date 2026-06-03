@@ -77,3 +77,15 @@ export const formatDurationMs = (
   if (parts.length === 0) return `0${minuteUnit}`;
   return parts.join(" ");
 };
+
+export const getChildDisplayName = (link: any): string => {
+  if (link?.child?.displayName) return link.child.displayName;
+  const email = link?.child?.email || link?.childEmail;
+  if (email) return email.split("@")[0];
+  if (link?.childId) return `Bé ${link.childId.slice(0, 4)}`;
+  return "Bé";
+};
+
+export const getChildEmail = (link: any): string => {
+  return link?.child?.email || link?.childEmail || "";
+};

@@ -20,6 +20,7 @@ import { cn } from "@/src/lib/utils";
 import { useAuthStore } from "@/src/store/useAuthStore";
 import { useFamilyStore } from "@/src/store/useFamilyStore";
 import { useThemeStore, type ThemePref } from "@/src/store/useThemeStore";
+import { getChildDisplayName } from "@/src/utils/formatters";
 import { Link, useRouter } from "expo-router";
 import {
   CheckCircle2,
@@ -199,7 +200,7 @@ export default function SettingsScreen(): React.ReactElement {
                           >
                             <View className="flex-1">
                               <Text className="font-medium" numberOfLines={1}>
-                                {link.childEmail || "Chưa xác định"}
+                                {getChildDisplayName(link)}
                               </Text>
                               <Text className="text-xs text-muted-foreground">
                                 Chờ bé chấp nhận
@@ -255,7 +256,7 @@ export default function SettingsScreen(): React.ReactElement {
                                 className="font-semibold text-primary"
                                 numberOfLines={1}
                               >
-                                {link.childEmail || "Đã liên kết"}
+                                {getChildDisplayName(link)}
                               </Text>
                               <Text className="text-xs text-muted-foreground">
                                 Đã kết nối

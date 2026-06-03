@@ -40,6 +40,7 @@ import PerformanceLineChart from "@/src/components/guardian/bento/PerformanceLin
 import SkillProgressBars from "@/src/components/guardian/bento/SkillProgressBars";
 import { DifficultWordsSheet } from "@/src/components/guardian/DifficultWordsSheet";
 import { Icon } from "@/src/components/ui/icon";
+import { getChildDisplayName } from "@/src/utils/formatters";
 
 /**
  * Report Screen
@@ -64,7 +65,7 @@ export default function ReportScreen(): React.ReactElement {
   const targetChildId = selectedChildId ?? acceptedLinks[0]?.childId ?? "";
   const selectedChildName = useMemo(() => {
     const link = acceptedLinks.find((l) => l.childId === targetChildId);
-    return link?.childEmail?.split("@")[0] || "Bé";
+    return getChildDisplayName(link);
   }, [acceptedLinks, targetChildId]);
 
   const summaryQuery = useProgressSummaryQuery(targetChildId);
@@ -128,7 +129,7 @@ export default function ReportScreen(): React.ReactElement {
           {/* Header */}
           <View className="flex-row items-center justify-between">
             <View className="flex-row items-center gap-2">
-              <BarChart3 size={24} className="text-primary" />
+              <Icon as={BarChart3} size={24} className="text-primary" />
               <Text className="text-2xl font-bold">
                 Báo cáo của {selectedChildName}
               </Text>

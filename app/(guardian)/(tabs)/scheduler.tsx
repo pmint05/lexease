@@ -53,6 +53,7 @@ import {
   View,
 } from "react-native";
 import ReanimatedSwipeable from "react-native-gesture-handler/ReanimatedSwipeable";
+import { getChildDisplayName } from "@/src/utils/formatters";
 
 const DAYS_MAP: { key: DayOfWeek; label: string; short: string }[] = [
   { key: "MONDAY", label: "Thứ Hai", short: "T2" },
@@ -84,7 +85,7 @@ export default function SchedulerScreen(): React.ReactElement {
   const targetChildId = selectedChildId ?? acceptedLinks[0]?.childId ?? "";
   const selectedChildName = useMemo(() => {
     const link = acceptedLinks.find((l) => l.childId === targetChildId);
-    return link?.childEmail?.split("@")[0] || "Bé";
+    return getChildDisplayName(link);
   }, [acceptedLinks, targetChildId]);
 
   const remindersQuery = useRemindersQuery(targetChildId);

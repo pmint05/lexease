@@ -162,7 +162,7 @@ export default function ReadingDetailScreen(): React.ReactElement {
           Không tìm thấy bài đọc này
         </Text>
         <Button className="mt-4" onPress={handleBack}>
-          Quay lại
+          <Text>Quay lại</Text>
         </Button>
       </View>
     );

@@ -21,15 +21,18 @@ const FullWindowOverlay = Platform.OS === 'ios' ? RNFullWindowOverlay : React.Fr
 function DialogOverlay({
   className,
   children,
+  position = 'center',
   ...props
 }: Omit<React.ComponentProps<typeof DialogPrimitive.Overlay>, 'asChild'> & {
     children?: React.ReactNode;
+    position?: 'center' | 'bottom';
   }) {
   return (
     <FullWindowOverlay>
       <DialogPrimitive.Overlay
         className={cn(
-          'absolute bottom-0 left-0 right-0 top-0 flex items-center justify-center bg-black/50 p-2',
+          'absolute bottom-0 left-0 right-0 top-0 flex bg-black/50 p-2',
+          position === 'bottom' ? 'items-end justify-center' : 'items-center justify-center',
           Platform.select({
             web: 'animate-in fade-in-0 fixed cursor-default [&>*]:cursor-auto',
           }),
@@ -50,13 +53,15 @@ function DialogContent({
   className,
   portalHost,
   children,
+  position,
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Content> & {
     portalHost?: string;
+    position?: 'center' | 'bottom';
   }) {
   return (
     <DialogPortal hostName={portalHost}>
-      <DialogOverlay>
+      <DialogOverlay position={position}>
         <DialogPrimitive.Content
           className={cn(
             'bg-background border-border z-50 mx-auto flex w-full max-w-[calc(100%-2rem)] flex-col gap-4 rounded-lg border p-6 shadow-lg shadow-black/5 sm:max-w-lg',

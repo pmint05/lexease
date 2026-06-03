@@ -84,29 +84,28 @@ export function DifficultWordsSheet({
       transparent
       animationType="none"
       onRequestClose={closeSheet}
+      statusBarTranslucent
     >
-      <View className="flex-1 justify-end bg-background">
+      <View className="flex-1 justify-end">
         <Animated.View
           style={backdropStyle}
-          className="absolute inset-0 bg-black/40"
+          className="absolute inset-0 bg-black/50"
         >
           <Pressable className="flex-1" onPress={closeSheet} />
         </Animated.View>
 
         <Animated.View
           style={sheetStyle}
-          className="bg-background rounded-t-3xl shadow-xl overflow-hidden max-h-[80%]"
+          className="w-full pb-8 pt-3 shadow-2xl shadow-black/20 px-5 bg-card rounded-t-3xl max-h-[70vh]"
         >
-          <View className="items-center py-3">
-            <View className="h-1.5 w-12 rounded-full bg-muted" />
-          </View>
+          <View className="mx-auto mb-3 h-1.5 w-12 rounded-full bg-border" />
 
-          <View className="px-5 pb-2 flex-row justify-between items-center border-b border-border/50">
+          <View className="flex-row items-start justify-between gap-4 pb-4 border-b border-border/50 mb-2">
             <Text className="text-xl font-bold">Chi tiết từ khó</Text>
             <Button
               variant="ghost"
               size="icon"
-              className="rounded-full"
+              className="rounded-full -mt-2 -mr-2"
               onPress={closeSheet}
             >
               <X size={20} className="text-muted-foreground" />
@@ -114,13 +113,12 @@ export function DifficultWordsSheet({
           </View>
 
           <ScrollView
-            className="p-5 max-h-[90vh]"
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ paddingBottom: 40 }}
+            contentContainerStyle={{ paddingBottom: 16 }}
           >
             {sortedData.length > 0 ? (
               <View className="gap-3">
-                <View className="flex-row justify-between items-center px-2 mb-2">
+                <View className="flex-row justify-between items-center px-2 mb-2 mt-2">
                   <Text className="text-sm font-semibold text-muted-foreground">
                     TỪ VỰNG
                   </Text>

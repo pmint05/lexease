@@ -25,6 +25,7 @@ import {
 } from "lucide-react-native";
 import { useMemo } from "react";
 import { ActivityIndicator, ScrollView, View } from "react-native";
+import { getChildDisplayName } from "@/src/utils/formatters";
 
 export default function GuardianBookDetailScreen(): React.ReactElement {
   const router = useRouter();
@@ -52,8 +53,7 @@ export default function GuardianBookDetailScreen(): React.ReactElement {
         )
         .map((link) => ({
           childId: link.childId,
-          childName:
-            link.childEmail?.split("@")[0] || `Bé ${link.childId.slice(0, 4)}`,
+          childName: getChildDisplayName(link),
         })),
     [guardianId, linksQuery.data],
   );

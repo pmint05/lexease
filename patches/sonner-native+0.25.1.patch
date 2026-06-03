@@ -1,0 +1,85 @@
+diff --git a/node_modules/sonner-native/lib/module/toast.js b/node_modules/sonner-native/lib/module/toast.js
+index 2c175d5..acaa274 100644
+--- a/node_modules/sonner-native/lib/module/toast.js
++++ b/node_modules/sonner-native/lib/module/toast.js
+@@ -259,11 +259,20 @@ export const Toast = /*#__PURE__*/React.forwardRef(({
+     if (!toastRef.current) {
+       return;
+     }
++    if (typeof toastRef.current.getBoundingClientRect !== 'function') {
++      return;
++    }
+     const {
+       height
+     } = toastRef.current.getBoundingClientRect();
+     toastStore.setToastHeight(id, height);
+   }, [id, variant, title, description, jsx]);
++  const onToastLayout = React.useCallback(event => {
++    const { height } = event.nativeEvent.layout;
++    if (height > 0) {
++      toastStore.setToastHeight(id, height);
++    }
++  }, [id]);
+   const defaultStyles = useDefaultStyles({
+     invert,
+     richColors,
+@@ -327,6 +336,7 @@ export const Toast = /*#__PURE__*/React.forwardRef(({
+         ...toastSwipeHandlerProps,
+         children: /*#__PURE__*/_jsx(Animated.View, {
+           ref: toastRef,
++          onLayout: onToastLayout,
+           entering: entering,
+           exiting: exiting,
+           children: jsx
+@@ -352,6 +362,7 @@ export const Toast = /*#__PURE__*/React.forwardRef(({
+         style: wiggleAnimationStyle,
+         children: /*#__PURE__*/_jsxs(Animated.View, {
+           ref: toastRef,
++          onLayout: onToastLayout,
+           style: [unstyled ? undefined : elevationStyle, defaultStyles.toast, toastStyleCtx, variantStyle, mergedStyles?.toast, mergedStyle, backgroundComponentStyle],
+           entering: entering,
+           exiting: exiting,
+diff --git a/node_modules/sonner-native/src/toast.tsx b/node_modules/sonner-native/src/toast.tsx
+index 1de34a3..c13edd3 100644
+--- a/node_modules/sonner-native/src/toast.tsx
++++ b/node_modules/sonner-native/src/toast.tsx
+@@ -300,10 +300,23 @@ export const Toast = React.forwardRef<ToastRef, ToastInternalProps>(
+       if (!toastRef.current) {
+         return;
+       }
++      if (typeof toastRef.current.getBoundingClientRect !== 'function') {
++        return;
++      }
+       const { height } = toastRef.current.getBoundingClientRect();
+       toastStore.setToastHeight(id, height);
+     }, [id, variant, title, description, jsx]);
+ 
++    const onToastLayout = React.useCallback(
++      (event: { nativeEvent: { layout: { height: number } } }) => {
++        const { height } = event.nativeEvent.layout;
++        if (height > 0) {
++          toastStore.setToastHeight(id, height);
++        }
++      },
++      [id],
++    );
++
+     const defaultStyles = useDefaultStyles({
+       invert,
+       richColors,
+@@ -401,6 +414,7 @@ export const Toast = React.forwardRef<ToastRef, ToastInternalProps>(
+           <ToastSwipeHandler {...toastSwipeHandlerProps}>
+             <Animated.View
+               ref={toastRef}
++              onLayout={onToastLayout}
+ 
+               entering={entering}
+               exiting={exiting}
+@@ -433,6 +447,7 @@ export const Toast = React.forwardRef<ToastRef, ToastInternalProps>(
+           >
+             <Animated.View
+               ref={toastRef}
++              onLayout={onToastLayout}
+ 
+               style={[
+                 unstyled ? undefined : elevationStyle,

@@ -123,6 +123,7 @@ export function HistoryFilterSheet({
       visible={rendered}
       animationType="none"
       onRequestClose={() => onOpenChange(false)}
+      statusBarTranslucent
     >
       <View className="flex-1 justify-end">
         <Animated.View

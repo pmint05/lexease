@@ -1,5 +1,6 @@
 import { BookGridCard } from "@/src/components/child/BookGridCard";
 import { Button } from "@/src/components/shared/Button";
+import { Icon } from "@/src/components/ui/icon";
 import { Input } from "@/src/components/ui/input";
 import { Skeleton } from "@/src/components/ui/skeleton";
 import { Text } from "@/src/components/ui/text";
@@ -66,7 +67,7 @@ export default function GuardianLibraryScreen(): React.ReactElement {
         {/* 1. Header Header */}
         <View className="px-4 pt-6 pb-2 gap-1">
           <View className="flex-row items-center gap-2">
-            <Library size={24} className="text-primary" />
+            <Icon as={Library} size={24} className="text-primary" />
             <Text className="text-2xl font-bold">Kho truyện</Text>
           </View>
           <Text className="text-muted-foreground text-sm">
