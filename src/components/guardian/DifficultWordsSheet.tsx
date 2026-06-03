@@ -114,7 +114,7 @@ export function DifficultWordsSheet({
           </View>
 
           <ScrollView
-            className="p-5"
+            className="p-5 max-h-[90vh]"
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{ paddingBottom: 40 }}
           >

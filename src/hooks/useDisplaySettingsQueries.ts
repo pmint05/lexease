@@ -33,7 +33,7 @@ export const normalizeDisplaySettings = (
     ...settings,
     fontSize: Math.round(clamp(settings.fontSize, 14, 40)),
     lineHeight: Number(clamp(settings.lineHeight, 1, 3).toFixed(2)),
-    letterSpacing: Number(clamp(settings.letterSpacing, 0, 0.5).toFixed(2)),
+    letterSpacing: Number(clamp(settings.letterSpacing, 0, 4).toFixed(2)),
     backgroundColor: settings.backgroundColor.toUpperCase(),
     textColor: settings.textColor.toUpperCase(),
     highlightBackgroundColor: settings.highlightBackgroundColor.toUpperCase(),

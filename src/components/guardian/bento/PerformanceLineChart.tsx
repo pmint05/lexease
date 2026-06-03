@@ -31,12 +31,26 @@ export default function PerformanceLineChart({
 
   const { accuracyData, speedData, config } = useMemo(() => {
     if (!data || data.length < 2)
-      return { accuracyData: [], speedData: [], config: { spacing: 40 } };
+      return {
+        accuracyData: [],
+        speedData: [],
+        config: { spacing: 40, maxValue: 100 },
+      };
 
     const isMonth = data.length > 10;
     const spacing = isMonth
       ? 30
       : (CHART_CONTAINER_WIDTH - 60) / (data.length - 1 || 1);
+
+    // Find max value to add headroom (at least 20)
+    const rawMax = Math.max(
+      ...data.map((d) => d.accuracy),
+      ...data.map((d) => d.speed),
+      20
+    );
+
+    // Add 15% headroom and round up to the nearest 10 for clean sections
+    const bufferedMax = Math.ceil((rawMax * 1.15) / 10) * 10;
 
     const acc = data.map((item) => ({
       value: item.accuracy,
@@ -53,7 +67,10 @@ export default function PerformanceLineChart({
     return {
       accuracyData: acc,
       speedData: speed,
-      config: { spacing: Math.max(spacing, 30) },
+      config: {
+        spacing: Math.max(spacing, 30),
+        maxValue: bufferedMax,
+      },
     };
   }, [data]);
 
@@ -100,12 +117,13 @@ export default function PerformanceLineChart({
           </View>
         </View>
       </CardHeader>
-      <CardContent className="pb-4 pt-4 pl-0">
+      <CardContent className="pb-4 pt-6 pl-0">
         <View className="items-center w-full">
           <LineChart
             data={accuracyData}
             data2={speedData}
             height={140}
+            maxValue={config.maxValue}
             width={CHART_CONTAINER_WIDTH - 50}
             noOfSections={4}
             spacing={config.spacing}

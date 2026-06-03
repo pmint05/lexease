@@ -1,20 +1,23 @@
 import { Card } from "@/src/components/ui/card";
 import { Text } from "@/src/components/ui/text";
 import { Book } from "@/src/core/types";
+import { cn } from "@/src/lib/utils";
 import React from "react";
 import { Image, Pressable, View } from "react-native";
 
 interface BookGridCardProps {
   book: Book;
   onPress: (id: string) => void;
+  className?: string;
 }
 
 export const BookGridCard = ({
   book,
   onPress,
+  className,
 }: BookGridCardProps): React.ReactElement => {
   return (
-    <Pressable onPress={() => onPress(book.id)}>
+    <Pressable onPress={() => onPress(book.id)} className={cn(className)}>
       <Card className="overflow-hidden p-0 gap-3">
         <Image
           source={{ uri: book.coverUrl }}
