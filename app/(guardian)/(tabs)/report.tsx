@@ -22,21 +22,23 @@ import {
   AlertCircle,
   BarChart3,
   BookOpen,
+  ChevronRight,
   Info,
   Star,
   Target,
   Timer,
   TrendingUp,
-  Zap
+  Zap,
 } from "lucide-react-native";
-import React, { useMemo } from "react";
-import { ScrollView, View } from "react-native";
+import React, { useMemo, useState } from "react";
+import { Pressable, ScrollView, View } from "react-native";
 
 // Bento Components
 import ActivityBarChart from "@/src/components/guardian/bento/ActivityBarChart";
 import BentoStatCard from "@/src/components/guardian/bento/BentoStatCard";
 import PerformanceLineChart from "@/src/components/guardian/bento/PerformanceLineChart";
 import SkillProgressBars from "@/src/components/guardian/bento/SkillProgressBars";
+import { DifficultWordsSheet } from "@/src/components/guardian/DifficultWordsSheet";
 
 /**
  * Report Screen
@@ -67,6 +69,8 @@ export default function ReportScreen(): React.ReactElement {
   const summaryQuery = useProgressSummaryQuery(targetChildId);
   const difficultWordsQuery = useDifficultWordsQuery(targetChildId);
   const timeseriesQuery = useProgressTimeseriesQuery(targetChildId);
+
+  const [isWordsSheetOpen, setIsWordsSheetOpen] = useState(false);
 
   const isLoading =
     summaryQuery.isLoading ||
@@ -218,7 +222,10 @@ export default function ReportScreen(): React.ReactElement {
                   />
                 </View>
                 <View className="flex-1">
-                  <DifficultWordsCard data={difficultWordsQuery.data ?? []} />
+                  <DifficultWordsCard
+                    data={difficultWordsQuery.data ?? []}
+                    onPressMore={() => setIsWordsSheetOpen(true)}
+                  />
                 </View>
               </View>
 
@@ -281,36 +288,55 @@ export default function ReportScreen(): React.ReactElement {
           )}
         </View>
       </ScrollView>
+
+      {/* Difficult Words Details Sheet */}
+      <DifficultWordsSheet
+        open={isWordsSheetOpen}
+        onOpenChange={setIsWordsSheetOpen}
+        data={difficultWordsQuery.data ?? []}
+      />
     </View>
   );
 }
 
-function DifficultWordsCard({ data }: { data: any[] }) {
+function DifficultWordsCard({
+  data,
+  onPressMore,
+}: {
+  data: any[];
+  onPressMore: () => void;
+}) {
   return (
-    <Card className="border-border/50 h-full">
+    <Card className="border-border/50 h-full flex-col">
       <CardHeader className="pb-2">
         <CardTitle className="text-sm font-medium">Từ cần lưu ý</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="flex-1">
         {data.length > 0 ? (
-          <View className="flex-row flex-wrap gap-1.5">
-            {data.slice(0, 5).map((item, i) => (
-              <Badge
-                key={i}
-                variant={item.count > 3 ? "destructive" : "secondary"}
-                className="px-2 py-0.5"
-              >
-                <Text className="text-[10px] font-bold">{item.word}</Text>
-              </Badge>
-            ))}
-            {data.length > 5 && (
-              <Text className="text-[10px] text-muted-foreground mt-1">
-                +{data.length - 5} từ khác
+          <View className="flex-1 justify-between">
+            <View className="flex-row flex-wrap gap-1.5">
+              {data.slice(0, 5).map((item, i) => (
+                <Badge
+                  key={i}
+                  variant={item.count > 3 ? "destructive" : "secondary"}
+                  className="px-2 py-0.5"
+                >
+                  <Text className="text-[10px] font-bold">{item.word}</Text>
+                </Badge>
+              ))}
+            </View>
+            <Pressable
+              onPress={onPressMore}
+              className="mt-3 py-1.5 px-2 flex-row justify-center items-center gap-1 border !border-border/60 !bg-muted/20 rounded-lg active:bg-muted/50"
+            >
+              <Text className="text-xs font-semibold text-primary">
+                Xem chi tiết
               </Text>
-            )}
+              <ChevronRight size={12} className="text-primary" />
+            </Pressable>
           </View>
         ) : (
-          <View className="items-center py-4">
+          <View className="items-center py-4 flex-1 justify-center">
             <Text className="text-[10px] text-muted-foreground italic text-center">
               Bé học rất tốt, không gặp từ khó nào!
             </Text>

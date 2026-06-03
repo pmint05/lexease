@@ -458,7 +458,7 @@ export default function SchedulerScreen(): React.ReactElement {
           </View>
 
           {/* Info Box */}
-          <Card className="bg-accent/5 border-accent/20 p-4 flex-row gap-3">
+          <Card className="bg-primary/5 border-primary/20 p-4 flex-row gap-3">
             <Info className="text-primary size-5" />
             <Text className="flex-1 text-xs text-muted-foreground leading-4">
               Nhắc nhở sẽ được gửi trực tiếp đến thiết bị của trẻ vào đúng khung

@@ -1,16 +1,16 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
 import {
-    CaseSensitiveIcon,
-    CheckCheck,
-    Clock3,
-    GaugeIcon,
-    HeadphoneOffIcon,
-    MicIcon,
-    Repeat2,
-    RotateCcwIcon,
+  CaseSensitiveIcon,
+  CheckCheck,
+  Clock3,
+  GaugeIcon,
+  HeadphoneOffIcon,
+  MicIcon,
+  Repeat2,
+  RotateCcwIcon,
 } from "lucide-react-native";
 import { useMemo, useState } from "react";
-import { Alert, FlatList, View } from "react-native";
+import { FlatList, View } from "react-native";
 
 import { AudioPlaybackModal } from "@/src/components/child/AudioPlaybackModal";
 import { RecordingTile } from "@/src/components/child/RecordingTile";
@@ -20,7 +20,6 @@ import { Skeleton } from "@/src/components/ui/skeleton";
 import { Text } from "@/src/components/ui/text";
 import { Recording } from "@/src/core/types";
 import { useReadingSessionQuery } from "@/src/hooks/useReadingSessionQueries";
-import { useLearningStore } from "@/src/store/useLearningStore";
 import { useRecordingStore } from "@/src/store/useRecordingStore";
 import { formatReadingTime } from "@/src/utils/formatters";
 
@@ -52,7 +51,7 @@ function ResultMetric({
           <Text className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
             {title}
           </Text>
-          <Text className="text-3xl font-extrabold leading-none">{value}</Text>
+          <Text className="text-2xl font-extrabold leading-none">{value}</Text>
         </View>
       </View>
     </Card>
@@ -63,7 +62,6 @@ export default function ReadingResultScreen(): React.ReactElement {
   const router = useRouter();
   const { sessionId, storyId } = useLocalSearchParams<ResultParams>();
   const sessionQuery = useReadingSessionQuery(sessionId);
-  const { sessions } = useLearningStore();
   const { recordings, removeRecording, clearRecordingsBySession } =
     useRecordingStore();
 
@@ -73,15 +71,6 @@ export default function ReadingResultScreen(): React.ReactElement {
     number[] | undefined
   >([]);
   const [isPlaybackOpen, setIsPlaybackOpen] = useState(false);
-
-  const sessionSummary = useMemo(() => {
-    if (!sessionId) return null;
-    return (
-      sessions.find(
-        (item) => item.sessionId === sessionId || item.id === sessionId,
-      ) ?? null
-    );
-  }, [sessionId, sessions]);
 
   const sessionRecordings = useMemo(() => {
     if (!sessionId) return [];
@@ -104,18 +93,8 @@ export default function ReadingResultScreen(): React.ReactElement {
     setIsPlaybackOpen(true);
   };
 
-  const handleDeleteRecording = (recordingId: string) => {
-    Alert.alert("Xóa bản ghi?", "Bản ghi này sẽ bị xóa khỏi phiên hiện tại.", [
-      { text: "Hủy", style: "cancel" },
-      {
-        text: "Xóa",
-        style: "destructive",
-        onPress: () => {
-          removeRecording(recordingId);
-        },
-      },
-    ]);
-  };
+  const handleDeleteRecording = (recordingId: string) =>
+    removeRecording(recordingId);
 
   const handlePracticeAgain = async () => {
     if (sessionId) {
@@ -131,7 +110,17 @@ export default function ReadingResultScreen(): React.ReactElement {
   };
 
   const handleComplete = () => {
-    router.replace("/(child)/(tabs)/library");
+    if (sessionRecordings.length > 0) {
+      router.replace({
+        pathname: "/(child)/reading/evaluation",
+        params: { sessionId, storyId },
+      });
+    } else {
+      if (sessionId) {
+        clearRecordingsBySession(sessionId);
+      }
+      router.replace("/(child)/(tabs)/library");
+    }
   };
 
   if (!sessionId) {
@@ -164,7 +153,22 @@ export default function ReadingResultScreen(): React.ReactElement {
   }
 
   const backendSession = sessionQuery.data;
-  const completedSession = sessionSummary ?? null;
+  const metrics = useMemo(() => {
+    const elapsedMs = backendSession?.elapsedMs ?? 0;
+    const wordsRead = backendSession?.resumePosition.wordIndex ?? 0;
+    // Speed is usually calculated on backend or we can estimate it here
+    // WPM = (wordsRead / (elapsedMs / 60000))
+    const wpm = elapsedMs > 0 ? (wordsRead / (elapsedMs / 60000)) : 0; 
+
+    return {
+      durationMs: elapsedMs,
+      wordsRead,
+      wpm: Math.round(wpm)
+    };
+  }, [backendSession]);
+
+  const hasRecordings = sessionRecordings.length > 0;
+  const isTooManyRecordings = sessionRecordings.length > 1;
 
   return (
     <View className="flex-1 bg-background">
@@ -184,40 +188,42 @@ export default function ReadingResultScreen(): React.ReactElement {
                     Xong rồi
                   </Text>
                   <Text className="text-center text-muted-foreground">
-                    {completedSession?.bookTitle ??
-                      backendSession?.story.title ??
-                      "Bài đọc"}
+                    {backendSession?.story.title ?? "Bài đọc"}
                   </Text>
                 </View>
               </CardContent>
             </Card>
 
-            <View className="flex-row items-center gap-2">
-              <Repeat2 className="size-4 text-muted-foreground" />
-              <Text className="text-sm text-muted-foreground">
-                Chạm để nghe, thu lại hoặc xóa.
-              </Text>
+            <View className="gap-2">
+              <View className="flex-row items-center gap-2">
+                <Repeat2 className="size-4 text-muted-foreground" />
+                <Text className="text-sm text-muted-foreground">
+                  Chạm để nghe hoặc xóa bản ghi.
+                </Text>
+              </View>
+              {isTooManyRecordings && (
+                <View className="bg-amber-50 border border-amber-200 p-3 rounded-xl flex-row items-center gap-3">
+                  <View className="bg-amber-500 rounded-full p-1">
+                    <MicIcon className="size-3 text-white" />
+                  </View>
+                  <Text className="text-xs text-amber-700 flex-1 font-medium">
+                    Bé hãy chọn giữ lại <Text className="font-black text-amber-900">1 bản ghi tốt nhất</Text> để hệ thống chấm điểm nhé!
+                  </Text>
+                </View>
+              )}
             </View>
 
             <View className="flex-row flex-wrap gap-3">
               <ResultMetric
                 title="Thời gian"
                 icon={<Clock3 className="size-5 text-primary" />}
-                value={formatReadingTime(
-                  completedSession?.durationMs ??
-                    backendSession?.elapsedMs ??
-                    0,
-                )}
+                value={formatReadingTime(metrics.durationMs)}
                 accentClassName="bg-primary/10"
               />
               <ResultMetric
                 title="Số từ"
                 icon={<CaseSensitiveIcon className="size-5 text-primary" />}
-                value={String(
-                  completedSession?.wordsRead ??
-                    backendSession?.resumePosition.wordIndex ??
-                    0,
-                )}
+                value={String(metrics.wordsRead)}
                 accentClassName="bg-primary/10"
               />
             </View>
@@ -226,7 +232,7 @@ export default function ReadingResultScreen(): React.ReactElement {
               <ResultMetric
                 title="Tốc độ"
                 icon={<GaugeIcon className="size-5 text-primary" />}
-                value={`${(completedSession?.speed ?? 1).toFixed(2)}x`}
+                value={`${metrics.wpm} WPM`}
                 accentClassName="bg-primary/10"
               />
               <ResultMetric
@@ -254,6 +260,7 @@ export default function ReadingResultScreen(): React.ReactElement {
             recording={item}
             showTitle
             showRenameAction={false}
+            showConfirmDelete={false}
             onPlay={handleOpenPlayback}
             onDelete={handleDeleteRecording}
           />
@@ -276,11 +283,12 @@ export default function ReadingResultScreen(): React.ReactElement {
                 variant="default"
                 size="lg"
                 className="flex-1"
+                disabled={isTooManyRecordings}
                 onPress={handleComplete}
               >
-                <CheckCheck className="size-5 text-foreground" />
-                <Text className="text-base font-semibold text-foreground">
-                  Xong
+                <CheckCheck className="size-5 text-primary-foreground" />
+                <Text className="text-base font-semibold text-primary-foreground">
+                  {hasRecordings ? "Tiếp theo" : "Xong"}
                 </Text>
               </Button>
             </View>

@@ -6,6 +6,7 @@ import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import React, { useEffect } from "react";
 import { Appearance, Platform, useColorScheme, View } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import "react-native-reanimated";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { Toaster } from "sonner-native";
@@ -21,12 +22,19 @@ const queryClient = new QueryClient();
 // Keep the splash screen visible while we fetch resources
 SplashScreen.preventAutoHideAsync();
 
+import { useNotificationService } from "../src/hooks/useNotificationService";
+
 /**
  * Separated component to use hooks that depend on context (if any)
  * and to keep RootLayout clean.
  */
 function RootLayoutContent() {
   useMeQuery();
+  const { requestPermissions } = useNotificationService();
+
+  useEffect(() => {
+    requestPermissions();
+  }, [requestPermissions]);
 
   return (
     <Stack
@@ -115,14 +123,16 @@ export default function RootLayout() {
   }, [loaded, error, _hasHydrated]);
 
   return (
-    <SafeAreaProvider>
-      <QueryClientProvider client={queryClient}>
-        <View className={"flex-1 bg-background"} style={{ flex: 1 }}>
-          <RootLayoutContent />
-          <PortalHost />
-          <Toaster />
-        </View>
-      </QueryClientProvider>
-    </SafeAreaProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider>
+        <QueryClientProvider client={queryClient}>
+          <View className={"flex-1 bg-background"} style={{ flex: 1 }}>
+            <RootLayoutContent />
+            <PortalHost />
+            <Toaster />
+          </View>
+        </QueryClientProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }

@@ -73,6 +73,7 @@ export const storySummaryToBook = (story: StorySummary): Book => {
     title: story.title,
     author: story.authors.map((author) => author.name).join(", ") || "LexEase",
     category: story.genres[0]?.name ?? "Khác",
+    difficulty: "easy", // Default difficulty
     coverUrl: getPlaceholderCover(story.title, story.id),
     status: story.status,
     content: "",

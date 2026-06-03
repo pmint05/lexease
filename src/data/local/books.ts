@@ -27,6 +27,7 @@ const createBook = (
     wordCount: words.length,
     estimatedMinutes: Math.max(1, Math.round(words.length / 90)),
     wordTimestamps: estimateWordTimestamps(words, 1.5),
+    status: "PUBLISHED",
   };
 };
 

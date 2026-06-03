@@ -112,13 +112,15 @@ export default function SearchScreen(): React.ReactElement {
         numColumns={2}
         columnWrapperStyle={{
           justifyContent: "space-between",
-          paddingHorizontal: 16,
+          paddingLeft: 16,
+          paddingRight: 28,
           gap: 12,
         }}
         contentContainerStyle={{ paddingBottom: 20 }}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <BookGridCard
+            className="w-1/2 mb-4"
             book={item}
             onPress={(id) =>
               router.push({ pathname: "/(child)/book/[id]", params: { id } })

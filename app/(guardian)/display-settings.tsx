@@ -20,13 +20,15 @@ import {
   DialogTrigger,
 } from "@/src/components/ui/dialog";
 import { Input } from "@/src/components/ui/input";
-import { Separator } from "@/src/components/ui/separator";
 import {
-  Slider,
-  SliderRange,
-  SliderThumb,
-  SliderTrack,
-} from "@/src/components/ui/slider";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  type Option,
+} from "@/src/components/ui/select";
+import { Separator } from "@/src/components/ui/separator";
 import { Text } from "@/src/components/ui/text";
 import { ConfigFontFamily, FONT_MAP } from "@/src/core/constants/fonts";
 import {
@@ -214,6 +216,12 @@ const THEME_PRESETS = [
     hText: "#4A4A4A",
   },
 ];
+
+const FONT_SIZE_OPTIONS = [14, 16, 18, 20, 22, 24, 28, 32, 36, 40];
+
+const LINE_HEIGHT_OPTIONS = [1, 1.2, 1.4, 1.6, 1.8, 2, 2.4, 3];
+
+const LETTER_SPACING_OPTIONS = [0, 0.5, 1, 1.2, 1.4, 1.5, 1.8, 2, 2.5, 3, 4];
 
 export default function DisplaySettingsScreen(): React.ReactElement {
   const router = useRouter();
@@ -412,34 +420,23 @@ export default function DisplaySettingsScreen(): React.ReactElement {
 
             <Card className="border-border">
               <CardContent className="p-4 gap-6">
-                <View className="gap-3">
-                  <View className="flex-row items-center gap-2">
-                    <CaseLower size={16} className="text-muted-foreground" />
-                    <Text className="text-sm font-medium">
-                      Cỡ chữ:{" "}
-                      <Text className="text-primary font-bold">
-                        {settings.fontSize}
-                      </Text>
-                    </Text>
-                  </View>
-                  <Slider
-                    value={settings.fontSize}
-                    onValueChange={(val) =>
-                      setSettings((s) => ({
-                        ...s,
-                        fontSize: Math.round(val[0]),
-                      }))
-                    }
-                    min={14}
-                    max={40}
-                    step={1}
-                  >
-                    <SliderTrack>
-                      <SliderRange />
-                    </SliderTrack>
-                    <SliderThumb />
-                  </Slider>
-                </View>
+                <SelectSetting
+                  icon={<CaseLower size={16} className="text-muted-foreground" />}
+                  label="Cỡ chữ"
+                  value={String(settings.fontSize)}
+                  displayValue={`${settings.fontSize}`}
+                  options={FONT_SIZE_OPTIONS.map((option) => ({
+                    label: `${option}px`,
+                    value: String(option),
+                  }))}
+                  onValueChange={(option) => {
+                    if (!option) return;
+                    setSettings((s) => ({
+                      ...s,
+                      fontSize: Number(option.value),
+                    }));
+                  }}
+                />
 
                 <View className="gap-2">
                   <Text className="text-sm font-medium">Phông chữ</Text>
@@ -451,57 +448,41 @@ export default function DisplaySettingsScreen(): React.ReactElement {
                   />
                 </View>
 
-                <View className="gap-3">
-                  <View className="flex-row items-center gap-2">
-                    <AlignLeft size={16} className="text-muted-foreground" />
-                    <Text className="text-sm font-medium">
-                      Khoảng cách dòng:{" "}
-                      <Text className="text-primary font-bold">
-                        {settings.lineHeight.toFixed(1)}
-                      </Text>
-                    </Text>
-                  </View>
-                  <Slider
-                    value={settings.lineHeight}
-                    onValueChange={(val) =>
-                      setSettings((s) => ({ ...s, lineHeight: val[0] }))
-                    }
-                    min={1.0}
-                    max={3.0}
-                    step={0.1}
-                  >
-                    <SliderTrack>
-                      <SliderRange />
-                    </SliderTrack>
-                    <SliderThumb />
-                  </Slider>
-                </View>
+                <SelectSetting
+                  icon={<AlignLeft size={16} className="text-muted-foreground" />}
+                  label="Khoảng cách dòng"
+                  value={String(settings.lineHeight)}
+                  displayValue={settings.lineHeight.toFixed(1)}
+                  options={LINE_HEIGHT_OPTIONS.map((option) => ({
+                    label: `${option.toFixed(1)}x`,
+                    value: String(option),
+                  }))}
+                  onValueChange={(option) => {
+                    if (!option) return;
+                    setSettings((s) => ({
+                      ...s,
+                      lineHeight: Number(option.value),
+                    }));
+                  }}
+                />
 
-                <View className="gap-3">
-                  <View className="flex-row items-center gap-2">
-                    <LetterText size={16} className="text-muted-foreground" />
-                    <Text className="text-sm font-medium">
-                      Khoảng cách chữ:{" "}
-                      <Text className="text-primary font-bold">
-                        {settings.letterSpacing.toFixed(1)}px
-                      </Text>
-                    </Text>
-                  </View>
-                  <Slider
-                    value={settings.letterSpacing}
-                    onValueChange={(val) =>
-                      setSettings((s) => ({ ...s, letterSpacing: val[0] }))
-                    }
-                    min={0}
-                    max={10}
-                    step={0.5}
-                  >
-                    <SliderTrack>
-                      <SliderRange />
-                    </SliderTrack>
-                    <SliderThumb />
-                  </Slider>
-                </View>
+                <SelectSetting
+                  icon={<LetterText size={16} className="text-muted-foreground" />}
+                  label="Khoảng cách chữ"
+                  value={String(settings.letterSpacing)}
+                  displayValue={`${settings.letterSpacing.toFixed(1)}px`}
+                  options={LETTER_SPACING_OPTIONS.map((option) => ({
+                    label: `${option.toFixed(1)}px`,
+                    value: String(option),
+                  }))}
+                  onValueChange={(option) => {
+                    if (!option) return;
+                    setSettings((s) => ({
+                      ...s,
+                      letterSpacing: Number(option.value),
+                    }));
+                  }}
+                />
               </CardContent>
             </Card>
           </View>
@@ -737,6 +718,58 @@ function ColorControl({
           </DialogContent>
         </Dialog>
       </View>
+    </View>
+  );
+}
+
+function SelectSetting({
+  icon,
+  label,
+  value,
+  displayValue,
+  options,
+  onValueChange,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  displayValue: string;
+  options: Array<Exclude<Option, undefined>>;
+  onValueChange: (value: Option) => void;
+}) {
+  const selectedOption =
+    options.find((option) => option?.value === value) ?? options[0];
+
+  if (!selectedOption) {
+    return null;
+  }
+
+  return (
+    <View className="gap-3">
+      <View className="flex-row items-center gap-2">
+        {icon}
+        <Text className="text-sm font-medium">
+          {label}: {" "}
+          <Text className="text-primary font-bold">{displayValue}</Text>
+        </Text>
+      </View>
+
+      <Select value={selectedOption} onValueChange={onValueChange}>
+        <SelectTrigger className="w-full">
+          <SelectValue placeholder={label} />
+        </SelectTrigger>
+        <SelectContent>
+          {options.map((option) => (
+            <SelectItem
+              key={option.value}
+              value={option.value}
+              label={option.label}
+            >
+              {option.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
     </View>
   );
 }

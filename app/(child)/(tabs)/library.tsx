@@ -232,7 +232,7 @@ export default function LibraryScreen(): React.ReactElement {
             ) : isLoading ? (
               <LibraryGridSkeleton />
             ) : books.length > 0 ? (
-              <View className="grid grid-cols-2 gap-3">
+              <View className="grid grid-cols-2 gap-3 pb-4">
                 {books.map((book) => (
                   <BookGridCard
                     key={book.id}

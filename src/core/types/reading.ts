@@ -8,6 +8,7 @@ export interface Book {
   author: string;
   coverUrl?: string;
   category: string;
+  difficulty: BookDifficulty;
   wordCount: number;
   estimatedMinutes: number;
   content: string;

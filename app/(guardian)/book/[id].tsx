@@ -1,15 +1,12 @@
+import { RecordingTile } from "@/src/components/child/RecordingTile";
 import { Button } from "@/src/components/shared/Button";
 import { Card } from "@/src/components/ui/card";
 import { Switch } from "@/src/components/ui/switch";
 import { Text } from "@/src/components/ui/text";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import { useMemo } from "react";
-import { ActivityIndicator, ScrollView, View } from "react-native";
-
-import { RecordingTile } from "@/src/components/child/RecordingTile";
 import { storyDetailToBook } from "@/src/core/types";
 import { useAudioRecording } from "@/src/hooks/useAudioRecording";
 import { useGuardianChildLinksQuery } from "@/src/hooks/useFamilyQueries";
+import { useProgressSessionsQuery } from "@/src/hooks/useProgressQueries";
 import {
   useBlockStoryMutation,
   useStoryQuery,
@@ -18,21 +15,22 @@ import {
 import { cn } from "@/src/lib/utils";
 import { useAuthStore } from "@/src/store/useAuthStore";
 import { useFamilyStore } from "@/src/store/useFamilyStore";
-import { useLearningStore } from "@/src/store/useLearningStore";
 import { useRecordingStore } from "@/src/store/useRecordingStore";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import {
   BookOpen,
   ChevronLeft,
   ShieldAlert,
   ShieldCheck,
 } from "lucide-react-native";
+import { useMemo } from "react";
+import { ActivityIndicator, ScrollView, View } from "react-native";
 
 export default function GuardianBookDetailScreen(): React.ReactElement {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { user } = useAuthStore();
   const guardianId = user?.id ?? "";
-  const { sessions } = useLearningStore();
   const { recordings, removeRecording } = useRecordingStore();
   const { playbackRecording } = useAudioRecording();
   const selectedChildId = useFamilyStore((state) =>
@@ -40,6 +38,8 @@ export default function GuardianBookDetailScreen(): React.ReactElement {
   );
   const linksQuery = useGuardianChildLinksQuery();
   const storyQuery = useStoryQuery(id, selectedChildId ?? undefined);
+  const sessionsQuery = useProgressSessionsQuery(selectedChildId ?? "");
+  
   const blockStoryMutation = useBlockStoryMutation();
   const unblockStoryMutation = useUnblockStoryMutation();
 
@@ -70,15 +70,11 @@ export default function GuardianBookDetailScreen(): React.ReactElement {
 
   const isBlocked = storyQuery.data?.isBlockedForCurrentChild ?? false;
 
-  const bookSessions = useMemo(
-    () =>
-      sessions.filter(
-        (session) =>
-          session.bookId === id &&
-          (!selectedChildId || session.childId === selectedChildId),
-      ),
-    [id, selectedChildId, sessions],
-  );
+  const bookSessions = useMemo(() => {
+    if (!sessionsQuery.data) return [];
+    return sessionsQuery.data.filter((s) => s.storyId === id);
+  }, [id, sessionsQuery.data]);
+
   const bookRecordings = useMemo(
     () =>
       recordings.filter(
@@ -102,12 +98,12 @@ export default function GuardianBookDetailScreen(): React.ReactElement {
     }
   };
 
-  if (storyQuery.isLoading) {
+  if (storyQuery.isLoading || sessionsQuery.isLoading) {
     return (
       <View className="flex-1 justify-center items-center p-4 bg-background">
         <ActivityIndicator size="large" color="#FF6B00" />
         <Text className="text-muted-foreground mt-2">
-          Đang tải thông tin sách...
+          Đang tải dữ liệu...
         </Text>
       </View>
     );
@@ -236,7 +232,7 @@ export default function GuardianBookDetailScreen(): React.ReactElement {
                 {bookSessions.length > 0 ? (
                   bookSessions.map((session, index) => (
                     <View
-                      key={session.id}
+                      key={session.sessionId}
                       className={cn(
                         "p-3 flex-row justify-between items-center",
                         index !== bookSessions.length - 1 &&
@@ -258,10 +254,10 @@ export default function GuardianBookDetailScreen(): React.ReactElement {
                       </View>
                       <View className="items-end">
                         <Text className="font-bold text-primary">
-                          {Math.round(session.durationMs / 60000)} phút
+                          {Math.round(session.elapsedMs / 60000)} phút
                         </Text>
                         <Text className="text-xs text-muted-foreground">
-                          {session.wordsRead} từ · {session.speed} WPM
+                          {session.currentWordIndex} từ · {Math.round(session.readingSpeedWpm)} WPM
                         </Text>
                       </View>
                     </View>
