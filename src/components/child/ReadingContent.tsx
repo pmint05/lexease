@@ -13,6 +13,19 @@ interface ReadingContentProps {
   onManualScroll: () => void;
 }
 
+const FONT_BOLD_MAP: Record<string, string> = {
+  "Lexend-Regular": "Lexend-Bold",
+  "OpenDyslexic-Regular": "OpenDyslexic-Bold",
+};
+
+const resolveFontFamily = (
+  base: string,
+  isBold: boolean,
+): string => {
+  if (isBold) return FONT_BOLD_MAP[base] || base;
+  return base;
+};
+
 export const ReadingContent = ({
   tokens,
   currentIndex,
@@ -117,9 +130,8 @@ export const ReadingContent = ({
             >
               <Text
                 style={{
-                  fontFamily: fontFamilyStyle,
+                  fontFamily: resolveFontFamily(fontFamilyStyle, isHighlighted),
                   fontSize,
-                  fontWeight: isHighlighted ? "700" : "400",
                   color: isHighlighted ? highlightTextColor : textColor,
                   letterSpacing,
                   lineHeight: fontSize * lineHeight,

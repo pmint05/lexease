@@ -91,7 +91,6 @@ export function HistoryFilterSheet({
         },
       ],
       opacity: interpolate(progress.value, [0, 1], [0, 1]),
-      filter: `blur(${interpolate(progress.value, [0, 1], [10, 0])}px)`,
     };
   });
 

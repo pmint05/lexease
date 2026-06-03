@@ -1,4 +1,9 @@
-import { Dialog, DialogContent, DialogTitle } from "@/src/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogTitle,
+} from "@/src/components/ui/dialog";
 import { Switch } from "@/src/components/ui/switch";
 import { Text } from "@/src/components/ui/text";
 import { useReadingStore } from "@/src/store/useReadingStore";
@@ -99,19 +104,17 @@ export const ReadingSettingsModal = ({
               onCheckedChange={setIsAutoScrollEnabled}
             />
           </View>
-
-          <View className="mt-6 w-full">
-            <Button
-              size="lg"
-              onPress={() => onOpenChange(false)}
-              className="w-full"
-            >
-              <Text className="text-base font-semibold text-white">
-                Hoàn tất
-              </Text>
-            </Button>
-          </View>
         </View>
+        <DialogFooter>
+          <Button
+            size="lg"
+            onPress={() => onOpenChange(false)}
+            className="mt-6 w-full"
+            style={{ width: "100%" }}
+          >
+            <Text className="text-base font-semibold text-white">Hoàn tất</Text>
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

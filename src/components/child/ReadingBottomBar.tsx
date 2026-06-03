@@ -4,6 +4,7 @@ import { Mic, Pause, Play, RotateCcw, Volume2 } from "lucide-react-native";
 import React from "react";
 import { Platform, View } from "react-native";
 import { Button } from "../ui/button";
+import { Icon } from "../ui/icon";
 
 interface ReadingBottomBarProps {
   isPlaying: boolean;
@@ -60,7 +61,8 @@ export const ReadingBottomBar = ({
             size="icon"
             onPress={onToggleTts}
           >
-            <Volume2
+            <Icon
+              as={Volume2}
               className={cn(
                 "text-foreground size-5",
                 isTtsEnabled && "text-white",
@@ -77,11 +79,11 @@ export const ReadingBottomBar = ({
             className="size-14 text-primary-foreground rounded-full"
           >
             {isFinished ? (
-              <RotateCcw className="text-primary-foreground size-6" />
+              <Icon as={RotateCcw} className="text-primary-foreground size-6" />
             ) : isPlaying ? (
-              <Pause className="text-primary-foreground size-6" />
+              <Icon as={Pause} className="text-primary-foreground size-6" />
             ) : (
-              <Play className="text-primary-foreground size-6" />
+              <Icon as={Play} className="text-primary-foreground size-6" />
             )}
           </Button>
 
@@ -92,7 +94,8 @@ export const ReadingBottomBar = ({
               variant={isRecording ? "destructive" : "ghost"}
               onPress={onToggleRecording}
             >
-              <Mic
+              <Icon
+                as={Mic}
                 className={cn(
                   "text-foreground size-5",
                   isRecording && "text-white",

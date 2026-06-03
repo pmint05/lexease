@@ -25,7 +25,10 @@ export default function BentoStatCard({
   className,
 }: BentoStatCardProps) {
   return (
-    <Card className={cn("overflow-hidden border-border/50 py-0", className)}>
+    <Card
+      className={cn("overflow-hidden border-border/50 py-0 h-fit", className)}
+      style={{ flex: 1 }}
+    >
       <CardContent className="p-4 flex-col justify-between h-full">
         <View className="flex-row justify-between items-start mb-2">
           <View className="p-2 rounded-lg bg-primary/10">{icon}</View>

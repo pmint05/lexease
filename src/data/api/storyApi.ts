@@ -37,8 +37,9 @@ export const storyApi = {
     params: StorySearchParams = {},
   ): Promise<PageResponse<StorySummary>> => {
     const searchParams = toSearchParams(params);
+    const queryString = searchParams.toString();
     const response = await apiClient.get<PageResponse<StorySummary>>(
-      `/stories${searchParams.size ? `?${searchParams.toString()}` : ""}`,
+      `/stories${queryString ? `?${queryString}` : ""}`,
     );
     return response.data;
   },
@@ -49,8 +50,9 @@ export const storyApi = {
   ): Promise<StoryDetail> => {
     const params = new URLSearchParams();
     if (childId) params.set("childId", childId);
+    const queryString = params.toString();
     const response = await apiClient.get<StoryDetail>(
-      `/stories/${id}${params.size ? `?${params.toString()}` : ""}`,
+      `/stories/${id}${queryString ? `?${queryString}` : ""}`,
     );
     return response.data;
   },

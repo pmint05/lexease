@@ -10,14 +10,25 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { FlatList, Pressable, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+const DEBOUNCE_MS = 300;
+
 export default function SearchScreen(): React.ReactElement {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const [query, setQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
   const [genreId, setGenreId] = useState<string>("all");
   const inputRef = useRef<any>(null);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedQuery(query.trim());
+    }, DEBOUNCE_MS);
+    return () => clearTimeout(timer);
+  }, [query]);
+
   const storiesQuery = useStoriesQuery({
-    keyword: query.trim() || undefined,
+    keyword: debouncedQuery || undefined,
     genreId: genreId === "all" ? undefined : genreId,
     size: 100,
   });

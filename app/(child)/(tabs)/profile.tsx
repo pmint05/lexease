@@ -12,6 +12,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/src/components/ui/card";
+import { Icon } from "@/src/components/ui/icon";
 import { Skeleton } from "@/src/components/ui/skeleton";
 import { Text } from "@/src/components/ui/text";
 import {
@@ -273,7 +274,7 @@ export default function ProfileScreen(): React.ReactElement {
               variant="outline"
               className="w-full border-destructive/20 active:bg-destructive/5"
             >
-              <LogOut size={18} className="text-destructive mr-2" />
+              <Icon as={LogOut} size={18} className="text-destructive mr-2" />
               <Text className="text-destructive font-semibold">Đăng xuất</Text>
             </Button>
           </View>
@@ -295,11 +296,11 @@ function ThemeToggle(): React.ReactElement {
 
   const icon =
     theme === "system" ? (
-      <Monitor size={18} className="text-foreground" />
+      <Icon as={Monitor} size={18} className="text-foreground" />
     ) : theme === "light" ? (
-      <Sun size={18} className="text-foreground" />
+      <Icon as={Sun} size={18} className="text-foreground" />
     ) : (
-      <Moon size={18} className="text-foreground" />
+      <Icon as={Moon} size={18} className="text-foreground" />
     );
 
   const label =

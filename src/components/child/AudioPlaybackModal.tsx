@@ -1,5 +1,6 @@
 import { Button } from "@/src/components/ui/button";
 import { Dialog, DialogContent, DialogTitle } from "@/src/components/ui/dialog";
+import { Progress } from "@/src/components/ui/progress";
 import {
   Select,
   SelectContent,
@@ -8,19 +9,13 @@ import {
   SelectValue,
   type Option,
 } from "@/src/components/ui/select";
-import {
-  Slider,
-  SliderRange,
-  SliderThumb,
-  SliderTrack,
-} from "@/src/components/ui/slider";
 import { Text } from "@/src/components/ui/text";
-import { fetchAndComputeMetering } from "@/src/utils/audioProcessing";
 import { formatDuration } from "@/src/utils/textProcessing";
 import { useAudioPlayer, useAudioPlayerStatus } from "expo-audio";
 import { Pause, Play, SkipBack, SkipForward } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
 import { Platform, View } from "react-native";
+import { Icon } from "../ui/icon";
 
 const AudioWaveform =
   Platform.OS === "web"
@@ -52,7 +47,7 @@ export const AudioPlaybackModal = ({
   onOpenChange,
 }: AudioPlaybackModalProps): React.ReactElement => {
   const SPEED_OPTIONS = [0.75, 1, 1.25, 1.5];
-  
+
   const player = useAudioPlayer(uri);
   const status = useAudioPlayerStatus(player);
   const [speed, setSpeed] = useState(1.0);
@@ -135,12 +130,9 @@ export const AudioPlaybackModal = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="w-full min-w-[280px] lg:max-w-[520px] max-w-[calc(100vw-1rem)]">
         <View className="w-full gap-4 self-center">
-          <DialogTitle>
-            <Text className="text-xs font-semibold uppercase tracking-wider text-primary">
-              Đang phát bản ghi
-            </Text>
+          <DialogTitle className="mb-0 p-0">
             <Text
-              className="text-2xl font-extrabold leading-tight"
+              className="text-xl font-extrabold leading-tight"
               numberOfLines={2}
             >
               {title}
@@ -161,23 +153,12 @@ export const AudioPlaybackModal = ({
             </View> */}
 
             <View className="mt-4 gap-2">
-              <Slider
+              <Progress
                 value={progressValue}
-                min={0}
-                max={100}
-                step={1}
-                onValueChange={(value) => {
-                  const nextValue = value[0];
-                  if (!Number.isFinite(nextValue) || totalDuration <= 0) return;
-                  handleSeek([(nextValue / 100) * totalDuration]);
-                }}
-              >
-                <SliderTrack>
-                  <SliderRange />
-                </SliderTrack>
-                <SliderThumb />
-              </Slider>
-              <View className="flex-row justify-between">
+                className="h-2 w-full"
+                indicatorClassName="bg-primary"
+              />
+              <View className="flex-row justify-between mt-1">
                 <Text className="text-xs text-muted-foreground">
                   {formatDuration(currentDuration * 1000)}
                 </Text>
@@ -193,14 +174,14 @@ export const AudioPlaybackModal = ({
                 size="icon"
                 onPress={() => handleSkip(-10)}
               >
-                <SkipBack className="size-4 text-foreground" />
+                <Icon as={SkipBack} className="size-4 text-foreground" />
               </Button>
 
               <Button variant="default" size="icon" onPress={handleTogglePlay}>
                 {status.playing ? (
-                  <Pause className="size-4 text-primary-foreground" />
+                  <Icon as={Pause} className="size-4 text-primary-foreground" />
                 ) : (
-                  <Play className="size-4 text-primary-foreground" />
+                  <Icon as={Play} className="size-4 text-primary-foreground" />
                 )}
               </Button>
 
@@ -209,7 +190,7 @@ export const AudioPlaybackModal = ({
                 size="icon"
                 onPress={() => handleSkip(10)}
               >
-                <SkipForward className="size-4 text-foreground" />
+                <Icon as={SkipForward} className="size-4 text-foreground" />
               </Button>
 
               <Select
@@ -235,6 +216,15 @@ export const AudioPlaybackModal = ({
                 </SelectContent>
               </Select>
             </View>
+
+            <Button
+              className="mt-6 w-full rounded-2xl"
+              onPress={() => onOpenChange(false)}
+            >
+              <Text className="text-primary-foreground font-bold">
+                Hoàn tất
+              </Text>
+            </Button>
           </View>
         </View>
       </DialogContent>

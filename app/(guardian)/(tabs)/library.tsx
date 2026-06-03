@@ -128,17 +128,27 @@ export default function GuardianLibraryScreen(): React.ReactElement {
           ) : isLoading ? (
             <LibraryGridSkeleton />
           ) : books.length > 0 ? (
-            <View className="grid grid-cols-2 gap-3">
+            <View className="flex-row flex-wrap justify-between pb-5">
               {books.map((book) => (
-                <View key={book.id} className="w-full">
-                  <BookGridCard
-                    book={book}
-                    onPress={() => handleBookPress(book.id)}
-                  />
-                </View>
+                <BookGridCard
+                  key={book.id}
+                  className="w-[48.5%] mb-3"
+                  book={book}
+                  onPress={() => handleBookPress(book.id)}
+                />
               ))}
             </View>
           ) : (
+            // <View className="grid grid-cols-2 gap-3">
+            //   {books.map((book) => (
+            //     <View key={book.id} className="w-full">
+            //       <BookGridCard
+            //         book={book}
+            //         onPress={() => handleBookPress(book.id)}
+            //       />
+            //     </View>
+            //   ))}
+            // </View>
             <View className="py-20 items-center gap-2">
               <Search size={48} className="text-muted-foreground opacity-20" />
               <Text className="text-base font-semibold">

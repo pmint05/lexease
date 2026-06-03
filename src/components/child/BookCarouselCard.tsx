@@ -5,6 +5,7 @@ import { Play } from "lucide-react-native";
 import React from "react";
 import { Image, Pressable, View } from "react-native";
 import { Button } from "../ui/button";
+import { Icon } from "../ui/icon";
 // import { Button } from "../shared/Button";
 
 interface BookCarouselCardProps {
@@ -44,7 +45,7 @@ export const BookCarouselCard = ({
             </View>
 
             <Button onPress={() => onRead(book.id)} size={"sm"}>
-              <Play size={16} />
+              <Icon as={Play} className="size-4" />
               <Text>Đọc tiếp</Text>
             </Button>
           </View>

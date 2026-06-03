@@ -39,6 +39,7 @@ import BentoStatCard from "@/src/components/guardian/bento/BentoStatCard";
 import PerformanceLineChart from "@/src/components/guardian/bento/PerformanceLineChart";
 import SkillProgressBars from "@/src/components/guardian/bento/SkillProgressBars";
 import { DifficultWordsSheet } from "@/src/components/guardian/DifficultWordsSheet";
+import { Icon } from "@/src/components/ui/icon";
 
 /**
  * Report Screen
@@ -139,12 +140,12 @@ export default function ReportScreen(): React.ReactElement {
           ) : (
             <>
               {/* Bento Row 1: Quick Stats */}
-              <View className="flex-row gap-3">
+              <View className="flex-row gap-3 h-[120px]">
                 <BentoStatCard
                   className="flex-1"
                   title="Tổng thời gian"
                   value={`${summaryQuery.data?.totalPracticeMinutes ?? 0}m`}
-                  icon={<Timer size={16} className="text-primary" />}
+                  icon={<Icon as={Timer} size={16} className="text-primary" />}
                   trend={{
                     value:
                       summaryQuery.data?.trend.practiceMinutes === "up"
@@ -162,17 +163,19 @@ export default function ReportScreen(): React.ReactElement {
                   className="flex-1"
                   title="Số buổi học"
                   value={summaryQuery.data?.completedSessionsCount ?? 0}
-                  icon={<BookOpen size={16} className="text-primary" />}
+                  icon={
+                    <Icon as={BookOpen} size={16} className="text-primary" />
+                  }
                   trend={{ value: "Ổn định", type: "neutral" }}
                 />
               </View>
 
-              <View className="flex-row gap-3">
+              <View className="flex-row gap-3 h-[150px]">
                 <BentoStatCard
                   className="flex-1"
                   title="Độ chính xác"
                   value={`${Math.round((summaryQuery.data?.averageAccuracy ?? 0) * 100)}%`}
-                  icon={<Target size={16} className="text-accent" />}
+                  icon={<Icon as={Target} size={16} className="text-primary" />}
                   trend={{
                     value:
                       summaryQuery.data?.trend.accuracy === "up"
@@ -191,7 +194,7 @@ export default function ReportScreen(): React.ReactElement {
                   title="Tốc độ đọc"
                   value={`${Math.round(summaryQuery.data?.averageReadingSpeedWpm ?? 0)}`}
                   subtitle="Từ/phút"
-                  icon={<Zap size={16} className="text-orange-500" />}
+                  icon={<Icon as={Zap} size={16} className="text-orange-500" />}
                   trend={{
                     value:
                       summaryQuery.data?.trend.readingSpeed === "up"
@@ -213,7 +216,7 @@ export default function ReportScreen(): React.ReactElement {
               <PerformanceLineChart data={trendData} />
 
               {/* Bento Row 3: Skills & Words */}
-              <View className="flex-row gap-3">
+              <View className="flex-row gap-3 h-[220px]">
                 <View className="flex-[1.2]">
                   <SkillProgressBars
                     fluency={summaryQuery.data?.averageFluency ?? 0}
@@ -230,11 +233,11 @@ export default function ReportScreen(): React.ReactElement {
               </View>
 
               {/* Insights / AI Summary */}
-              <Card className="border-border/50 bg-accent/5 overflow-hidden">
+              <Card className="border-border/50 overflow-hidden">
                 <CardHeader className="pb-2">
                   <View className="flex-row items-center gap-2">
-                    <Star size={16} className="text-accent" />
-                    <CardTitle className="text-sm font-bold text-accent">
+                    <Icon as={Star} size={16} className="!text-primary" />
+                    <CardTitle className="text-sm font-bold text-primary">
                       Nhận xét từ hệ thống
                     </CardTitle>
                   </View>
@@ -324,6 +327,11 @@ function DifficultWordsCard({
                   <Text className="text-[10px] font-bold">{item.word}</Text>
                 </Badge>
               ))}
+              <Badge variant="outline" className="px-2 py-0.5">
+                <Text className="text-[10px] font-bold">
+                  +{data.length - 5} từ khác
+                </Text>
+              </Badge>
             </View>
             <Pressable
               onPress={onPressMore}

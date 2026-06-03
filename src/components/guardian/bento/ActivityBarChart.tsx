@@ -98,6 +98,7 @@ export default function ActivityBarChart({
             data={barData}
             barWidth={config.barWidth}
             spacing={config.spacing}
+            height={160}
             noOfSections={3}
             barBorderRadius={6}
             frontColor={theme.primary}

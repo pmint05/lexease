@@ -18,6 +18,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/src/components/ui/card";
+import { Icon } from "@/src/components/ui/icon";
 import { Input } from "@/src/components/ui/input";
 import { Label } from "@/src/components/ui/label";
 import { Skeleton } from "@/src/components/ui/skeleton";
@@ -173,7 +174,7 @@ export default function SchedulerScreen(): React.ReactElement {
       <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
         <View className="flex-row items-center justify-between mb-2 pt-4">
           <View className="flex-row items-center gap-2">
-            <Calendar size={24} className="text-primary" />
+            <Icon as={Calendar} size={24} className="text-primary" />
             <Text className="text-2xl font-bold">Lịch nhắc đọc</Text>
           </View>
           <Button
@@ -185,7 +186,11 @@ export default function SchedulerScreen(): React.ReactElement {
               <Text>Hủy</Text>
             ) : (
               <>
-                <Plus size={18} className="text-primary-foreground mr-1" />
+                <Icon
+                  as={Plus}
+                  size={18}
+                  className="text-primary-foreground mr-1"
+                />
                 <Text>Thêm mới</Text>
               </>
             )}
@@ -202,7 +207,7 @@ export default function SchedulerScreen(): React.ReactElement {
         <View className="gap-4 pb-10">
           {/* Add New Form */}
           {isAdding && (
-            <Card className="!border-primary/20 !bg-primary/5 shadow-sm">
+            <Card className="!border-primary/20 shadow-sm">
               <CardHeader className="pb-2">
                 <CardTitle>Tạo nhắc nhở mới</CardTitle>
                 <CardDescription>
@@ -291,7 +296,7 @@ export default function SchedulerScreen(): React.ReactElement {
           {/* Reminders List */}
           <View className="gap-3">
             <View className="flex-row items-center gap-2 ml-1 mt-2">
-              <Bell size={18} className="text-primary" />
+              <Icon as={Bell} size={18} className="text-primary" />
               <Text className="font-bold text-lg">Danh sách nhắc nhở</Text>
             </View>
 
@@ -459,7 +464,7 @@ export default function SchedulerScreen(): React.ReactElement {
 
           {/* Info Box */}
           <Card className="bg-primary/5 border-primary/20 p-4 flex-row gap-3">
-            <Info className="text-primary size-5" />
+            <Icon as={Info} className="text-primary size-5" />
             <Text className="flex-1 text-xs text-muted-foreground leading-4">
               Nhắc nhở sẽ được gửi trực tiếp đến thiết bị của trẻ vào đúng khung
               giờ bạn đã chọn. Hãy khuyến khích bé luyện tập đều đặn để đạt kết

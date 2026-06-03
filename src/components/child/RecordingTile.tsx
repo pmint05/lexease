@@ -26,6 +26,7 @@ import ReanimatedSwipeable from "react-native-gesture-handler/ReanimatedSwipeabl
 import { Recording } from "@/src/core/types";
 import { formatDateTime, formatReadingTime } from "@/src/utils/formatters";
 import { Button } from "../ui/button";
+import { Icon } from "../ui/icon";
 
 interface RecordingTileProps {
   recording: Recording;
@@ -152,7 +153,7 @@ export const RecordingTile = ({
             className="h-11 w-11 rounded-full"
             onPress={() => onPlay(recording)}
           >
-            <Play size={20} color="#0EA5E9" />
+            <Icon as={Play} className="size-4" />
           </Button>
         </Pressable>
       </ReanimatedSwipeable>

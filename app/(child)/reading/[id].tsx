@@ -20,6 +20,7 @@ import {
 } from "@/src/components/ui/alert-dialog";
 import { Skeleton } from "@/src/components/ui/skeleton";
 
+import { Icon } from "@/src/components/ui/icon";
 import { Text } from "@/src/components/ui/text";
 import { BackendReadingSession } from "@/src/core/types";
 import { useAudioRecording } from "@/src/hooks/useAudioRecording";
@@ -450,7 +451,7 @@ export default function ReadingScreen(): React.ReactElement {
         }
 
         finalizeSession();
-        
+
         // 4. Navigate
         router.replace({
           pathname: "/(child)/reading/result",
@@ -557,7 +558,7 @@ export default function ReadingScreen(): React.ReactElement {
             </AlertDialogDescription>
           </AlertDialogHeader>
 
-          <AlertDialogFooter>
+          <AlertDialogFooter className="h-[100px]">
             <AlertDialogCancel className="flex-1">
               <Text className="text-base font-semibold text-foreground text-center">
                 Quay lại đọc tiếp
@@ -590,7 +591,11 @@ export default function ReadingScreen(): React.ReactElement {
       >
         <AlertDialogContent className="items-center py-10">
           <View className="bg-primary/10 p-6 rounded-full">
-            <CheckCheck className="text-primary size-12" strokeWidth={3} />
+            <Icon
+              as={CheckCheck}
+              className="text-primary size-12"
+              strokeWidth={3}
+            />
           </View>
           <AlertDialogHeader className="items-center">
             <AlertDialogTitle className="text-2xl font-black text-primary text-center">

@@ -71,6 +71,7 @@ import {
 } from "react-native";
 import { toast } from "sonner-native";
 
+import { Icon } from "@/src/components/ui/icon";
 import ColorPicker, {
   HueSlider,
   OpacitySlider,
@@ -115,6 +116,16 @@ function rgbaToHex(r: number, g: number, b: number, a: number): string {
 
 const PREVIEW_TEXT =
   "Bé LexEase đang luyện đọc truyện cổ tích, với nhiều chữ cái tiếng Việt như â, ă, đ, ê, ô, ơ, ư! Đây là một ví dụ trực quan về giao diện đọc của trẻ.";
+
+const FONT_BOLD_MAP: Record<string, string> = {
+  "Lexend-Regular": "Lexend-Bold",
+  "OpenDyslexic-Regular": "OpenDyslexic-Bold",
+};
+
+const resolveFontFamily = (base: string, isBold: boolean): string => {
+  if (isBold) return FONT_BOLD_MAP[base] || base;
+  return base;
+};
 
 const THEME_PRESETS = [
   {
@@ -371,42 +382,51 @@ export default function DisplaySettingsScreen(): React.ReactElement {
           >
             Xem trước
           </Text>
-          <View className="flex-row flex-wrap items-center max-h-[150px] overflow-y-auto">
-            {PREVIEW_TEXT.split(" ").map((word, i) => {
-              const isHighlighted = i === 1 || i === 2;
-              return (
-                <View
-                  key={i}
-                  style={{
-                    backgroundColor: isHighlighted
-                      ? settings.highlightBackgroundColor
-                      : "transparent",
-                    borderRadius: 6,
-                    paddingHorizontal: 4,
-                    paddingVertical: 2,
-                    marginRight: 4,
-                    marginBottom: 4,
-                  }}
-                >
-                  <Text
+          <ScrollView className="max-h-[150px]">
+            <View
+              style={{
+                flexDirection: "row",
+                flexWrap: "wrap",
+                alignItems: "center",
+              }}
+            >
+              {PREVIEW_TEXT.split(" ").map((word, i) => {
+                const isHighlighted = i === 1 || i === 2;
+                return (
+                  <View
+                    key={i}
                     style={{
-                      fontFamily:
-                        FONT_MAP[settings.fontFamily] || FONT_MAP.System,
-                      fontSize: settings.fontSize,
-                      color: isHighlighted
-                        ? settings.highlightTextColor
-                        : settings.textColor,
-                      letterSpacing: settings.letterSpacing,
-                      lineHeight: settings.fontSize * settings.lineHeight,
-                      fontWeight: isHighlighted ? "700" : "400",
+                      backgroundColor: isHighlighted
+                        ? settings.highlightBackgroundColor
+                        : "transparent",
+                      borderRadius: 6,
+                      paddingHorizontal: 4,
+                      paddingVertical: 2,
+                      marginRight: 4,
+                      marginBottom: 4,
                     }}
                   >
-                    {word}
-                  </Text>
-                </View>
-              );
-            })}
-          </View>
+                    <Text
+                      style={{
+                        fontFamily: resolveFontFamily(
+                          FONT_MAP[settings.fontFamily] || FONT_MAP.System,
+                          isHighlighted,
+                        ),
+                        fontSize: settings.fontSize,
+                        color: isHighlighted
+                          ? settings.highlightTextColor
+                          : settings.textColor,
+                        letterSpacing: settings.letterSpacing,
+                        lineHeight: settings.fontSize * settings.lineHeight,
+                      }}
+                    >
+                      {word}
+                    </Text>
+                  </View>
+                );
+              })}
+            </View>
+          </ScrollView>
         </View>
       </View>
 
@@ -421,7 +441,9 @@ export default function DisplaySettingsScreen(): React.ReactElement {
             <Card className="border-border">
               <CardContent className="p-4 gap-6">
                 <SelectSetting
-                  icon={<CaseLower size={16} className="text-muted-foreground" />}
+                  icon={
+                    <CaseLower size={16} className="text-muted-foreground" />
+                  }
                   label="Cỡ chữ"
                   value={String(settings.fontSize)}
                   displayValue={`${settings.fontSize}`}
@@ -449,7 +471,9 @@ export default function DisplaySettingsScreen(): React.ReactElement {
                 </View>
 
                 <SelectSetting
-                  icon={<AlignLeft size={16} className="text-muted-foreground" />}
+                  icon={
+                    <AlignLeft size={16} className="text-muted-foreground" />
+                  }
                   label="Khoảng cách dòng"
                   value={String(settings.lineHeight)}
                   displayValue={settings.lineHeight.toFixed(1)}
@@ -467,7 +491,9 @@ export default function DisplaySettingsScreen(): React.ReactElement {
                 />
 
                 <SelectSetting
-                  icon={<LetterText size={16} className="text-muted-foreground" />}
+                  icon={
+                    <LetterText size={16} className="text-muted-foreground" />
+                  }
                   label="Khoảng cách chữ"
                   value={String(settings.letterSpacing)}
                   displayValue={`${settings.letterSpacing.toFixed(1)}px`}
@@ -572,7 +598,7 @@ export default function DisplaySettingsScreen(): React.ReactElement {
 
           <View className="gap-4">
             <View className="flex-row items-center gap-2">
-              <Star size={18} className="text-primary" />
+              <Icon as={Star} size={18} className="text-primary" />
               <Text className="font-bold text-base">Bộ chủ đề gợi ý</Text>
             </View>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -749,7 +775,7 @@ function SelectSetting({
       <View className="flex-row items-center gap-2">
         {icon}
         <Text className="text-sm font-medium">
-          {label}: {" "}
+          {label}:{" "}
           <Text className="text-primary font-bold">{displayValue}</Text>
         </Text>
       </View>

@@ -16,6 +16,7 @@ import { AudioPlaybackModal } from "@/src/components/child/AudioPlaybackModal";
 import { RecordingTile } from "@/src/components/child/RecordingTile";
 import { Button } from "@/src/components/ui/button";
 import { Card, CardContent } from "@/src/components/ui/card";
+import { Icon } from "@/src/components/ui/icon";
 import { Skeleton } from "@/src/components/ui/skeleton";
 import { Text } from "@/src/components/ui/text";
 import { Recording } from "@/src/core/types";
@@ -158,12 +159,12 @@ export default function ReadingResultScreen(): React.ReactElement {
     const wordsRead = backendSession?.resumePosition.wordIndex ?? 0;
     // Speed is usually calculated on backend or we can estimate it here
     // WPM = (wordsRead / (elapsedMs / 60000))
-    const wpm = elapsedMs > 0 ? (wordsRead / (elapsedMs / 60000)) : 0; 
+    const wpm = elapsedMs > 0 ? wordsRead / (elapsedMs / 60000) : 0;
 
     return {
       durationMs: elapsedMs,
       wordsRead,
-      wpm: Math.round(wpm)
+      wpm: Math.round(wpm),
     };
   }, [backendSession]);
 
@@ -182,7 +183,7 @@ export default function ReadingResultScreen(): React.ReactElement {
               <CardContent className="px-4 py-5">
                 <View className="items-center gap-3">
                   <View className="h-16 w-16 items-center justify-center rounded-full bg-primary/10">
-                    <CheckCheck className="size-8 text-primary" />
+                    <Icon as={CheckCheck} className="size-8 text-primary" />
                   </View>
                   <Text className="text-3xl font-extrabold text-center">
                     Xong rồi
@@ -207,7 +208,11 @@ export default function ReadingResultScreen(): React.ReactElement {
                     <MicIcon className="size-3 text-white" />
                   </View>
                   <Text className="text-xs text-amber-700 flex-1 font-medium">
-                    Bé hãy chọn giữ lại <Text className="font-black text-amber-900">1 bản ghi tốt nhất</Text> để hệ thống chấm điểm nhé!
+                    Bé hãy chọn giữ lại{" "}
+                    <Text className="font-black text-amber-900">
+                      1 bản ghi tốt nhất
+                    </Text>{" "}
+                    để hệ thống chấm điểm nhé!
                   </Text>
                 </View>
               )}
@@ -286,7 +291,10 @@ export default function ReadingResultScreen(): React.ReactElement {
                 disabled={isTooManyRecordings}
                 onPress={handleComplete}
               >
-                <CheckCheck className="size-5 text-primary-foreground" />
+                <Icon
+                  as={CheckCheck}
+                  className="size-5 text-primary-foreground"
+                />
                 <Text className="text-base font-semibold text-primary-foreground">
                   {hasRecordings ? "Tiếp theo" : "Xong"}
                 </Text>

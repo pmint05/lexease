@@ -10,6 +10,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AudioPlaybackModal } from "@/src/components/child/AudioPlaybackModal";
 import { RecordingTile } from "@/src/components/child/RecordingTile";
 import { Button } from "@/src/components/ui/button";
+import { Icon } from "@/src/components/ui/icon";
 import { Skeleton } from "@/src/components/ui/skeleton";
 import { Recording, storyDetailToBook } from "@/src/core/types";
 import { useStoryQuery } from "@/src/hooks/useStoryQueries";
@@ -226,7 +227,7 @@ export default function ReadingDetailScreen(): React.ReactElement {
                 })
               }
             >
-              <Play size={20} />
+              <Icon as={Play} className="size-4" />
               <Text>Bắt đầu bài đọc</Text>
             </Button>
           </View>

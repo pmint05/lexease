@@ -6,6 +6,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/src/components/ui/card";
+import { Icon } from "@/src/components/ui/icon";
 import { Input } from "@/src/components/ui/input";
 import { Separator } from "@/src/components/ui/separator";
 import { Text } from "@/src/components/ui/text";
@@ -19,7 +20,7 @@ import { cn } from "@/src/lib/utils";
 import { useAuthStore } from "@/src/store/useAuthStore";
 import { useFamilyStore } from "@/src/store/useFamilyStore";
 import { useThemeStore, type ThemePref } from "@/src/store/useThemeStore";
-import { useRouter } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import {
   CheckCircle2,
   ChevronRight,
@@ -83,7 +84,7 @@ export default function SettingsScreen(): React.ReactElement {
     <View className="flex-1 bg-background px-4">
       <ScrollView showsVerticalScrollIndicator={false} className="pb-4">
         <View className="flex-row items-center gap-2 mb-2 pt-4">
-          <Settings size={24} className="text-primary" />
+          <Icon as={Settings} size={24} className="text-primary" />
           <Text className="text-2xl font-bold">Cài đặt hệ thống</Text>
         </View>
 
@@ -96,7 +97,7 @@ export default function SettingsScreen(): React.ReactElement {
               <CardHeader className="pb-2">
                 <View className="flex-row justify-between items-center">
                   <View className="flex-row gap-2 items-center">
-                    <Palette size={20} className="text-primary" />
+                    <Icon as={Palette} size={20} className="text-primary" />
                     <CardTitle>Giao diện đọc của trẻ</CardTitle>
                   </View>
                   <Badge variant="secondary">
@@ -110,10 +111,18 @@ export default function SettingsScreen(): React.ReactElement {
                   thị giác của trẻ.
                 </Text>
                 <View className="flex-row items-center gap-1 mt-1">
-                  <Text className="text-xs font-bold text-primary">
-                    Cấu hình ngay
-                  </Text>
-                  <ChevronRight size={14} className="text-primary" />
+                  <Link href="/(guardian)/display-settings" asChild>
+                    <Button variant="ghost" size="sm" className="!py-0">
+                      <Text className="text-xs font-bold text-primary">
+                        Cấu hình ngay
+                      </Text>
+                      <Icon
+                        as={ChevronRight}
+                        size={14}
+                        className="text-primary"
+                      />
+                    </Button>
+                  </Link>
                 </View>
               </CardContent>
             </Card>
@@ -123,7 +132,7 @@ export default function SettingsScreen(): React.ReactElement {
           <Card className="border border-border bg-card">
             <CardHeader className="pb-2">
               <View className="flex-row gap-2 items-center">
-                <UserPlus size={20} className="text-primary" />
+                <Icon as={UserPlus} size={20} className="text-primary" />
                 <CardTitle>Quản lý tài khoản bé</CardTitle>
               </View>
             </CardHeader>
@@ -152,7 +161,11 @@ export default function SettingsScreen(): React.ReactElement {
                     {requestLinkMutation.isPending ? (
                       <ActivityIndicator size="small" color="white" />
                     ) : (
-                      <UserPlus size={20} className="text-primary-foreground" />
+                      <Icon
+                        as={UserPlus}
+                        size={20}
+                        className="text-primary-foreground"
+                      />
                     )}
                   </Button>
                 </View>
@@ -170,7 +183,11 @@ export default function SettingsScreen(): React.ReactElement {
                     {pendingLinks.length > 0 && (
                       <View className="gap-2">
                         <View className="flex-row items-center gap-1.5 ml-1">
-                          <Clock size={14} className="text-muted-foreground" />
+                          <Icon
+                            as={Clock}
+                            size={14}
+                            className="text-muted-foreground"
+                          />
                           <Text className="text-sm font-medium text-muted-foreground">
                             Yêu cầu đang chờ
                           </Text>
@@ -197,7 +214,11 @@ export default function SettingsScreen(): React.ReactElement {
                               }
                               disabled={revokeLinkMutation.isPending}
                             >
-                              <Trash2 size={16} className="text-destructive" />
+                              <Icon
+                                as={Trash2}
+                                size={16}
+                                className="text-destructive"
+                              />
                             </Button>
                           </Card>
                         ))}
@@ -207,7 +228,11 @@ export default function SettingsScreen(): React.ReactElement {
                     {/* Linked Section */}
                     <View className="gap-2">
                       <View className="flex-row items-center gap-1.5 ml-1">
-                        <CheckCircle2 size={14} className="text-primary" />
+                        <Icon
+                          as={CheckCircle2}
+                          size={14}
+                          className="text-primary"
+                        />
                         <Text className="text-sm font-medium text-muted-foreground">
                           Bé đã liên kết
                         </Text>
@@ -245,7 +270,11 @@ export default function SettingsScreen(): React.ReactElement {
                               }
                               disabled={revokeLinkMutation.isPending}
                             >
-                              <Trash2 size={16} className="text-destructive" />
+                              <Icon
+                                as={Trash2}
+                                size={16}
+                                className="text-destructive"
+                              />
                             </Button>
                           </View>
                         ))
@@ -261,7 +290,7 @@ export default function SettingsScreen(): React.ReactElement {
           <Card className="border border-border bg-card">
             <CardHeader className="pb-2">
               <View className="flex-row items-center gap-2">
-                <Palette size={20} className="text-primary" />
+                <Icon as={Palette} size={20} className="text-primary" />
                 <CardTitle>Giao diện ứng dụng</CardTitle>
               </View>
             </CardHeader>
@@ -271,13 +300,13 @@ export default function SettingsScreen(): React.ReactElement {
           </Card>
         </View>
 
-        <View className="mt-4 w-full">
+        <View className="my-4 w-full">
           <Button
             onPress={handleLogout}
             variant="outline"
             className="w-full border-destructive/20 active:bg-destructive/5"
           >
-            <LogOut size={18} className="text-destructive mr-2" />
+            <Icon as={LogOut} size={18} className="text-destructive mr-2" />
             <Text className="text-destructive font-semibold">Đăng xuất</Text>
           </Button>
         </View>

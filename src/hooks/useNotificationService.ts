@@ -24,13 +24,33 @@ Notifications.setNotificationHandler({
 });
 
 const DAY_MAP: Record<DayOfWeek, number> = {
-  SUNDAY: 1,
-  MONDAY: 2,
-  TUESDAY: 3,
-  WEDNESDAY: 4,
-  THURSDAY: 5,
-  FRIDAY: 6,
-  SATURDAY: 7,
+  SUNDAY: 0,
+  MONDAY: 1,
+  TUESDAY: 2,
+  WEDNESDAY: 3,
+  THURSDAY: 4,
+  FRIDAY: 5,
+  SATURDAY: 6,
+};
+
+const getSecondsUntilNext = (
+  targetDay: number,
+  targetHour: number,
+  targetMinute: number,
+): number => {
+  const now = new Date();
+  const next = new Date();
+  next.setHours(targetHour, targetMinute, 0, 0);
+
+  const currentDay = now.getDay();
+  let daysUntil = targetDay - currentDay;
+
+  if (daysUntil < 0 || (daysUntil === 0 && next <= now)) {
+    daysUntil += 7;
+  }
+
+  next.setDate(next.getDate() + daysUntil);
+  return Math.max(Math.floor((next.getTime() - now.getTime()) / 1000), 0);
 };
 
 export const useNotificationService = () => {
@@ -202,33 +222,59 @@ export const syncRemindersToLocalNotifications = async (
 
       for (const day of reminder.daysOfWeek) {
         const weekday = DAY_MAP[day];
-        if (!weekday) continue;
+        if (weekday === undefined) continue;
 
         const randomStory =
           availableStories[Math.floor(Math.random() * availableStories.length)];
 
         try {
-          await Notifications.scheduleNotificationAsync({
-            content: {
-              title: "Giờ đọc sách đến rồi! 📚",
-              body:
-                reminder.message ||
-                `Cùng khám phá câu chuyện "${randomStory.title}" nhé!`,
-              data: {
-                url: `/(child)/reading/${randomStory.id}`,
-                storyId: randomStory.id,
+          if (Platform.OS === "ios") {
+            await Notifications.scheduleNotificationAsync({
+              content: {
+                title: "Giờ đọc sách đến rồi! 📚",
+                body:
+                  reminder.message ||
+                  `Cùng khám phá câu chuyện "${randomStory.title}" nhé!`,
+                data: {
+                  url: `/(child)/reading/${randomStory.id}`,
+                  storyId: randomStory.id,
+                },
+                sound: true,
+                android: {
+                  channelId: "lexease-reminders",
+                },
               },
-              sound: true,
-              android: {
-                channelId: "lexease-reminders",
+              trigger: {
+                type: Notifications.SchedulableTriggerInputTypes.CALENDAR,
+                hour: hours,
+                minute: minutes,
+                weekday: weekday,
+                repeats: true,
               },
-            },
-            trigger: {
-              hour: hours,
-              minute: minutes,
-              repeats: true,
-            },
-          });
+            });
+          } else {
+            await Notifications.scheduleNotificationAsync({
+              content: {
+                title: "Giờ đọc sách đến rồi! 📚",
+                body:
+                  reminder.message ||
+                  `Cùng khám phá câu chuyện "${randomStory.title}" nhé!`,
+                data: {
+                  url: `/(child)/reading/${randomStory.id}`,
+                  storyId: randomStory.id,
+                },
+                sound: true,
+                android: {
+                  channelId: "lexease-reminders",
+                },
+              },
+              trigger: {
+                type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
+                seconds: getSecondsUntilNext(weekday, hours, minutes),
+                repeats: false,
+              },
+            });
+          }
           scheduledCount++;
         } catch (innerError: any) {
           console.error(
